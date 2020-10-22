@@ -42,12 +42,18 @@ class D3PprinterReadConfiguration extends D3PprinterRead
     public const SHUT_DOWN_AFTER = 'shut_down_after';
     public const DELAY_SHUT_DOWN = 'delay_shut_down';
     
+    public function __construct()
+    {
+        $this->settings = new D3PprinterSettings();
+        parent::__construct();
+    }
+    
     /**
      * @return string
      */
-    public function getPrinterPageUrl(): string
+    protected function getConnectionUrl(): string
     {
-        return 'http://cewood.weberp.loc/printer/HomeDeviceConfig.html';
+        return $this->settings->getPrinterConfigurationUrl();
     }
     
     /**

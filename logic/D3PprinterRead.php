@@ -26,6 +26,7 @@ class D3PprinterRead extends D3Pprinter
      */
     public function __construct()
     {
+        parent::__construct();
         $this->dom = new DOMDocument();
         $this->init();
     }
@@ -35,7 +36,7 @@ class D3PprinterRead extends D3Pprinter
      */
     public function init(): void
     {
-        $content = parent::connect($this->getPrinterPageUrl());
+        $content = parent::connect($this->getConnectionUrl());
         
         libxml_use_internal_errors(true);
         

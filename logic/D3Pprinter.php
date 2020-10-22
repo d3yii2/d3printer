@@ -11,23 +11,19 @@ use yii\web\HttpException;
  */
 class D3Pprinter
 {
-    protected $printerPageUrl;
+    protected $connectionUrl;
+    protected $settings;
     
     /**
      * D3Pprinter constructor.
      */
     public function __construct()
     {
-        $this->printerPageUrl = $this->getPrinterPageUrl();
+        $this->connectionUrl = $this->getConnectionUrl();
     }
     
-    /**
-     * @return string
-     */
-    public function getPrinterPageUrl(): string
-    {
-        return '';
-    }
+    protected function getConnectionUrl()
+    {}
     
     /**
      * @param string $url

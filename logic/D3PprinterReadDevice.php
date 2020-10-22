@@ -13,12 +13,26 @@ class D3PprinterReadDevice extends D3PprinterRead
     public const STATUS_READY = 'Ready';
     public const STATUS_DOWN = 'Off';
     
+    public function __construct()
+    {
+        $this->settings = new D3PprinterSettings();
+        parent::__construct();
+    }
+    
+    /**
+     * @return D3PprinterSettings
+     */
+    public function getSettings(): D3PprinterSettings
+    {
+        return $this->settings;
+    }
+    
     /**
      * @return string
      */
-    public function getPrinterPageUrl(): string
+    protected function getConnectionUrl(): string
     {
-        return 'http://cewood.weberp.loc/printer/Home.html';
+        return $this->settings->getPrinterDeviceUrl();
     }
     
     /**
@@ -37,9 +51,9 @@ class D3PprinterReadDevice extends D3PprinterRead
         $status = trim($statusNode->item(0)->nodeValue);
         
         // Something was wrong... Readed status value is not the same as expected.
-        if (self::STATUS_READY !== $status && self::STATUS_DOWN !== $status) {
-            throw new Exception('Status value is not correct');
-        }
+       // if (self::STATUS_READY !== $status && self::STATUS_DOWN !== $status) {
+       //     throw new Exception('Status value is not correct');
+       // }
         
         return $status;
     }
