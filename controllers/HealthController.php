@@ -2,9 +2,11 @@
 
 namespace d3yii2\d3printer\controllers;
 
-use d3yii2\d3printer\logic\D3PprinterDeviceHealth;
-use d3yii2\d3printer\logic\D3PprinterHealth;
+use d3yii2\d3printer\logic\D3PrinterConfigurationHealth;
+use d3yii2\d3printer\logic\D3PrinterDeviceHealth;
 use yii\web\Controller;
+use Yii;
+use Exception;
 
 class HealthController extends Controller
 {
@@ -16,16 +18,27 @@ class HealthController extends Controller
      */
     public function actionIndex()
     {
-        $deviceHealth = new D3PprinterDeviceHealth();
+        try {
+            $deviceHealth = new D3PrinterDeviceHealth();
+    
+            $deviceHealth->checkStatus();
+            $deviceHealth->checkCartridge();
+            $deviceHealth->checkDrum();
+    
+            $configHealth = new D3PrinterConfigurationHealth();
+            if (!$configHealth->isValid()) {
         
-        $deviceHealth->checkStatus();
-        $deviceHealth->checkCartridge();
-        $deviceHealth->checkDrum();
-        
-        if ($deviceHealth->hasAlerts()) {
-            $deviceHealth->sendAlerts();
-        } else {
-            echo 'Health OK';
+            }
+    
+            if ($deviceHealth->hasAlerts()) {
+                $deviceHealth->sendAlerts();
+            } else {
+                echo 'Health OK';
+            }
+        } catch (Exception $e) {
+            echo $e->getMessage();
+            Yii::error($e->getMessage());
+            
         }
     }
 }

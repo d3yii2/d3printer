@@ -1,21 +1,23 @@
 {
-    "name": "d3yii2/d3printer",
-    "description": "Printer Monitoring",
-    "type": "library",
-    "keywords": ["yii2"],
-    "authors": [
-        {
-            "name": "Uldis Nelsons",
-            "email": "uldis@weberp.lv"
-        }
-    ],
-    "require": {
-        "yiisoft/yii2": "*",
-        "yii2mod/yii2-settings": "2.5"
-    },
-    "autoload": {
-        "psr-4": {
-            "d3yii2\\d3printer\\": ""
-        }
+  "name": "d3yii2/d3printer",
+  "description": "Printer Monitoring",
+  "type": "library",
+  "keywords": [
+    "yii2"
+  ],
+  "authors": [
+    {
+      "name": "Uldis Nelsons",
+      "email": "uldis@weberp.lv"
     }
+  ],
+  "require": {
+    "yiisoft/yii2": "*",
+    "yii2mod/yii2-settings": "2.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "d3yii2\\d3printer\\": ""
+    }
+  }
 }

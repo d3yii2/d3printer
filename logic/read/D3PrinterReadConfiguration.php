@@ -1,14 +1,15 @@
 <?php
 
-namespace d3yii2\d3printer\logic;
+namespace d3yii2\d3printer\logic\read;
 
+use d3yii2\d3printer\logic\settings\D3PrinterAccessSettings;
 use yii\base\Exception;
 
 /**
- * Class D3PprinterReadConfiguration
+ * Class D3PrinterReadConfiguration
  * @package d3yii2\d3printer\logic
  */
-class D3PprinterReadConfiguration extends D3PprinterRead
+class D3PrinterReadConfiguration extends D3PrinterRead
 {
     // Paper Settings
     public const DEEFAULT_PAPER_SIZE = 'paper_size';
@@ -44,16 +45,8 @@ class D3PprinterReadConfiguration extends D3PprinterRead
     
     public function __construct()
     {
-        $this->settings = new D3PprinterSettings();
+        $this->accessSettings = new D3PrinterAccessSettings();
         parent::__construct();
-    }
-    
-    /**
-     * @return string
-     */
-    protected function getConnectionUrl(): string
-    {
-        return $this->settings->getPrinterConfigurationUrl();
     }
     
     /**
@@ -155,5 +148,13 @@ class D3PprinterReadConfiguration extends D3PprinterRead
         }
         
         return $settings;
+    }
+    
+    /**
+     * @return string
+     */
+    protected function getConnectionUrl(): string
+    {
+        return $this->accessSettings->getPrinterConfigurationUrl();
     }
 }

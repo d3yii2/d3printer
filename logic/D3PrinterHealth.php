@@ -2,37 +2,26 @@
 
 namespace d3yii2\d3printer\logic;
 
+use d3yii2\d3printer\logic\settings\D3PrinterAlertSettings;
 use Yii;
-use yii\swiftmailer\Mailer;
-use yii\web\HttpException;
 
 /**
- * Class D3Pprinter
+ * Class D3Printer
  * @package d3yii2\d3printer\logic
  */
-class D3PprinterHealth
+class D3PrinterHealth
 {
     protected $alerts = [];
     protected $mailer;
+    protected $alertSettings;
     
     /**
-     * D3Pprinter constructor.
+     * D3Printer constructor.
      */
     public function __construct()
     {
         $this->mailer = Yii::$app->mailer;
-    }
-    
-    public function getMailerConfig()
-    {
-        $conf = [
-            'from' => 'system@cewwod.loc',
-            'to' => 'info@cewwod.loc',
-            'subject' => 'Kļūda printerī',
-            'body' => '',
-        ];
-    
-        return $conf;
+        $this->alertSettings = new D3PrinterAlertSettings();
     }
     
     public function sendAlerts()
@@ -42,7 +31,6 @@ class D3PprinterHealth
         foreach ($this->alerts as $msg) {
             $content .= $msg . PHP_EOL;
         }
-        
         $this->sendToEmail($content);
     }
     
@@ -62,6 +50,17 @@ class D3PprinterHealth
             ->send();
     }
     
+    public function getMailerConfig()
+    {
+        $conf = [
+            'from' => $this->alertSettings->getEmailFrom(),
+            'to' => $this->alertSettings->getEmailTo(),
+            'subject' => $this->alertSettings->getEmailSubject(),
+        ];
+        
+        return $conf;
+    }
+    
     /**
      * @return bool
      */
@@ -73,12 +72,22 @@ class D3PprinterHealth
     /**
      * @param string $msg
      */
-    public function logAlert(string $msg)
+    public function logError(string $msg)
     {
         echo $msg . PHP_EOL;
         
         $this->alerts[] = $msg;
         
         //Yii::warning($msg);
+    }
+    
+    /**
+     * @param string $msg
+     */
+    public function logInfo(string $msg)
+    {
+        echo $msg . PHP_EOL;
+        
+        //Yii::info($msg);
     }
 }

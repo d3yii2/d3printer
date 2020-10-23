@@ -1,18 +1,19 @@
 <?php
 
-namespace d3yii2\d3printer\logic;
+namespace d3yii2\d3printer\logic\read;
 
+use d3yii2\d3printer\logic\D3Printer;
 use DOMDocument;
-use DOMXPath;
 use DOMNode;
 use DOMNodeList;
+use DOMXPath;
 use yii\base\Exception;
 
 /**
- * Class D3PprinterRead
+ * Class D3PrinterRead
  * @package d3yii2\d3printer\logic
  */
-class D3PprinterRead extends D3Pprinter
+class D3PrinterRead extends D3Printer
 {
     /** @var DOMXPath */
     protected $xpath;
@@ -21,7 +22,7 @@ class D3PprinterRead extends D3Pprinter
     protected $dom;
     
     /**
-     * D3PprinterRead constructor.
+     * D3PrinterRead constructor.
      * @throws Exception
      */
     public function __construct()

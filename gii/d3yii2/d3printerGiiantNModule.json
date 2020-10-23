@@ -1,1 +1,18 @@
-{"modulename":{"value":"d3yii2\/d3printer","name":"moduleName"},"modulenamespace":{"value":"d3yii2\\d3printer","name":"moduleNameSpace"},"messagecatalog":{"value":"d3printer","name":"messageCatalog"},"modulelabel":{"value":"Printer Monitoring","name":"moduleLabel"}}
+{
+  "modulename": {
+    "value": "d3yii2\/d3printer",
+    "name": "moduleName"
+  },
+  "modulenamespace": {
+    "value": "d3yii2\\d3printer",
+    "name": "moduleNameSpace"
+  },
+  "messagecatalog": {
+    "value": "d3printer",
+    "name": "messageCatalog"
+  },
+  "modulelabel": {
+    "value": "Printer Monitoring",
+    "name": "moduleLabel"
+  }
+}

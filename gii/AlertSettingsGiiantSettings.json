@@ -1,0 +1,22 @@
+{
+  "moduleclass": {
+    "value": "d3yii2\\d3printer\\Module",
+    "name": "moduleClass"
+  },
+  "modelname": {
+    "value": "PrinterStatusSettings",
+    "name": "modelName"
+  },
+  "attributename": {
+    "value": [
+      "cartridge_min_remain"
+    ],
+    "name": "attributeName"
+  },
+  "attributelabel": {
+    "value": [
+      "Cartridge remaining %"
+    ],
+    "name": "attributeLabel"
+  }
+}

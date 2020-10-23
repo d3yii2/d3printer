@@ -1,38 +1,25 @@
 <?php
 
-namespace d3yii2\d3printer\logic;
+namespace d3yii2\d3printer\logic\read;
 
+use d3yii2\d3printer\logic\settings\D3PrinterAccessSettings;
 use yii\base\Exception;
 
 /**
- * Class D3PprinterReadDevice
+ * Class D3PrinterReadDevice
  * @package d3yii2\d3printer\logic
  */
-class D3PprinterReadDevice extends D3PprinterRead
+class D3PrinterReadDevice extends D3PrinterRead
 {
     public const STATUS_READY = 'Ready';
     public const STATUS_DOWN = 'Off';
     
+    protected $accessSettings;
+    
     public function __construct()
     {
-        $this->settings = new D3PprinterSettings();
+        $this->accessSettings = new D3PrinterAccessSettings();
         parent::__construct();
-    }
-    
-    /**
-     * @return D3PprinterSettings
-     */
-    public function getSettings(): D3PprinterSettings
-    {
-        return $this->settings;
-    }
-    
-    /**
-     * @return string
-     */
-    protected function getConnectionUrl(): string
-    {
-        return $this->settings->getPrinterDeviceUrl();
     }
     
     /**
@@ -51,9 +38,9 @@ class D3PprinterReadDevice extends D3PprinterRead
         $status = trim($statusNode->item(0)->nodeValue);
         
         // Something was wrong... Readed status value is not the same as expected.
-       // if (self::STATUS_READY !== $status && self::STATUS_DOWN !== $status) {
-       //     throw new Exception('Status value is not correct');
-       // }
+        // if (self::STATUS_READY !== $status && self::STATUS_DOWN !== $status) {
+        //     throw new Exception('Status value is not correct');
+        // }
         
         return $status;
     }
@@ -78,7 +65,6 @@ class D3PprinterReadDevice extends D3PprinterRead
         return $percent;
     }
     
-    
     /**
      * @return string
      * @throws Exception
@@ -99,5 +85,11 @@ class D3PprinterReadDevice extends D3PprinterRead
         return $percent;
     }
     
-    
+    /**
+     * @return string
+     */
+    protected function getConnectionUrl(): string
+    {
+        return $this->accessSettings->getPrinterDeviceUrl();
+    }
 }

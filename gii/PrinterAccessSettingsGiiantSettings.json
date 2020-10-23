@@ -1,0 +1,22 @@
+{
+  "moduleclass": {
+    "value": "d3yii2\\d3printer\\Module",
+    "name": "moduleClass"
+  },
+  "modelname": {
+    "value": "PrinterAccessSettings",
+    "name": "modelName"
+  },
+  "attributename": {
+    "value": [
+      "print_setup_url"
+    ],
+    "name": "attributeName"
+  },
+  "attributelabel": {
+    "value": [
+      "Print setup URL"
+    ],
+    "name": "attributeLabel"
+  }
+}
