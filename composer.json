@@ -13,7 +13,8 @@
   ],
   "require": {
     "yiisoft/yii2": "*",
-    "yii2mod/yii2-settings": "2.5"
+    "yii2mod/yii2-settings": "2.5",
+    "guzzlehttp/guzzle": "^7.0"
   },
   "autoload": {
     "psr-4": {
