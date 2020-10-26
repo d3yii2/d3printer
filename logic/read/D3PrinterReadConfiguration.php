@@ -50,7 +50,7 @@ class D3PrinterReadConfiguration extends D3PrinterRead
     }
     
     /**
-     * @return string|null
+     * @return array|null
      * @throws Exception
      */
     public function getPrintSettings(): ?array
@@ -90,7 +90,7 @@ class D3PrinterReadConfiguration extends D3PrinterRead
     }
     
     /**
-     * @return string|null
+     * @return array|null
      * @throws Exception
      */
     public function getPaperSettings(): ?array
@@ -123,7 +123,7 @@ class D3PrinterReadConfiguration extends D3PrinterRead
     }
     
     /**
-     * @return string|null
+     * @return array|null
      * @throws Exception
      */
     public function getEnergySettings(): ?array

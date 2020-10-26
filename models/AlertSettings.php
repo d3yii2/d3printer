@@ -5,7 +5,10 @@ namespace d3yii2\d3printer\models;
 use Yii;
 use yii\base\Model;
 
-
+/**
+ * Class AlertSettings
+ * @package d3yii2\d3printer\models
+ */
 class AlertSettings extends Model
 {
     public $cartridge_remain_min;
@@ -14,7 +17,10 @@ class AlertSettings extends Model
     public $email_to = [];
     public $email_subject;
     
-    public function rules()
+    /**
+     * @return array[]
+     */
+    public function rules(): array
     {
         return [
             [['cartridge_remain_min', 'drum_remain_min', 'email_from', 'email_subject'], 'string'],
@@ -22,12 +28,18 @@ class AlertSettings extends Model
         ];
     }
     
-    public function fields()
+    /**
+     * @return string[]
+     */
+    public function fields(): array
     {
         return ['cartridge_remain_min', 'drum_remain_min', 'email_from', 'email_to', 'email_subject'];
     }
     
-    public function attributeLabels()
+    /**
+     * @return array
+     */
+    public function attributeLabels(): array
     {
         return [
             'cartridge_remain_min' => Yii::t('d3printer', 'Cartridge minimum %'),
@@ -38,6 +50,9 @@ class AlertSettings extends Model
         ];
     }
     
+    /**
+     * 
+     */
     public function prepare(): void
     {
         foreach ($this->attributes() as $attribute) {
@@ -49,21 +64,30 @@ class AlertSettings extends Model
         }
     }
     
-    public function beforeValidate()
-    {
-        $this->email_to = implode('|', $this->email_to);
-        
-        return parent::beforeValidate();
-    }
-    
-    public function attributes()
+    /**
+     * @return string[]
+     */
+    public function attributes(): array
     {
         return ['cartridge_remain_min', 'drum_remain_min', 'email_from', 'email_to', 'email_subject'];
     }
     
+    /**
+     * @return string
+     */
     public static function getSectionName(): string
     {
         return 'Settings-AlertSettings';
+    }
+    
+    /**
+     * @return bool
+     */
+    public function beforeValidate(): bool
+    {
+        $this->email_to = implode('|', $this->email_to);
+        
+        return parent::beforeValidate();
     }
 }
 

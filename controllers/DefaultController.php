@@ -4,6 +4,7 @@ namespace d3yii2\d3printer\controllers;
 
 use d3yii2\d3printer\logic\read\D3PrinterReadConfiguration;
 use d3yii2\d3printer\logic\read\D3PrinterReadDevice;
+use yii\base\Exception;
 use yii\web\Controller;
 
 class DefaultController extends Controller
@@ -11,7 +12,7 @@ class DefaultController extends Controller
     /**
      * Testing returned data
      * @return bool
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function actionIndex()
     {

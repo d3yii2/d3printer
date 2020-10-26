@@ -26,7 +26,7 @@ class D3PrinterAccessSettings
      */
     public function getPrinterDeviceUrl(): string
     {
-        return $this->model->home_url??'';
+        return $this->model->home_url ?? '';
     }
     
     /**
@@ -34,7 +34,7 @@ class D3PrinterAccessSettings
      */
     public function getPrinterConfigurationUrl(): string
     {
-        return $this->model->device_info_url??'';
+        return $this->model->device_info_url ?? '';
     }
     
     /**
@@ -42,7 +42,7 @@ class D3PrinterAccessSettings
      */
     public function getPrintSetupUrl(): string
     {
-        return $this->model->print_setup_url??'';
+        return $this->model->print_setup_url ?? '';
     }
     
     /**
@@ -50,7 +50,7 @@ class D3PrinterAccessSettings
      */
     public function getPaperSetupUrl(): string
     {
-        return $this->model->paper_setup_url??'';
+        return $this->model->paper_setup_url ?? '';
     }
     
     /**
@@ -58,6 +58,6 @@ class D3PrinterAccessSettings
      */
     public function getEnergySetupUrl(): string
     {
-        return $this->model->energy_setup_url??'';
+        return $this->model->energy_setup_url ?? '';
     }
 }

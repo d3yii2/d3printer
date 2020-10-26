@@ -2,18 +2,27 @@
 
 namespace d3yii2\d3printer\logic\set;
 
-use d3yii2\d3printer\logic\D3Printer;
 use d3yii2\d3printer\logic\settings\D3PrinterAccessSettings;
 
-class D3PrinterPaperSet extends D3Printer
+/**
+ * Class D3PrinterPaperSet
+ * @package d3yii2\d3printer\logic\set
+ */
+class D3PrinterPaperSet extends D3PrinterSet
 {
+    /**
+     * D3PrinterPaperSet constructor.
+     */
     public function __construct()
     {
         $this->accessSettings = new D3PrinterAccessSettings();
         parent::__construct();
     }
     
-    protected function getConnectionUrl()
+    /**
+     * @return string
+     */
+    protected function getConnectionUrl(): string
     {
         return $this->accessSettings->getPaperSetupUrl();
     }

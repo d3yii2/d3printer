@@ -5,29 +5,44 @@ namespace d3yii2\d3printer\models;
 use Yii;
 use yii\base\Model;
 
-
+/**
+ * Class PrinterEnergySettings
+ * @package d3yii2\d3printer\models
+ */
 class PrinterEnergySettings extends Model
 {
     public $sleep;
     
-    public function rules()
+    /**
+     * @return array[]
+     */
+    public function rules(): array
     {
         return [
             [['sleep'], 'string']
         ];
     }
     
-    public function fields()
+    /**
+     * @return string[]
+     */
+    public function fields(): array
     {
         return ['sleep'];
     }
     
-    public function attributeLabels()
+    /**
+     * @return array
+     */
+    public function attributeLabels(): array
     {
         return [
         ];
     }
     
+    /**
+     * 
+     */
     public function prepare(): void
     {
         foreach ($this->attributes() as $attribute) {
@@ -39,14 +54,19 @@ class PrinterEnergySettings extends Model
         }
     }
     
-    public function attributes()
+    /**
+     * @return string[]
+     */
+    public function attributes(): array
     {
         return ['sleep'];
     }
     
+    /**
+     * @return string
+     */
     public static function getSectionName(): string
     {
         return 'Settings-PrinterEnergySettings';
     }
 }
-

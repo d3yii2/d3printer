@@ -4,8 +4,8 @@ use d3system\yii2\web\D3SystemView;
 use eaBlankonThema\assetbundles\layout\LayoutAsset;
 use eaBlankonThema\widget\ThButton;
 use eaBlankonThema\widget\ThReturnButton;
-use yii\bootstrap\ActiveForm;
 use kartik\select2\Select2;
+use yii\bootstrap\ActiveForm;
 
 LayoutAsset::register($this);
 
@@ -39,8 +39,8 @@ $this->addPageButtons(ThReturnButton::widget([
                     <?= $form->field($model, 'cartridge_remain_min')->textInput(['maxlength' => true]) ?>
                     <?= $form->field($model, 'drum_remain_min')->textInput(['maxlength' => true]) ?>
                     <?= $form->field($model, 'email_from')->textInput(['maxlength' => true]) ?>
-                   
-                   <?php $model->email_to = explode('|', $model->email_to) ?>
+                    
+                    <?php $model->email_to = explode('|', $model->email_to) ?>
                     <?= $form->field($model, 'email_to')->widget(Select2::class, [
                         //'data' => $data,
                         'options' => ['multiple' => true],

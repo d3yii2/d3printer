@@ -16,6 +16,10 @@ class D3PrinterReadDevice extends D3PrinterRead
     
     protected $accessSettings;
     
+    /**
+     * D3PrinterReadDevice constructor.
+     * @throws Exception
+     */
     public function __construct()
     {
         $this->accessSettings = new D3PrinterAccessSettings();

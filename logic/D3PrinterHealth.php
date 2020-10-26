@@ -11,7 +11,8 @@ use Yii;
  */
 class D3PrinterHealth
 {
-    protected $alerts = [];
+    protected $errors = [];
+    protected $info = [];
     protected $mailer;
     protected $alertSettings;
     
@@ -24,18 +25,24 @@ class D3PrinterHealth
         $this->alertSettings = new D3PrinterAlertSettings();
     }
     
-    public function sendAlerts()
+    /**
+     * @param string $content
+     */
+    public function logInfo(string $content): void
     {
-        $content = '';
-        
-        foreach ($this->alerts as $msg) {
-            $content .= $msg . PHP_EOL;
-        }
-        $this->sendToEmail($content);
+        Yii::info($content, 'd3printer-info');
     }
     
     /**
-     * @param string $msg
+     * @param string $content
+     */
+    public function logErrors(string $content): void
+    {
+        Yii::error($content, 'd3printer-error');
+    }
+    
+    /**
+     * @param string $content
      */
     public function sendToEmail(string $content)
     {
@@ -50,44 +57,65 @@ class D3PrinterHealth
             ->send();
     }
     
-    public function getMailerConfig()
+    /**
+     * @return array
+     */
+    public function getMailerConfig(): array
     {
-        $conf = [
+        return [
             'from' => $this->alertSettings->getEmailFrom(),
             'to' => $this->alertSettings->getEmailTo(),
             'subject' => $this->alertSettings->getEmailSubject(),
         ];
-        
-        return $conf;
     }
     
     /**
      * @return bool
      */
-    public function hasAlerts(): bool
+    public function hasErrors(): bool
     {
-        return !empty($this->alerts);
+        return !empty($this->errors);
     }
     
     /**
      * @param string $msg
      */
-    public function logError(string $msg)
+    public function addError(string $msg): void
     {
-        echo $msg . PHP_EOL;
-        
-        $this->alerts[] = $msg;
-        
-        //Yii::warning($msg);
+        $this->errors[] = $msg;
     }
     
     /**
      * @param string $msg
      */
-    public function logInfo(string $msg)
+    public function addInfo(string $msg): void
     {
-        echo $msg . PHP_EOL;
-        
-        //Yii::info($msg);
+        $this->info[] = $msg;
+    }
+    
+    /**
+     * @return array
+     */
+    public function getErrors(): array
+    {
+        return $this->errors;
+    }
+    
+    /**
+     * @return array
+     */
+    public function getInfo(): array
+    {
+        return $this->info;
+    }
+    
+    /**
+     * @param array $arr
+     * @param string $glue
+     * @return string
+     */
+    public function getMessages(array $arr, string $glue = PHP_EOL): string
+    {
+        return implode($glue, $arr);
     }
 }

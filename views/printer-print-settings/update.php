@@ -35,7 +35,7 @@ $this->addPageButtons(ThReturnButton::widget([
                         'errorSummaryCssClass' => 'error-summary alert alert-error',
                     ]);
                     ?>
-                   
+                    <?= $form->field($model, 'orientation')->dropDownList(['Portrait' => 'Portrait']) ?>
                     <div class="form-footer">
                         <div class="pull-right">
                             <?= ThButton::widget([
