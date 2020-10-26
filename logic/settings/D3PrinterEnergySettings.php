@@ -2,13 +2,13 @@
 
 namespace d3yii2\d3printer\logic\settings;
 
-use d3yii2\d3printer\models\PrinterPrintSettings;
+use d3yii2\d3printer\models\PrinterEnergySettings;
 
 /**
  * Class D3Printer
  * @package d3yii2\d3printer\logic
  */
-class D3PrinterPrintSettings
+class D3PrinterEnergySettings
 {
     protected $model;
     
@@ -17,15 +17,15 @@ class D3PrinterPrintSettings
      */
     public function __construct()
     {
-        $this->model = new PrinterPrintSettings();
+        $this->model = new PrinterEnergySettings();
         $this->model->prepare();
     }
     
     /**
      * @return string
      */
-    public function getOrientation(): string
+    public function getInactivitySleep(): string
     {
-        return $this->model->orientation;
+        return $this->model->sleep;
     }
 }

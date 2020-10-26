@@ -34,6 +34,7 @@ class D3PrinterRead extends D3Printer
     
     /**
      * Fill the DOM object with content returned from printer page response
+     * @throws Exception
      */
     public function init(): void
     {

@@ -6,22 +6,36 @@ use Yii;
 use yii\base\Model;
 
 
+/**
+ * Class PrinterPrintSettings
+ * @package d3yii2\d3printer\models
+ */
 class PrinterPrintSettings extends Model
 {
+    public $orientation;
     
-    public function rules()
+    /**
+     * @return array[]
+     */
+    public function rules(): array
     {
         return [
-            [[], 'string']
+            [['orientation'], 'string']
         ];
     }
     
-    public function fields()
+    /**
+     * @return string[]
+     */
+    public function fields(): array
     {
-        return [];
+        return ['orientation'];
     }
     
-    public function attributeLabels()
+    /**
+     * @return array
+     */
+    public function attributeLabels(): array
     {
         return [
         ];
@@ -38,14 +52,19 @@ class PrinterPrintSettings extends Model
         }
     }
     
-    public function attributes()
+    /**
+     * @return string[]
+     */
+    public function attributes(): array
     {
-        return [];
+        return ['orientation'];
     }
     
+    /**
+     * @return string
+     */
     public static function getSectionName(): string
     {
         return 'Settings-PrinterPrintSettings';
     }
 }
-

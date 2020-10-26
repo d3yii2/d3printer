@@ -3,9 +3,13 @@
 namespace d3yii2\d3printer\logic;
 
 use d3yii2\d3printer\logic\read\D3PrinterReadConfiguration;
+use d3yii2\d3printer\logic\set\D3PrinterEnergySet;
 use d3yii2\d3printer\logic\set\D3PrinterPaperSet;
+use d3yii2\d3printer\logic\set\D3PrinterPrintSet;
+use d3yii2\d3printer\logic\settings\D3PrinterEnergySettings;
 use d3yii2\d3printer\logic\settings\D3PrinterPaperSettings;
 use d3yii2\d3printer\logic\settings\D3PrinterPrintSettings;
+use yii\base\Exception;
 
 /**
  * Class D3Printer
@@ -13,7 +17,7 @@ use d3yii2\d3printer\logic\settings\D3PrinterPrintSettings;
  */
 class D3PrinterConfigurationHealth extends D3PrinterHealth
 {
-    protected $configuration;
+    protected $printerData;
     
     /**
      * D3PrinterConfigurationHealth constructor.
@@ -21,35 +25,144 @@ class D3PrinterConfigurationHealth extends D3PrinterHealth
     public function __construct()
     {
         parent::__construct();
-        $this->configuration = new D3PrinterReadConfiguration();
+        $this->printerData = new D3PrinterReadConfiguration();
     }
     
     /**
      * @return bool
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
-    public function isValid(): bool
+    public function paperSizeOk(): bool
     {
-        //$print = $this->configuration->getPrintSettings();
-        //$printLocalSettings = new D3PrinterPrintSettings();
+        $printer = $this->printerData->getPaperSettings();
+        $configured = new D3PrinterPaperSettings();
+        $configuredSize = $configured->getPaperSize();
         
-        $paper = $this->configuration->getPaperSettings();
-        $paperLocalSettings = new D3PrinterPaperSettings();
-        $paperSize = $paperLocalSettings->getPaperSize();
-        
-        if ($paperSize !== $paper['paper_size']) {
-            $set = new D3PrinterPaperSet();
-            
+        if ($configuredSize !== $printer['paper_size']) {
+            $this->addInfo("Paper settings don't match: " . $configuredSize . ' | ' . $printer['paper_size']);
+            return false;
         }
         
-        $energy = $this->configuration->getEnergySettings();
+        return true;
+    }
+    
+    /**
+     * @throws Exception
+     */
+    public function updatePaperConfig(): void
+    {
+        $set = new D3PrinterPaperSet();
         
-        $isValid = true;
+        $data = [
+            'okSet' => 'Apply',
+            'sizePromptSupported' => 'no',
+            'DefaultPaperSize' => '14',
+            'DefaultPaperType' => '27',
+            'ManualFeed' => 'EWS_OFF',
+            'SizePrompt' => 'EWS_OFF',
+            'Duplex' => 'EWS_OFF',
+            'Tray1Size' => '16',
+            'Tray1Type' => '1',
+            'PaperOutHandling' => 'EWS_OFF',
+        ];
         
-        if (!$isValid) {
-            $this->logError('Configuration has been updated');
+        $response = $set->update($data);
+        $this->addInfo('Paper configuration updated to: ' . PHP_EOL . print_r($data, true));
+    }
+    
+    /**
+     * @throws Exception
+     */
+    public function updateEnergyConfig(): void
+    {
+        $set = new D3PrinterEnergySet();
+        
+        $data = [
+            'ShutDown_timer_changed' => 'no',
+            'AutoOff_timer_changed' => 'no',
+            'aoao_active_off_supported' => '1',
+            'AutoOff' => 'EWS_AO_15Min',
+            'ShutDown' => 'EWS_SD_4Hours',
+            'delayShutDown' => 'on',
+            'Apply' => 'Apply',
+        ];
+        
+        $response = $set->update($data);
+        $this->addInfo('Energy configuration updated to: ' . PHP_EOL . print_r($data, true));
+    }
+    
+    /**
+     * @throws Exception
+     */
+    public function updatePrintConfig(): void
+    {
+        $set = new D3PrinterPrintSet();
+        
+        $data = [
+            'Copies' => '1',
+            'WideA4' => 'EWS_NO',
+            'A5FeedOrientation' => 'Portrait',
+            'Courier' => 'Courier_Regular',
+            'Orientation' => 'orient_Portrait',
+            'Apply' => 'Apply',
+        ];
+        
+        $response = $set->update($data);
+        $this->addInfo('Print configuration updated to: ' . PHP_EOL . print_r($data, true));
+    }
+    
+    /**
+     * @return bool
+     * @throws Exception
+     */
+    public function energySleepOk(): bool
+    {
+        $printer = $this->printerData->getEnergySettings();
+        
+        //@FIXME
+        // Atbilde ir formātā: x Minute[s]. Ja uzdots stundās, salīdzināšana nestrādās 
+        $printerSleepData = explode(' ', $printer['sleep_after']);
+        
+        $configured = new D3PrinterEnergySettings();
+        $configuredSleep = $configured->getInactivitySleep();
+        //$configuredShutdown = $configured->getShutdown();
+        
+        if ($configuredSleep !== $printerSleepData[0]) {
+            $this->addInfo("Energy sleep setting don't match: " . $configuredSleep . ' | ' . $printerSleepData[0]);
+            return false;
         }
         
-        return $isValid;
+        // Not in use
+        /*if ($configuredShutdown === $printer['shut_down_after']) {
+            $this->addInfo("Energy shutdown setting don't match: " . $configuredShutdown . ' | ' . $printer['shut_down_after']);
+            return false;
+        }*/
+        
+        return true;
+    }
+    
+    /**
+     * @return bool
+     * @throws Exception
+     */
+    public function printOrientationOk(): bool
+    {
+        $printer = $this->printerData->getPrintSettings();
+        
+        $configured = new D3PrinterPrintSettings();
+        $configuredOrientation = $configured->getOrientation();
+        
+        if ($configuredOrientation !== $printer['orientation']) {
+            $this->addInfo("Orientation setting don't match: " . $configuredOrientation . ' | ' . $printer['orientation']);
+            return false;
+        }
+        
+        // Not in use
+        /*if ($configuredShutdown === $printer['shut_down_after']) {
+            $this->addInfo("Energy shutdown setting don't match: " . $configuredShutdown . ' | ' . $printer['shut_down_after']);
+            return false;
+        }*/
+        
+        return true;
     }
 }

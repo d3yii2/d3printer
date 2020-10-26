@@ -2,7 +2,6 @@
 
 namespace d3yii2\d3printer\logic\settings;
 
-use d3yii2\d3printer\models\AlertSettings;
 use d3yii2\d3printer\models\PrinterPaperSettings;
 
 /**
@@ -29,7 +28,7 @@ class D3PrinterPaperSettings
     {
         return $this->model->paper_size;
     }
-
+    
     /**
      * @return string
      */

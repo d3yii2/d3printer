@@ -14,7 +14,9 @@
   "require": {
     "yiisoft/yii2": "*",
     "yii2mod/yii2-settings": "2.5",
-    "guzzlehttp/guzzle": "^7.0"
+    "guzzlehttp/guzzle": "^7.0",
+    "ext-dom": "*",
+    "ext-libxml": "*"
   },
   "autoload": {
     "psr-4": {

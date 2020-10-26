@@ -3,6 +3,7 @@
 namespace d3yii2\d3printer\logic;
 
 use d3yii2\d3printer\logic\read\D3PrinterReadDevice;
+use yii\base\Exception;
 
 /**
  * Class D3Printer
@@ -21,54 +22,54 @@ class D3PrinterDeviceHealth extends D3PrinterHealth
         $this->device = new D3PrinterReadDevice();
     }
     
-    public function checkStatus(): bool
+    public function statusOk(): bool
     {
         $status = $this->device->getStatus();
         
-        $isOk = D3PrinterReadDevice::STATUS_READY === $status;
-        
-        if (!$isOk) {
-            $this->logError("Device looks down! Status: " . $status);
+        if (D3PrinterReadDevice::STATUS_READY === $status) {
+            $this->addInfo('Status OK');
+            return true;
         }
         
-        return $isOk;
+        $this->addError("Device looks down! Status: " . $status);
+        return false;
     }
     
     /**
      * @return bool
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
-    public function checkCartridge(): bool
+    public function cartridgeOk(): bool
     {
         $remaining = $this->device->getCartridgeRemaining();
         
         $min = $this->alertSettings->getCartridgeMinValue();
         
-        $isOk = $remaining > $min;
-        
-        if (!$isOk) {
-            $this->logError('Cartrige level is too low: ' . $remaining . '% (should be > ' . $min . '%)');
+        if ($remaining > $min) {
+            $this->addInfo('Cartridge OK (' . $remaining . ')');
+            return true;
         }
         
-        return $isOk;
+        $this->addError('Cartrige level is too low: ' . $remaining . '% (should be > ' . $min . '%)');
+        return false;
     }
     
     /**
      * @return bool
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
-    public function checkDrum(): bool
+    public function drumOk(): bool
     {
         $remaining = $this->device->getDrumRemaining();
         
         $min = $this->alertSettings->getDrumMinValue();
         
-        $isOk = $remaining > $min;
-        
-        if (!$isOk) {
-            $this->logError('Drum is too low: ' . $remaining . '% (should be > ' . $min . '%)');
+        if ($remaining > $min) {
+            $this->addInfo('Drum OK (' . $remaining . ')');
+            return true;
         }
         
-        return $isOk;
+        $this->addError('Drum is too low: ' . $remaining . '% (should be > ' . $min . '%)');
+        return false;
     }
 }

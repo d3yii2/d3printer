@@ -25,7 +25,7 @@ $this->addPageButtons(ThReturnButton::widget([
 ]));
 ?>
 <div class="row">
-    <?= ThAlertList::widget()?>
+    <?= ThAlertList::widget() ?>
     <div class="col-md-9">
         <div class="panel  rounded shadow">
             <div class="panel-body rounded-bottom">
