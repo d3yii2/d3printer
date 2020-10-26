@@ -44,7 +44,6 @@ class D3Printer
         curl_setopt($ch, CURLOPT_URL, urlencode($this->connectionUrl));
         $response = curl_exec($ch);
         curl_close($ch);
-        D3FileHelper::filePutContentInRuntime('printer','a.txt',$response);
         return $response;
 
     }
