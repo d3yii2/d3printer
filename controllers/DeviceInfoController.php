@@ -6,6 +6,8 @@ use d3system\yii2\web\D3SystemView;
 use d3yii2\d3printer\logic\read\D3PrinterReadDevice;
 use ea\app\config\LeftMenuDef;
 use ea\app\controllers\LayoutController;
+use eaBlankonThema\components\FlashHelper;
+use Exception;
 use yii\filters\AccessControl;
 
 
@@ -46,7 +48,12 @@ class DeviceInfoController extends LayoutController
     
     public function actionIndex()
     {
-        $device = new D3PrinterReadDevice();
+        try {
+            $device = new D3PrinterReadDevice();
+        }catch (Exception $e){
+            $device = false;
+            FlashHelper::processException($e);
+        }
         
         return $this->render('index', ['device' => $device]);
     }

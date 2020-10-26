@@ -2,6 +2,7 @@
 
 use d3system\yii2\web\D3SystemView;
 use eaBlankonThema\assetbundles\layout\LayoutAsset;
+use eaBlankonThema\widget\ThAlertList;
 use eaBlankonThema\widget\ThButton;
 use eaBlankonThema\widget\ThReturnButton;
 use yii\bootstrap\ActiveForm;
@@ -24,6 +25,7 @@ $this->addPageButtons(ThReturnButton::widget([
 ]));
 ?>
 <div class="row">
+    <?= ThAlertList::widget()?>
     <div class="col-md-9">
         <div class="panel  rounded shadow">
             <div class="panel-body rounded-bottom">
