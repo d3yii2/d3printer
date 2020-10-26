@@ -50,6 +50,9 @@ class D3PrinterAlertSettings
      */
     public function getEmailTo(): array
     {
+        if(!$this->model->email_to){
+            return [];
+        }
         return explode('|', $this->model->email_to);
     }
     

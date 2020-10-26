@@ -11,7 +11,7 @@ class AlertSettings extends Model
     public $cartridge_remain_min;
     public $drum_remain_min;
     public $email_from;
-    public $email_to = [];
+    public $email_to;
     public $email_subject;
     
     public function rules()
