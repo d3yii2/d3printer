@@ -4,6 +4,7 @@ namespace d3yii2\d3printer\controllers;
 
 use d3yii2\d3printer\logic\D3PrinterConfigurationHealth;
 use d3yii2\d3printer\logic\D3PrinterDeviceHealth;
+use d3yii2\d3printer\logic\D3PrinterHealth;
 use Exception;
 use Yii;
 use yii\web\Controller;
@@ -71,10 +72,10 @@ class HealthController extends Controller
             echo $alertMsg;
             //echo str_replace(PHP_EOL, '<br>', $alertInfoContent . PHP_EOL . $alertErrorContent);
             
-            $deviceHealth->logInfo($alertInfoContent . PHP_EOL . '-------------' . PHP_EOL);
+            $deviceHealth->logInfo($alertInfoContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
     
             if ($deviceHealth->hasErrors() || $configHealth->hasErrors()) {
-                $deviceHealth->logErrors($alertErrorContent . PHP_EOL . '-------------' . PHP_EOL);
+                $deviceHealth->logErrors($alertErrorContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
                 $deviceHealth->sendToEmail($alertMsg);
             }
             

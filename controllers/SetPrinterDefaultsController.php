@@ -4,6 +4,7 @@ namespace d3yii2\d3printer\controllers;
 
 use d3yii2\d3printer\logic\D3PrinterConfigurationHealth;
 use d3yii2\d3printer\logic\D3PrinterDeviceHealth;
+use d3yii2\d3printer\logic\D3PrinterHealth;
 use eaBlankonThema\components\FlashHelper;
 use eaBlankonThema\widget\ThAlert;
 use Exception;
@@ -23,11 +24,7 @@ class SetPrinterDefaultsController extends Controller
     public function actionIndex(): Response
     {
         try {
-            /**
-             *  Get the devive live data from printer Homepage
-             */
-            
-            // Get the devive live data from printer Configuration page
+            // Get the live data from printer Configuration page
             $configHealth = new D3PrinterConfigurationHealth();
             
             $configHealth->updatePaperConfig();
@@ -43,11 +40,11 @@ class SetPrinterDefaultsController extends Controller
             
             $alertMsg = $alertInfoContent . PHP_EOL . $alertErrorContent;
             
-            $configHealth->logInfo($alertInfoContent . PHP_EOL . '-------------' . PHP_EOL);
+            $configHealth->logInfo($alertInfoContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
     
             if ($configHealth->hasErrors() || $configHealth->hasErrors()) {
                 FlashHelper::addDanger('Errors occured: ' . $alertErrorContent);
-                $configHealth->logErrors($alertErrorContent . PHP_EOL . '-------------' . PHP_EOL);
+                $configHealth->logErrors($alertErrorContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
                 $configHealth->sendToEmail($alertMsg);
             } else {
                 FlashHelper::addSuccess('Printer Configuration updated');

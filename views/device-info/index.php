@@ -1,6 +1,7 @@
 <?php
 
 use d3system\yii2\web\D3SystemView;
+use d3yii2\d3printer\logic\D3PrinterDeviceHealth;
 use d3yii2\d3printer\logic\read\D3PrinterReadConfiguration;
 use d3yii2\d3printer\logic\read\D3PrinterReadDevice;
 use eaBlankonThema\assetbundles\layout\LayoutAsset;
@@ -88,14 +89,18 @@ if ($deviceConfig) {
                 <?php
                 if ($deviceConfig) {
                     foreach ($deviceConfig->getEnergySettings() as $key => $value) {
-                        echo $key . ':  ' . $value . '<br>';
+                        echo $configAttributeLabels[$key] . ':  ' . $value . '<br>';
                     }
                 } ?>
             </div>
         </div>
         <div class="panel  rounded shadow">
             <div class="panel-body rounded-bottom">
-                Last Alerts:
+                <h4>Last Errors</h4>
+                <?php
+                foreach (D3PrinterDeviceHealth::getLastLoggedErrors() as $error) {
+                    echo str_replace(PHP_EOL, '<br>', $error) . '<hr>';
+                } ?>
             </div>
         </div>
     </div>

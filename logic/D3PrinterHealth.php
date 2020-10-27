@@ -16,6 +16,8 @@ class D3PrinterHealth
     protected $mailer;
     protected $alertSettings;
     
+    public const LOG_SEPARATOR = '-------------';
+    
     /**
      * D3Printer constructor.
      */
@@ -117,5 +119,37 @@ class D3PrinterHealth
     public function getMessages(array $arr, string $glue = PHP_EOL): string
     {
         return implode($glue, $arr);
+    }
+    
+    /**
+     * @param int $count
+     * @return array
+     */
+    public static function getLastLoggedErrors(int $limit = 20): array
+    {
+        $logPath = Yii::getAlias('@runtime') . '/logs/d3printer/';
+        $month = date('m');
+        
+        $errors = [];        
+        while($month >=1 ) {
+            $dateObj   = \DateTime::createFromFormat('!m', $month);
+            $monthName = $dateObj->format('F');
+            $errLog = $logPath . $monthName . '-' . date('Y') . '-error.log';
+            if (file_exists($errLog)) {
+                $logContent = file_get_contents($errLog);
+                $allErrors = explode(self::LOG_SEPARATOR, $logContent);
+                $allErrors = array_reverse($allErrors);
+                $count = count($allErrors);
+                if ($limit >= $count) {
+                    $limit = $count;
+                }
+                for ($i = 0; $i < $limit; $i ++) {
+                    $errors[] = $allErrors[$i];
+                }
+                break;
+            }
+            $month --;
+        }
+        return $errors;
     }
 }
