@@ -3,7 +3,9 @@
 namespace d3yii2\d3printer\logic;
 
 use d3yii2\d3printer\logic\settings\D3PrinterAlertSettings;
+use GuzzleHttp\Exception\GuzzleException;
 use Yii;
+use yii\base\Exception;
 
 /**
  * Class D3Printer
@@ -49,6 +51,11 @@ class D3PrinterHealth
     public function sendToEmail(string $content)
     {
         $conf = $this->getMailerConfig();
+
+        if (YII_DEBUG) {
+            // Save emails to runtime instead sending
+            $this->mailer->useFileTransport = true;
+        }
         
         $this->mailer
             ->compose()
@@ -125,7 +132,7 @@ class D3PrinterHealth
      * @param int $count
      * @return array
      */
-    public static function getLastLoggedErrors(int $limit = 20): array
+    public static function getLastLoggedErrors(int $limit = 10): array
     {
         $logPath = Yii::getAlias('@runtime') . '/logs/d3printer/';
         $month = date('m');
@@ -151,5 +158,73 @@ class D3PrinterHealth
             $month --;
         }
         return $errors;
+    }
+    
+    /**
+     * @return string
+     * @throws GuzzleException
+     * @throws Exception
+     */
+    public function check(): string
+    {
+        /**
+         *  Get the device live data from printer Homepage
+         */
+    
+        $deviceHealth = new D3PrinterDeviceHealth();
+    
+        // Check the state of the device: Alive / Off
+        $deviceHealth->statusOk();
+    
+        // Check the Cartridge remaining %
+        $deviceHealth->cartridgeOk();
+    
+        // Check the Drum remaining %
+        $deviceHealth->drumOk();
+    
+        // Get the devive live data from printer Configuration page
+        $configHealth = new D3PrinterConfigurationHealth();
+    
+    
+        /**
+         * Compare System configuration with Printer data
+         */
+    
+        if (!$configHealth->paperSizeOk()) {
+            $configHealth->updatePaperConfig();
+        }
+    
+        if (!$configHealth->printOrientationOk()) {
+            $configHealth->updatePrintConfig();
+        }
+    
+        if (!$configHealth->energySleepOk()) {
+            $configHealth->updateEnergyConfig();
+        }
+    
+        $alertInfoContent = $deviceHealth->getMessages($deviceHealth->getInfo()) . PHP_EOL;
+        $alertErrorContent = '';
+    
+        if ($deviceHealth->hasErrors()) {
+            $alertErrorContent .= PHP_EOL . 'Device Health Problems:' . PHP_EOL . $deviceHealth->getMessages($deviceHealth->getErrors());
+        }
+    
+        $alertInfoContent .= PHP_EOL . PHP_EOL . $configHealth->getMessages($configHealth->getInfo());
+    
+        if ($configHealth->hasErrors()) {
+            $alertErrorContent .= PHP_EOL . 'Config Health Problems:' . PHP_EOL . $configHealth->getMessages($configHealth->getErrors());
+        }
+    
+        $alertMsg = $alertInfoContent . PHP_EOL . $alertErrorContent;
+        //echo str_replace(PHP_EOL, '<br>', $alertInfoContent . PHP_EOL . $alertErrorContent);
+    
+        $deviceHealth->logInfo($alertInfoContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
+    
+        if ($deviceHealth->hasErrors() || $configHealth->hasErrors()) {
+            $deviceHealth->logErrors($alertErrorContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
+            $deviceHealth->sendToEmail($alertMsg);
+        }
+        
+        return $alertMsg;
     }
 }
