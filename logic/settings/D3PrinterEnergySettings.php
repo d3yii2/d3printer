@@ -10,22 +10,6 @@ use d3yii2\d3printer\models\PrinterEnergySettings;
  */
 class D3PrinterEnergySettings
 {
-    protected $model;
-    
-    /**
-     * D3Printer constructor.
-     */
-    public function __construct()
-    {
-        $this->model = new PrinterEnergySettings();
-        $this->model->prepare();
-    }
-    
-    /**
-     * @return string
-     */
-    public function getInactivitySleep(): string
-    {
-        return $this->model->sleep;
-    }
+    // In Minutes
+    public const DEFAULT_SLEEP_AFTER = '15';
 }

@@ -10,30 +10,6 @@ use d3yii2\d3printer\models\PrinterPaperSettings;
  */
 class D3PrinterPaperSettings
 {
-    protected $model;
-    
-    /**
-     * D3Printer constructor.
-     */
-    public function __construct()
-    {
-        $this->model = new PrinterPaperSettings();
-        $this->model->prepare();
-    }
-    
-    /**
-     * @return string
-     */
-    public function getPaperSize(): string
-    {
-        return $this->model->paper_size;
-    }
-    
-    /**
-     * @return string
-     */
-    public function getPaperType(): string
-    {
-        return $this->model->paper_type;
-    }
+    const DEFAULT_PAPER_SIZE = 'A5';
+    const DEFAULT_PAPER_TYPE = '27';
 }

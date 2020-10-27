@@ -4,6 +4,7 @@ namespace d3yii2\d3printer\logic;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Message\ResponseInterface;
 use yii\base\Exception;
 
 /**
@@ -22,37 +23,46 @@ class D3Printer
         $this->connectionUrl = $this->getConnectionUrl();
     }
     
-    protected function getConnectionUrl()
+    /**
+     * Inherited from child classes
+     * @return string
+     */
+    protected function getConnectionUrl(): string
     {
+        return '';
     }
-
-
+    
+    
     /**
      * @return string
      * @throws Exception
+     * @throws GuzzleException
      */
     public function connect(): string
     {
         if (empty($this->connectionUrl)) {
             throw new Exception('Cannot connect to Printer: connection URL not specified');
         }
+    
+        $client = new Client();
+        $response = $client->request('GET', $this->getConnectionUrl());
+        return (string) $response->getBody();
 
-        $ch = curl_init();
-
+        // Atkomentēt, ja neiet Guzzle Client
+        /*$ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_USERAGENT, "Mozilla/4.0 (compatible;)");
         curl_setopt($ch, CURLOPT_URL, urlencode($this->connectionUrl));
         $response = curl_exec($ch);
         curl_close($ch);
-        return $response;
-
+        return $response;*/
     }
 
     /**
      * @param string $url
      * @param array $data
      * @param bool $json
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      * @throws Exception
      * @throws GuzzleException
      */

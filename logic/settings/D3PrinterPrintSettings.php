@@ -10,22 +10,5 @@ use d3yii2\d3printer\models\PrinterPrintSettings;
  */
 class D3PrinterPrintSettings
 {
-    protected $model;
-    
-    /**
-     * D3Printer constructor.
-     */
-    public function __construct()
-    {
-        $this->model = new PrinterPrintSettings();
-        $this->model->prepare();
-    }
-    
-    /**
-     * @return string
-     */
-    public function getOrientation(): string
-    {
-        return $this->model->orientation;
-    }
+    public const DEFAULT_ORIENTATION = 'Portrait';
 }

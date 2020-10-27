@@ -111,7 +111,7 @@ class D3PrinterReadConfiguration extends D3PrinterRead
         $settingsNodes = $this->parse("(//td[@class='rightContentPane']//table[@class='mainContentArea'])[4]/tr/td[2]");
         
         if (0 === count($settingsNodes)) {
-            echo 'Cannot parse paaper settings nodes';
+            echo 'Cannot parse paper settings nodes';
             return null;
         }
         
@@ -156,5 +156,44 @@ class D3PrinterReadConfiguration extends D3PrinterRead
     protected function getConnectionUrl(): string
     {
         return $this->accessSettings->getPrinterConfigurationUrl();
+    }
+    
+    /**
+     * @return string[]
+     */
+    public function attributeLabels(): array
+    {
+        return [
+            self::DEEFAULT_PAPER_SIZE => 'Default Paper Size',
+            self::DEEFAULT_PAPER_TYPE => 'Default Paper Type',
+            self::TRAY1_SIZE => 'Tray 1 Size',
+            self::TRAY1_TYPE => 'Tray 1 Type ',
+            self::PAPER_OUT_ACTION => 'Paper Out Action',
+            self::MANUAL_FEED => 'Manual Feed',
+            self::DUPLEX => 'Duplex',
+            self::BIND => 'Bind',
+        
+            // Print settings
+            self::AUTO_CONTINUE => 'Auto Continue',
+            self::NUMBER_OF_COPIES => 'Number of Copies',
+            self::COURIER_FONT => 'Courier Font',
+            self::ORIENTATION => 'Orientation',
+            self::MONOCHROME_RET => 'Monochrome RET',
+            self::WIDE_A4 => 'Wide A4',
+            self::A5_FEED_ORIENTATION => 'A5 Feed Orientation',
+            self::MONOCHROME_RESOLUTION => 'Monochrome Resolution',
+            self::MONOCHROME_BITS_PER_PIXEL => 'Monochrome Bits per Pixel',
+            self::ECONOMODE => 'Economode',
+            self::PRINT_DENSITY => 'Print Density',
+            self::IO_TIMEOUT => 'IO Timeout',
+            self::JAM_RECOVERY => 'Jam Recovery',
+            self::PERSONALITY => 'Personality',
+            self::PRINT_PS_ERRORS => 'Print PS Errors',
+        
+            // Energy Settings
+            self::SLEEP_AFTER => 'Sleep/Auto Off After Inactivity',
+            self::SHUT_DOWN_AFTER => 'Shut Down After Inactivity',
+            self::DELAY_SHUT_DOWN => 'Delay Shut Down',
+        ];
     }
 }

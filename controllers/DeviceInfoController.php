@@ -3,6 +3,7 @@
 namespace d3yii2\d3printer\controllers;
 
 use d3system\yii2\web\D3SystemView;
+use d3yii2\d3printer\logic\read\D3PrinterReadConfiguration;
 use d3yii2\d3printer\logic\read\D3PrinterReadDevice;
 use ea\app\config\LeftMenuDef;
 use ea\app\controllers\LayoutController;
@@ -50,12 +51,14 @@ class DeviceInfoController extends LayoutController
     {
         try {
             $device = new D3PrinterReadDevice();
+            $deviceConfig = new D3PrinterReadConfiguration();
         }catch (Exception $e){
             $device = false;
+            $deviceConfig = false;
             FlashHelper::processException($e);
         }
         
-        return $this->render('index', ['device' => $device]);
+        return $this->render('index', ['device' => $device, 'deviceConfig' => $deviceConfig]);
     }
     
     public function init(): void

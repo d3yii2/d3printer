@@ -80,7 +80,7 @@ class HealthController extends Controller
             
         } catch (Exception $e) {
             echo $e->getMessage();
-            Yii::error($e->getMessage(), 'd3printer');
+            Yii::error($e->getMessage(), 'd3printer-error');
         }
     }
 }
