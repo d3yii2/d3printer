@@ -37,7 +37,7 @@ class D3PrinterConfigurationHealth extends D3PrinterHealth
     {
         $printer = $this->printerData->getPaperSettings();
         
-        if (D3PrinterPaperSettings::DEFAULT_PAPER_SIZE !== $printer['paper_size']) {
+        if (D3PrinterPaperSettings::DEFAULT_PAPER_SIZE !== $printer['tray1_size']) {
             $this->addInfo("Paper settings don't match: " . D3PrinterPaperSettings::DEFAULT_PAPER_SIZE . ' | ' . $printer['paper_size']);
             return false;
         }

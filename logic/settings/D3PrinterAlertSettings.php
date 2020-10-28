@@ -53,7 +53,8 @@ class D3PrinterAlertSettings
         if(!$this->model->email_to){
             return [];
         }
-        return explode('|', $this->model->email_to);
+
+        return explode('|', trim($this->model->email_to,'| \t\n\r\0\x0B'));
     }
     
     /**
