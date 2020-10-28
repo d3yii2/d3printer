@@ -23,7 +23,7 @@ class D3PrinterEnergySet extends D3PrinterSet
     {
         return [
             'ShutDown_timer_changed' => 'no',
-            'AutoOff_timer_changed' => 'no',
+            'AutoOff_timer_changed' => 'yes',
             'aoao_active_off_supported' => '1',
             'AutoOff' => 'EWS_AO_15Min',
             'ShutDown' => 'EWS_SD_4Hours',

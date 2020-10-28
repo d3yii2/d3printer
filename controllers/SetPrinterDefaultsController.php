@@ -55,6 +55,7 @@ class SetPrinterDefaultsController extends Controller
         } catch (Exception $e) {
             FlashHelper::addDanger('Errors occured: ' . $e->getMessage());
             Yii::error($e->getMessage(), 'd3printer-error');
+            Yii::error($e->getTraceAsString(), 'd3printer-error');
             return $this->redirect(['/d3printer/device-info']);
         }
     }
