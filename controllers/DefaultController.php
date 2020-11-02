@@ -2,13 +2,36 @@
 
 namespace d3yii2\d3printer\controllers;
 
+use d3yii2\d3printer\accessRights\D3PrinterFullUserRole;
 use d3yii2\d3printer\logic\read\D3PrinterReadConfiguration;
 use d3yii2\d3printer\logic\read\D3PrinterReadDevice;
 use yii\base\Exception;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 
 class DefaultController extends Controller
 {
+    /**
+     * @inheritdoc
+     */
+    public function behaviors(): array
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => [
+                            'index',
+                        ],
+                        'roles' => [D3PrinterFullUserRole::NAME],
+                    ],
+                ],
+            ],
+        ];
+    }
+    
     /**
      * Testing returned data
      * @return bool

@@ -8,6 +8,7 @@ use d3yii2\d3printer\models\AlertSettings;
 use ea\app\config\LeftMenuDef;
 use ea\app\controllers\LayoutController;
 use yii\filters\AccessControl;
+use d3yii2\d3printer\accessRights\D3PrinterFullUserRole;
 
 
 class AlertSettingsController extends LayoutController
@@ -38,9 +39,7 @@ class AlertSettingsController extends LayoutController
                         'actions' => [
                             'settings',
                         ],
-                        'roles' => [
-                            '@'
-                        ],
+                        'roles' => [D3PrinterFullUserRole::NAME],
                     ],
                 ],
             ],

@@ -2,20 +2,41 @@
 
 namespace d3yii2\d3printer\controllers;
 
+use d3yii2\d3printer\accessRights\D3PrinterFullUserRole;
 use d3yii2\d3printer\logic\D3PrinterConfigurationHealth;
 use d3yii2\d3printer\logic\D3PrinterDeviceHealth;
 use d3yii2\d3printer\logic\D3PrinterHealth;
 use eaBlankonThema\components\FlashHelper;
-use eaBlankonThema\widget\ThAlert;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Yii;
-use yii\bootstrap\Alert;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
 
 class SetPrinterDefaultsController extends Controller
 {
+    /**
+     * @inheritdoc
+     */
+    public function behaviors(): array
+    {
+        return [
+            'access' => [
+                'class' => AccessControl::class,
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'actions' => [
+                            'index',
+                        ],
+                        'roles' => [D3PrinterFullUserRole::NAME],
+                    ],
+                ],
+            ],
+        ];
+    }
+    
     /**
      * Update the printer Configuration
      * @return Response

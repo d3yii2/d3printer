@@ -4,6 +4,7 @@ namespace d3yii2\d3printer\controllers;
 
 use d3system\actions\D3SettingAction;
 use d3system\yii2\web\D3SystemView;
+use d3yii2\d3printer\accessRights\D3PrinterFullUserRole;
 use d3yii2\d3printer\models\PrinterAccessSettings;
 use ea\app\config\LeftMenuDef;
 use ea\app\controllers\LayoutController;
@@ -38,9 +39,7 @@ class PrinterAccessSettingsController extends LayoutController
                         'actions' => [
                             'settings',
                         ],
-                        'roles' => [
-                            '@'
-                        ],
+                        'roles' => [D3PrinterFullUserRole::NAME],
                     ],
                 ],
             ],

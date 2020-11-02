@@ -3,6 +3,7 @@
 namespace d3yii2\d3printer\controllers;
 
 use d3system\yii2\web\D3SystemView;
+use d3yii2\d3printer\accessRights\D3PrinterFullUserRole;
 use d3yii2\d3printer\logic\read\D3PrinterReadConfiguration;
 use d3yii2\d3printer\logic\read\D3PrinterReadDevice;
 use ea\app\config\LeftMenuDef;
@@ -37,10 +38,8 @@ class DeviceInfoController extends LayoutController
                 'rules' => [
                     [
                         'allow' => true,
-                        'actions' => [
-                            'index',
-                        ],
-                        'roles' => ['@'],
+                        'actions' => ['index'],
+                        'roles' => [D3PrinterFullUserRole::NAME],
                     ],
                 ],
             ],
