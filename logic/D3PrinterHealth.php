@@ -161,6 +161,45 @@ class D3PrinterHealth
     }
     
     /**
+     * @param $content
+     * @return string
+     */
+    public function getLogHash($content): string
+    {
+        return md5($content);
+    }
+    
+    /**
+     * @param $content
+     * @return string
+     */
+    public function getLastLogHash(): string
+    {
+        $path = Yii::getAlias('@runtime') . '/logs/d3printer/lastLogHash.txt';
+        $hash = file_exists($path) ? file_get_contents($path) : '';
+        return $hash;
+    }
+    
+    /**
+     * @param $content
+     * @return bool
+     */
+    public function isNewLogHash($content): bool
+    {
+        $lastLogHash = $this->getLastLogHash();
+        $hash = $this->getLogHash($content);
+        
+        return $hash !== $lastLogHash;
+    }
+    
+    public function updateLogHash($content): bool
+    {
+        $hash = $this->getLogHash($content);
+        $path = Yii::getAlias('@runtime') . '/logs/d3printer/lastLogHash.txt';
+        return file_put_contents($path, $hash);                   
+    }
+    
+    /**
      * @return string
      * @throws GuzzleException
      * @throws Exception
@@ -219,12 +258,17 @@ class D3PrinterHealth
         //echo str_replace(PHP_EOL, '<br>', $alertInfoContent . PHP_EOL . $alertErrorContent);
     
         $deviceHealth->logInfo($alertInfoContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
-    
+        
         if ($deviceHealth->hasErrors() || $configHealth->hasErrors()) {
             $deviceHealth->logErrors($alertErrorContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
-            $deviceHealth->sendToEmail($alertMsg);
+
+            if ($this->isNewLogHash($alertMsg)) {
+                $deviceHealth->sendToEmail($alertMsg);
+            }
         }
-        
+    
+        $this->updateLogHash($alertMsg);
+    
         return $alertMsg;
     }
 }
