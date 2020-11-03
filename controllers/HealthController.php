@@ -44,8 +44,7 @@ class HealthController extends Controller
         try {
            $health = new D3PrinterHealth();
            $message = $health->check();
-           echo $message;
-            
+           echo str_replace(PHP_EOL, '<br>', $message);
         } catch (Exception $e) {
             echo $e->getMessage();
             Yii::error($e->getMessage(), 'd3printer-error');

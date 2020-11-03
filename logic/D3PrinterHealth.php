@@ -3,9 +3,11 @@
 namespace d3yii2\d3printer\logic;
 
 use d3yii2\d3printer\logic\settings\D3PrinterAlertSettings;
+use DateTime;
 use GuzzleHttp\Exception\GuzzleException;
 use Yii;
 use yii\base\Exception;
+use d3system\helpers\D3FileHelper;
 
 /**
  * Class D3Printer
@@ -19,6 +21,7 @@ class D3PrinterHealth
     protected $alertSettings;
     
     public const LOG_SEPARATOR = '-------------';
+    private const LOG_HASH_FILENAME = 'lastLogHash.txt';
     
     /**
      * D3Printer constructor.
@@ -129,21 +132,20 @@ class D3PrinterHealth
     }
     
     /**
-     * @param int $count
+     * @param int $limit
      * @return array
      */
     public static function getLastLoggedErrors(int $limit = 10): array
     {
-        $logPath = Yii::getAlias('@runtime') . '/logs/d3printer/';
         $month = date('m');
         
         $errors = [];        
         while($month >=1 ) {
-            $dateObj   = \DateTime::createFromFormat('!m', $month);
+            $dateObj   = DateTime::createFromFormat('!m', $month);
             $monthName = $dateObj->format('F');
-            $errLog = $logPath . $monthName . '-' . date('Y') . '-error.log';
-            if (file_exists($errLog)) {
-                $logContent = file_get_contents($errLog);
+            $logFilename = $monthName . '-' . date('Y') . '-error.log';
+            $logContent = D3FileHelper::fileGetContentFromRuntime('logs/d3printer', $logFilename);
+            if ($logContent) {
                 $allErrors = explode(self::LOG_SEPARATOR, $logContent);
                 $allErrors = array_reverse($allErrors);
                 $count = count($allErrors);
@@ -170,14 +172,11 @@ class D3PrinterHealth
     }
     
     /**
-     * @param $content
      * @return string
      */
     public function getLastLogHash(): string
     {
-        $path = Yii::getAlias('@runtime') . '/logs/d3printer/lastLogHash.txt';
-        $hash = file_exists($path) ? file_get_contents($path) : '';
-        return $hash;
+         return D3FileHelper::fileGetContentFromRuntime('logs/d3printer', self::LOG_HASH_FILENAME) ?? '';
     }
     
     /**
@@ -195,8 +194,16 @@ class D3PrinterHealth
     public function updateLogHash($content): bool
     {
         $hash = $this->getLogHash($content);
-        $path = Yii::getAlias('@runtime') . '/logs/d3printer/lastLogHash.txt';
-        return file_put_contents($path, $hash);                   
+        return D3FileHelper::filePutContentInRuntime('logs/d3printer', self::LOG_HASH_FILENAME, $hash);
+    }
+    
+    /**
+     * @return bool
+     */
+    public function deleteLogHash(): bool
+    {
+        $file = D3FileHelper::getRuntimeFilePath('logs/d3printer', self::LOG_HASH_FILENAME);
+        return file_exists($file) ?? unlink($file);
     }
     
     /**
@@ -237,27 +244,24 @@ class D3PrinterHealth
             $configHealth->updatePrintConfig();
         }
     
-        if (!$configHealth->energySleepOk()) {
+        // Sleep is ok at this time and config change detected by print settings (Orientation)
+        /*if (!$configHealth->energySleepOk()) {
             $configHealth->updateEnergyConfig();
-        }
+        }*/
     
-        $alertInfoContent = $deviceHealth->getMessages($deviceHealth->getInfo()) . PHP_EOL;
+        $alertInfoContent = $deviceHealth->getMessages($deviceHealth->getInfo());
+        $alertInfoContent .= $configHealth->getMessages($configHealth->getInfo());
+        $deviceHealth->logInfo($alertInfoContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
+    
         $alertErrorContent = '';
-    
         if ($deviceHealth->hasErrors()) {
             $alertErrorContent .= PHP_EOL . 'Device Health Problems:' . PHP_EOL . $deviceHealth->getMessages($deviceHealth->getErrors());
         }
-    
-        $alertInfoContent .= PHP_EOL . PHP_EOL . $configHealth->getMessages($configHealth->getInfo());
-    
         if ($configHealth->hasErrors()) {
             $alertErrorContent .= PHP_EOL . 'Config Health Problems:' . PHP_EOL . $configHealth->getMessages($configHealth->getErrors());
         }
     
-        $alertMsg = $alertInfoContent . PHP_EOL . $alertErrorContent;
-        //echo str_replace(PHP_EOL, '<br>', $alertInfoContent . PHP_EOL . $alertErrorContent);
-    
-        $deviceHealth->logInfo($alertInfoContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
+        $alertMsg = $alertInfoContent . $alertErrorContent;
         
         if ($deviceHealth->hasErrors() || $configHealth->hasErrors()) {
             $deviceHealth->logErrors($alertErrorContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
@@ -265,10 +269,12 @@ class D3PrinterHealth
             if ($this->isNewLogHash($alertMsg)) {
                 $deviceHealth->sendToEmail($alertMsg);
             }
+    
+            $this->updateLogHash($alertMsg);
+        } else {
+            $this->deleteLogHash();
         }
-    
-        $this->updateLogHash($alertMsg);
-    
+        
         return $alertMsg;
     }
 }

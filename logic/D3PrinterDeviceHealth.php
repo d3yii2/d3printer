@@ -46,7 +46,7 @@ class D3PrinterDeviceHealth extends D3PrinterHealth
         $min = $this->alertSettings->getCartridgeMinValue();
         
         if ($remaining > $min) {
-            $this->addInfo('Cartridge OK (' . $remaining . ')');
+            $this->addInfo('Cartridge OK (' . $remaining . '%)');
             return true;
         }
         
@@ -65,7 +65,7 @@ class D3PrinterDeviceHealth extends D3PrinterHealth
         $min = $this->alertSettings->getDrumMinValue();
         
         if ($remaining > $min) {
-            $this->addInfo('Drum OK (' . $remaining . ')');
+            $this->addInfo('Drum OK (' . $remaining . '%)');
             return true;
         }
         
