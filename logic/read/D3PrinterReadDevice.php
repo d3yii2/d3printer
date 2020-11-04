@@ -13,6 +13,7 @@ class D3PrinterReadDevice extends D3PrinterRead
 {
     public const STATUS_READY = 'Ready';
     public const STATUS_DOWN = 'Off';
+    public const STATUS_PRINTING = 'Printing document.';
     
     protected $accessSettings;
     
