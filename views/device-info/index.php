@@ -31,6 +31,7 @@ $this->addPageButtons(ThReturnButton::widget([
 
 if ($device) {
     $status = $device->getStatus();
+    $statusOk = in_array($status, [D3PrinterReadDevice::STATUS_READY, D3PrinterReadDevice::STATUS_PRINTING, D3PrinterReadDevice::STATUS_SLEEP]);
     $cartridge = $device->getCartridgeRemaining();
     $drum = $device->getDrumRemaining();
 }
@@ -46,7 +47,7 @@ if ($deviceConfig) {
             <div class="panel-body rounded-bottom">
                 <h4>Device</h4>
                 <?php if ($device): ?>
-                    Status: <?= D3PrinterReadDevice::STATUS_READY === $status
+                    Status: <?= $statusOk
                         ? '<span style="color:darkgreen">' . $status . '</span>'
                         : '<span style="color:red">' . $status . '</span>'
                     ?><br>
