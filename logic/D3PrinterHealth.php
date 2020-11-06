@@ -51,7 +51,7 @@ class D3PrinterHealth
     /**
      * @param string $content
      */
-    public function sendToEmail(string $content)
+    public function sendToEmail(string $content): void
     {
         $conf = $this->getMailerConfig();
 
@@ -251,7 +251,7 @@ class D3PrinterHealth
     
         $alertInfoContent = $deviceHealth->getMessages($deviceHealth->getInfo());
         $alertInfoContent .= $configHealth->getMessages($configHealth->getInfo());
-        $deviceHealth->logInfo($alertInfoContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
+        $deviceHealth->logInfo($alertInfoContent . PHP_EOL . self::LOG_SEPARATOR . PHP_EOL);
     
         $alertErrorContent = '';
         if ($deviceHealth->hasErrors()) {
@@ -264,7 +264,7 @@ class D3PrinterHealth
         $alertMsg = $alertInfoContent . $alertErrorContent;
         
         if ($deviceHealth->hasErrors() || $configHealth->hasErrors()) {
-            $deviceHealth->logErrors($alertErrorContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
+            $deviceHealth->logErrors($alertErrorContent . PHP_EOL . self::LOG_SEPARATOR . PHP_EOL);
 
             if ($this->isNewLogHash($alertMsg)) {
                 $deviceHealth->sendToEmail($alertMsg);

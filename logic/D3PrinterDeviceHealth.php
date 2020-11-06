@@ -27,14 +27,19 @@ class D3PrinterDeviceHealth extends D3PrinterHealth
         $status = $this->device->getStatus();
         
         if (in_array(
-            $status,
-            [D3PrinterReadDevice::STATUS_READY, D3PrinterReadDevice::STATUS_PRINTING, D3PrinterReadDevice::STATUS_SLEEP]
+                $status,
+                [
+                    D3PrinterReadDevice::STATUS_READY,
+                    D3PrinterReadDevice::STATUS_PRINTING,
+                    D3PrinterReadDevice::STATUS_SLEEP
+                ],
+                true
         )) {
             $this->addInfo('Status OK');
             return true;
         }
         
-        $this->addError("Device looks down! Status: " . $status);
+        $this->addError('Device looks down! Status: "' . $status . '"');
         return false;
     }
     
