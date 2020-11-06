@@ -25,16 +25,11 @@ class D3PrinterDeviceHealth extends D3PrinterHealth
     public function statusOk(): bool
     {
         $status = $this->device->getStatus();
-        
-        if (in_array(
-                $status,
-                [
-                    D3PrinterReadDevice::STATUS_READY,
-                    D3PrinterReadDevice::STATUS_PRINTING,
-                    D3PrinterReadDevice::STATUS_SLEEP
-                ],
-                true
-        )) {
+        if(
+            strpos($status,D3PrinterReadDevice::STATUS_READY) !== false
+            || strpos($status,D3PrinterReadDevice::STATUS_PRINTING) !== false
+            || strpos($status,D3PrinterReadDevice::STATUS_SLEEP) !== false
+        ){
             $this->addInfo('Status OK');
             return true;
         }
