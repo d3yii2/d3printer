@@ -30,6 +30,7 @@ $this->addPageButtons(ThReturnButton::widget([
     'backUrl' => ['index'],
 ]));
 
+$device = null;
 if ($health && $device = $health->getDevice()) {
     $statusOk = $health->statusOk();
     $status = $device->getStatus();
