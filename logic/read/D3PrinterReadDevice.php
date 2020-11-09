@@ -11,10 +11,10 @@ use yii\base\Exception;
  */
 class D3PrinterReadDevice extends D3PrinterRead
 {
-    public const STATUS_READY = 'Ready';
-    public const STATUS_DOWN = 'Off';
-    public const STATUS_PRINTING = 'Printing document.';
-    public const STATUS_SLEEP = 'Sleep mode is on.';
+    public const STATUS_READY = 'ready';
+    public const STATUS_DOWN = 'off';
+    public const STATUS_PRINTING = 'printing';
+    public const STATUS_SLEEP = 'sleep';
     
     protected $accessSettings;
     

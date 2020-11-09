@@ -24,7 +24,7 @@ class D3PrinterDeviceHealth extends D3PrinterHealth
     
     public function statusOk(): bool
     {
-        $status = $this->device->getStatus();
+        $status = strtolower($this->device->getStatus());
         if(
             strpos($status,D3PrinterReadDevice::STATUS_READY) !== false
             || strpos($status,D3PrinterReadDevice::STATUS_PRINTING) !== false
@@ -74,5 +74,13 @@ class D3PrinterDeviceHealth extends D3PrinterHealth
         
         $this->addError('Drum is too low: ' . $remaining . '% (should be > ' . $min . '%)');
         return false;
+    }
+    
+    /**
+     * @return D3PrinterReadDevice|null
+     */
+    public function getDevice(): ?D3PrinterReadDevice
+    {
+        return $this->device;
     }
 }

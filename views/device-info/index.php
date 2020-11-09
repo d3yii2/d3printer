@@ -17,6 +17,7 @@ LayoutAsset::register($this);
  * @var D3SystemView $this
  * @var d3yii2\d3printer\models\AlertSettings $model
  * @var D3PrinterReadDevice $device
+ * @var D3PrinterDeviceHealth $health
  * @var D3PrinterReadConfiguration $deviceConfig
  */
 
@@ -29,9 +30,9 @@ $this->addPageButtons(ThReturnButton::widget([
     'backUrl' => ['index'],
 ]));
 
-if ($device) {
+if ($health && $device = $health->getDevice()) {
+    $statusOk = $health->statusOk();
     $status = $device->getStatus();
-    $statusOk = in_array($status, [D3PrinterReadDevice::STATUS_READY, D3PrinterReadDevice::STATUS_PRINTING, D3PrinterReadDevice::STATUS_SLEEP]);
     $cartridge = $device->getCartridgeRemaining();
     $drum = $device->getDrumRemaining();
 }
