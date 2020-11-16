@@ -2,30 +2,31 @@
 
 use d3system\yii2\web\D3SystemView;
 use eaBlankonThema\assetbundles\layout\LayoutAsset;
-use eaBlankonThema\widget\ThAlertList;
 use eaBlankonThema\widget\ThButton;
 use eaBlankonThema\widget\ThReturnButton;
+use kartik\select2\Select2;
 use yii\bootstrap\ActiveForm;
 
 LayoutAsset::register($this);
 
 /**
  * @var D3SystemView $this
- * @var d3yii2\d3printer\models\PrinterAccessSettings $model
+ * @var d3yii2\d3printer\models\AlertSettings $model
  */
 
 
-$this->title = 'Update settings';
+$this->title = 'Alert settings';
 
 $this->setPageHeader($this->title);
 $this->setPageHeaderDescription('');
 $this->setPageIcon('');
 $this->addPageButtons(ThReturnButton::widget([
-    'backUrl' => ['index'],
+    'backUrl' => ['device-info/index',
+        'component'=> 'bouncerPrinterHealth'
+    ],
 ]));
 ?>
 <div class="row">
-    <?= ThAlertList::widget() ?>
     <div class="col-md-9">
         <div class="panel  rounded shadow">
             <div class="panel-body rounded-bottom">
@@ -37,12 +38,21 @@ $this->addPageButtons(ThReturnButton::widget([
                         'errorSummaryCssClass' => 'error-summary alert alert-error',
                     ]);
                     ?>
-                    <?= $form->field($model, 'home_url')->textInput(['maxlength' => true]) ?>
-                    <?= $form->field($model, 'device_info_url')->textInput(['maxlength' => true]) ?>
-                    <?= $form->field($model, 'paper_setup_url')->textInput(['maxlength' => true]) ?>
-                    <?= $form->field($model, 'print_setup_url')->textInput(['maxlength' => true]) ?>
-                    <?= $form->field($model, 'energy_setup_url')->textInput(['maxlength' => true]) ?>
-
+                    <?= $form->field($model, 'cartridge_remain_min')->textInput(['maxlength' => true]) ?>
+                    <?= $form->field($model, 'drum_remain_min')->textInput(['maxlength' => true]) ?>
+                    <?= $form->field($model, 'email_from')->textInput(['maxlength' => true]) ?>
+                    
+                    <?php $model->email_to = explode('|', $model->email_to) ?>
+                    <?= $form->field($model, 'email_to')->widget(Select2::class, [
+                        //'data' => $data,
+                        'options' => ['multiple' => true],
+                        'pluginOptions' => [
+                            'tags' => true,
+                            'tokenSeparators' => [',', ' '],
+                            'minimumInputLength' => 3
+                        ],
+                    ]); ?>
+                    <?= $form->field($model, 'email_subject')->textInput(['maxlength' => true]) ?>
                     <div class="form-footer">
                         <div class="pull-right">
                             <?= ThButton::widget([

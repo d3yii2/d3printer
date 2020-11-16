@@ -11,14 +11,15 @@ use d3yii2\d3printer\models\AlertSettings as AlertSettingsModel;
 class AlertSettings
 {
     protected $model;
-    
+
     /**
      * AlertSettings constructor.
+     * @param string $addKey
      */
-    public function __construct()
+    public function __construct(string $addKey)
     {
         $this->model = new AlertSettingsModel();
-        $this->model->prepare();
+        $this->model->prepare($addKey);
     }
     
     /**

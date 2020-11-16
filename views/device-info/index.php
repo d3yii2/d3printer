@@ -24,6 +24,8 @@ LayoutAsset::register($this);
  * @var bool $drumOk
  * @var string $drum
  * @var array $lastLoggedErrors;
+ * @var string $printerCode;
+ * @var string $component;
  */
 
 
@@ -31,9 +33,11 @@ $this->title = 'DeviceHealth info';
 
 $this->setPageHeader($this->title);
 $this->setPageIcon('');
-$this->addPageButtons(ThReturnButton::widget([
-    'backUrl' => ['index'],
-]));
+$this->setSettingButton([
+    'alert-settings',
+    'addSectionKey' => $printerCode,
+    'component' => $component
+]);
 
 if ($configHealth) {
     $configAttributeLabels = $configHealth->device->attributeLabels();
@@ -63,7 +67,7 @@ if ($configHealth) {
                 <?= ThButton::widget([
                     'type' => ThButton::TYPE_PRIMARY,
                     'label' => 'Set Printer defaults',
-                    'link' => Url::to(['/d3printer/set-printer-defaults', 'component' => Yii::$app->request->get('component')])
+                    'link' => Url::to(['set-default-settings', 'component' => Yii::$app->request->get('component')])
                 ]) ?>
             </div>
         </div>

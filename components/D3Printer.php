@@ -16,6 +16,9 @@ class D3Printer extends Component
     public $printerCode;
     public $printerName;
     public $accessSettings = [];
+    public $leftMenu;
+    public $leftMenuUrl;
+
     
     public function deviceHealth()
     {

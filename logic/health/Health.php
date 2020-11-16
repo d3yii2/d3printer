@@ -41,7 +41,7 @@ class Health extends Component
      */
     public function init()
     {
-        $this->alertSettings = new AlertSettings();
+        $this->alertSettings = new AlertSettings($this->printerCode);
         $this->logger = new Logger($this->printerCode, $this->printerName);
         $this->mailer = new Mailer();
     }

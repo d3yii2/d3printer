@@ -16,7 +16,9 @@ class AlertSettings extends Model
     public $email_from;
     public $email_to;
     public $email_subject;
-    
+
+    /** @var string */
+    public $addSectionKey;
     /**
      * @return array[]
      */
@@ -53,13 +55,15 @@ class AlertSettings extends Model
     /**
      *
      */
-    public function prepare(): void
+    public function prepare(string $addKey): void
     {
         foreach ($this->attributes() as $attribute) {
-            $value = Yii::$app->settings->get(self::getSectionName(), $attribute);
+            $value = Yii::$app->settings->get($this->getSectionName($addKey), $attribute);
             
             if (!is_null($value)) {
                 $this->{$attribute} = $value;
+            }else{
+                $this->{$attribute} = '';
             }
         }
     }
@@ -71,15 +75,17 @@ class AlertSettings extends Model
     {
         return ['cartridge_remain_min', 'drum_remain_min', 'email_from', 'email_to', 'email_subject'];
     }
-    
+
     /**
+     * @param string $addKey
      * @return string
      */
-    public static function getSectionName(): string
+    public function getSectionName(string $addKey): string
     {
-        return 'Settings-AlertSettings';
+        return 'd3printer - ' .$addKey;
     }
-    
+
+
     /**
      * @return bool
      */
