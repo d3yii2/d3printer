@@ -3,19 +3,11 @@
 namespace d3yii2\d3printer\logic\set;
 
 /**
- * Class D3PrinterPaperSet
+ * Class SetPaper
  * @package d3yii2\d3printer\logic\set
  */
-class D3PrinterPaperSet extends D3PrinterSet
+class SetPaper extends Set
 {
-    /**
-     * @return string
-     */
-    protected function getConnectionUrl(): string
-    {
-        return $this->accessSettings->getPaperSetupUrl();
-    }
-    
     /**
      * @return string[]
      */

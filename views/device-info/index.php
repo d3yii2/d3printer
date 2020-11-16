@@ -1,14 +1,13 @@
 <?php
 
 use d3system\yii2\web\D3SystemView;
-use d3yii2\d3printer\logic\D3PrinterDeviceHealth;
-use d3yii2\d3printer\logic\read\D3PrinterReadConfiguration;
-use d3yii2\d3printer\logic\read\D3PrinterReadDevice;
+use d3yii2\d3printer\logic\health\DeviceHealth;
+use d3yii2\d3printer\logic\read\ReadConfiguration;
 use eaBlankonThema\assetbundles\layout\LayoutAsset;
+use eaBlankonThema\components\FlashHelper;
 use eaBlankonThema\widget\ThAlertList;
 use eaBlankonThema\widget\ThButton;
 use eaBlankonThema\widget\ThReturnButton;
-use yii\helpers\Html;
 use yii\helpers\Url;
 
 LayoutAsset::register($this);
@@ -16,13 +15,19 @@ LayoutAsset::register($this);
 /**
  * @var D3SystemView $this
  * @var d3yii2\d3printer\models\AlertSettings $model
- * @var D3PrinterReadDevice $device
- * @var D3PrinterDeviceHealth $health
- * @var D3PrinterReadConfiguration $deviceConfig
+ * @var DeviceHealth $deviceHealth
+ * @var ReadConfiguration $configHealth
+ * @var bool $statusOk
+ * @var string $status
+ * @var bool $cartridgeOk
+ * @var string $cartridge
+ * @var bool $drumOk
+ * @var string $drum
+ * @var array $lastLoggedErrors;
  */
 
 
-$this->title = 'Device info';
+$this->title = 'DeviceHealth info';
 
 $this->setPageHeader($this->title);
 $this->setPageIcon('');
@@ -30,16 +35,8 @@ $this->addPageButtons(ThReturnButton::widget([
     'backUrl' => ['index'],
 ]));
 
-$device = null;
-if ($health && $device = $health->getDevice()) {
-    $statusOk = $health->statusOk();
-    $status = $device->getStatus();
-    $cartridge = $device->getCartridgeRemaining();
-    $drum = $device->getDrumRemaining();
-}
-
-if ($deviceConfig) {
-    $configAttributeLabels = $deviceConfig->attributeLabels();
+if ($configHealth) {
+    $configAttributeLabels = $configHealth->device->attributeLabels();
 }
 ?>
 <div class="row">
@@ -47,20 +44,26 @@ if ($deviceConfig) {
     <div class="col-md-9">
         <div class="panel  rounded shadow">
             <div class="panel-body rounded-bottom">
-                <h4>Device</h4>
-                <?php if ($device): ?>
+                <h4><?= $deviceHealth->printerName ?? '' ?></h4>
+                <?php if ($deviceHealth): ?>
                     Status: <?= $statusOk
                         ? '<span style="color:darkgreen">' . $status . '</span>'
                         : '<span style="color:red">' . $status . '</span>'
                     ?><br>
-                    Cartridge: <?= $cartridge ?>%<br>
-                    Drum: <?= $drum ?>%
+                    Cartridge: <?= $cartridgeOk
+                    ? '<span style="color:darkgreen">' . $cartridge . '%</span>'
+                    : '<span style="color:red">' . $cartridge . '%</span>'
+                    ?><br>
+                    Drum: <?= $drumOk
+                        ? '<span style="color:darkgreen">' . $drum . '%</span>'
+                        : '<span style="color:red">' . $drum . '%</span>'
+                    ?>
                 <?php endif; ?>
                 <hr>
                 <?= ThButton::widget([
                     'type' => ThButton::TYPE_PRIMARY,
                     'label' => 'Set Printer defaults',
-                    'link' => Url::to(['/d3printer/set-printer-defaults'])
+                    'link' => Url::to(['/d3printer/set-printer-defaults', 'component' => Yii::$app->request->get('component')])
                 ]) ?>
             </div>
         </div>
@@ -68,8 +71,8 @@ if ($deviceConfig) {
             <div class="panel-body rounded-bottom">
                 <h4>Print Settings</h4>
                 <?php
-                if ($deviceConfig) {
-                    foreach ($deviceConfig->getPrintSettings() as $key => $value) {
+                if ($configHealth) {
+                    foreach ($configHealth->device->printSettings() as $key => $value) {
                         echo $configAttributeLabels[$key] . ':  ' . $value . '<br>';
                     }
                 } ?>
@@ -79,8 +82,8 @@ if ($deviceConfig) {
             <div class="panel-body rounded-bottom">
                 <h4>Paper Settings</h4>
                 <?php
-                if ($deviceConfig) {
-                    foreach ($deviceConfig->getPaperSettings() as $key => $value) {
+                if ($configHealth) {
+                    foreach ($configHealth->device->paperSettings() as $key => $value) {
                         echo $configAttributeLabels[$key] . ':  ' . $value . '<br>';
                     }
                 } ?>
@@ -90,8 +93,8 @@ if ($deviceConfig) {
             <div class="panel-body rounded-bottom">
                 <h4>Energy Settings</h4>
                 <?php
-                if ($deviceConfig) {
-                    foreach ($deviceConfig->getEnergySettings() as $key => $value) {
+                if ($configHealth) {
+                    foreach ($configHealth->device->energySettings() as $key => $value) {
                         echo $configAttributeLabels[$key] . ':  ' . $value . '<br>';
                     }
                 } ?>
@@ -101,7 +104,7 @@ if ($deviceConfig) {
             <div class="panel-body rounded-bottom">
                 <h4>Last Errors</h4>
                 <?php
-                foreach (D3PrinterDeviceHealth::getLastLoggedErrors() as $error) {
+                foreach ($lastLoggedErrors as $error) {
                     echo str_replace(PHP_EOL, '<br>', $error) . '<hr>';
                 } ?>
             </div>

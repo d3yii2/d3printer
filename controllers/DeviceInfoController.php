@@ -4,16 +4,19 @@ namespace d3yii2\d3printer\controllers;
 
 use d3system\yii2\web\D3SystemView;
 use d3yii2\d3printer\accessRights\D3PrinterFullUserRole;
-use d3yii2\d3printer\logic\D3PrinterDeviceHealth;
-use d3yii2\d3printer\logic\read\D3PrinterReadConfiguration;
-use d3yii2\d3printer\logic\read\D3PrinterReadDevice;
+use d3yii2\d3printer\logic\health\ConfigurationHealth;
+use d3yii2\d3printer\logic\health\DeviceHealth;
 use ea\app\config\LeftMenuDef;
 use ea\app\controllers\LayoutController;
 use eaBlankonThema\components\FlashHelper;
 use Exception;
+use Yii;
 use yii\filters\AccessControl;
 
-
+/**
+ * Class DeviceInfoController
+ * @package d3yii2\d3printer\controllers
+ */
 class DeviceInfoController extends LayoutController
 {
     /**
@@ -47,18 +50,58 @@ class DeviceInfoController extends LayoutController
         ];
     }
     
-    public function actionIndex()
+    public function actionIndex(string $component)
     {
+        $deviceHealth = null;
+        $configHealth = null;
+        $statusOk = null;
+        $status = null;
+        $cartridgeOk = null;
+        $cartridge = null;
+        $drumOk = null;
+        $drum = null;
+        $lastLoggedErrors = [];
+        
         try {
-            $health = new D3PrinterDeviceHealth();
-            $deviceConfig = new D3PrinterReadConfiguration();
-        }catch (Exception $e){
+            /** @var DeviceHealth $deviceHealth */
+            $deviceHealth = Yii::$app->{$component}->deviceHealth();
+            
+            $statusOk = $deviceHealth->statusOk();
+            $status = $deviceHealth->device->status();
+            
+            $cartridgeOk = $deviceHealth->cartridgeOk();
+            $cartridge = $deviceHealth->device->cartridgeRemaining();
+
+            $drumOk = $deviceHealth->drumOk();
+            $drum = $deviceHealth->device->drumRemaining();
+    
+            /** @var ConfigurationHealth $configHealth */
+            $configHealth = Yii::$app->{$component}->configHealth();
+            
+            $deviceErrors = $deviceHealth->logger->getErrors();
+            if (!empty($deviceErrors)) {
+                foreach ($deviceErrors as $err) {
+                    FlashHelper::addDanger($err);
+                }
+            }
+            $lastLoggedErrors = $deviceHealth->logger->getLastLoggedErrors();
+        } catch (Exception $e) {
             $health = false;
-            $deviceConfig = false;
             FlashHelper::processException($e);
         }
-        
-        return $this->render('index', ['health' => $health, 'deviceConfig' => $deviceConfig]);
+        return $this->render(
+            'index',
+            compact(
+                'deviceHealth',
+                'configHealth',
+                'statusOk',
+                'status',
+                'cartridgeOk',
+                'cartridge',
+                'drumOk',
+                'drum',
+                'lastLoggedErrors'
+            ));
     }
     
     public function init(): void

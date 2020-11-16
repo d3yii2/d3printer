@@ -2,22 +2,22 @@
 
 namespace d3yii2\d3printer\logic\settings;
 
-use d3yii2\d3printer\models\AlertSettings;
+use d3yii2\d3printer\models\AlertSettings as AlertSettingsModel;
 
 /**
- * Class D3Printer
- * @package d3yii2\d3printer\logic
+ * Class AlertSettings
+ * @package d3yii2\d3printer\logic\settings
  */
-class D3PrinterAlertSettings
+class AlertSettings
 {
     protected $model;
     
     /**
-     * D3Printer constructor.
+     * AlertSettings constructor.
      */
     public function __construct()
     {
-        $this->model = new AlertSettings();
+        $this->model = new AlertSettingsModel();
         $this->model->prepare();
     }
     
@@ -50,11 +50,11 @@ class D3PrinterAlertSettings
      */
     public function getEmailTo(): array
     {
-        if(!$this->model->email_to){
+        if (!$this->model->email_to) {
             return [];
         }
-
-        return explode('|', trim($this->model->email_to,'| \t\n\r\0\x0B'));
+        
+        return explode('|', trim($this->model->email_to, '| \t\n\r\0\x0B'));
     }
     
     /**

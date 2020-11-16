@@ -3,19 +3,11 @@
 namespace d3yii2\d3printer\logic\set;
 
 /**
- * Class D3PrinterEnergySet
+ * Class SetEnergy
  * @package d3yii2\d3printer\logic\set
  */
-class D3PrinterEnergySet extends D3PrinterSet
+class SetEnergy extends Set
 {
-    /**
-     * @return string
-     */
-    protected function getConnectionUrl(): string
-    {
-        return $this->accessSettings->getEnergySetupUrl();
-    }
-    
     /**
      * @return string[]
      */
@@ -30,5 +22,13 @@ class D3PrinterEnergySet extends D3PrinterSet
             'delayShutDown' => 'on',
             'Apply' => 'Apply',
         ];
+    }
+    
+    /**
+     * @return string
+     */
+    protected function getConnectionUrl(): string
+    {
+        return $this->accessSettings->getEnergySetupUrl();
     }
 }

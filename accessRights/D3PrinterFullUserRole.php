@@ -4,71 +4,71 @@ namespace d3yii2\d3printer\accessRights;
 
 
 use CompanyRights\components\UserRoleInterface;
-use yii2d3\d3persons\accessRights\CompanyOwnerUserRole;
 use Yii;
+use yii2d3\d3persons\accessRights\CompanyOwnerUserRole;
 
 class D3PrinterFullUserRole implements UserRoleInterface
 {
-
+    
     public const NAME = 'D3PrinterFull';
-
+    
     /**
-    * @inheritdoc
-    */
+     * @inheritdoc
+     */
     public function getType(): string
     {
         return self::TYPE_REGULAR;
     }
-
+    
     /**
-    * @inheritdoc
-    */
+     * @inheritdoc
+     */
     public function getLabel(): string
     {
         return Yii::t('d3printer', 'Full');
-
+        
     }
-
+    
     /**
-    * @inheritdoc
-    */
+     * @inheritdoc
+     */
     public function getName(): string
     {
         return self::NAME;
     }
-
+    
     /**
-    * @inheritdoc
-    */
+     * @inheritdoc
+     */
     public function getAssigments(): array
     {
         return [];
     }
-
+    
     /**
-    * @inheritdoc
-    */
+     * @inheritdoc
+     */
     public function canAssign(): bool
     {
         return Yii::$app->user->can(CompanyOwnerUserRole::NAME);
     }
-
+    
     /**
-    * @inheritdoc
-    */
+     * @inheritdoc
+     */
     public function canView(): bool
     {
         //return \Yii::$app->user->can(SystemAdminUserRole::NAME);
         return Yii::$app->user->can(CompanyOwnerUserRole::NAME);
     }
-
+    
     /**
-    * @inheritdoc
-    */
+     * @inheritdoc
+     */
     public function canRevoke(): bool
     {
         return Yii::$app->user->can(CompanyOwnerUserRole::NAME);
     }
-
+    
 }
 

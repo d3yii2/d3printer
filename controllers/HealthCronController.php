@@ -3,7 +3,6 @@
 namespace d3yii2\d3printer\controllers;
 
 use d3system\commands\D3CommandController;
-use d3yii2\d3printer\logic\D3PrinterHealth;
 use GuzzleHttp\Exception\GuzzleException;
 use Yii;
 use yii\base\Exception;
@@ -15,17 +14,16 @@ use yii\console\ExitCode;
  */
 class HealthCronController extends D3CommandController
 {
-    
     /**
-     * @throws GuzzleException
-     *  Cron example: /usr/bin/php <sitepath>/yii d3printer/health-cron
-     *  Console command: php yii d3printer-health-cron
+     *  Cron example: /usr/bin/php <sitepath>/yii d3printer/health-cron <component name>
+     *  Pass the component name as the $component
+     * @param string $component
+     * @return int
      */
-    public function actionIndex(): int
+    public function actionIndex(string $component)
     {
         try {
-            $health = new D3PrinterHealth();
-            $message = $health->check();
+            $message = Yii::$app->{$component}->commonHealth()->check();
             echo $message;
             return ExitCode::OK;
         } catch (Exception $e) {

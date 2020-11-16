@@ -2,14 +2,13 @@
 
 namespace d3yii2\d3printer\logic\read;
 
-use d3yii2\d3printer\logic\settings\D3PrinterAccessSettings;
 use yii\base\Exception;
 
 /**
- * Class D3PrinterReadConfiguration
+ * Class ReadConfiguration
  * @package d3yii2\d3printer\logic
  */
-class D3PrinterReadConfiguration extends D3PrinterRead
+class ReadConfiguration extends Read
 {
     // Paper Settings
     public const DEEFAULT_PAPER_SIZE = 'paper_size';
@@ -43,17 +42,11 @@ class D3PrinterReadConfiguration extends D3PrinterRead
     public const SHUT_DOWN_AFTER = 'shut_down_after';
     public const DELAY_SHUT_DOWN = 'delay_shut_down';
     
-    public function __construct()
-    {
-        $this->accessSettings = new D3PrinterAccessSettings();
-        parent::__construct();
-    }
-    
     /**
      * @return array|null
      * @throws Exception
      */
-    public function getPrintSettings(): ?array
+    public function printSettings(): ?array
     {
         $settingsKeys = [
             0 => self::AUTO_CONTINUE,
@@ -78,7 +71,6 @@ class D3PrinterReadConfiguration extends D3PrinterRead
         $settingsNodes = $this->parse("(//td[@class='rightContentPane']//table[@class='mainContentArea'])[5]/tr/td[2]");
         
         if (0 === count($settingsNodes)) {
-            echo 'Cannot parse print settings nodes';
             return null;
         }
         
@@ -93,7 +85,7 @@ class D3PrinterReadConfiguration extends D3PrinterRead
      * @return array|null
      * @throws Exception
      */
-    public function getPaperSettings(): ?array
+    public function paperSettings(): ?array
     {
         $settingsKeys = [
             0 => self::DEEFAULT_PAPER_SIZE,
@@ -111,7 +103,6 @@ class D3PrinterReadConfiguration extends D3PrinterRead
         $settingsNodes = $this->parse("(//td[@class='rightContentPane']//table[@class='mainContentArea'])[4]/tr/td[2]");
         
         if (0 === count($settingsNodes)) {
-            echo 'Cannot parse paper settings nodes';
             return null;
         }
         
@@ -126,7 +117,7 @@ class D3PrinterReadConfiguration extends D3PrinterRead
      * @return array|null
      * @throws Exception
      */
-    public function getEnergySettings(): ?array
+    public function energySettings(): ?array
     {
         $settingsKeys = [
             0 => self::SLEEP_AFTER,
@@ -139,7 +130,6 @@ class D3PrinterReadConfiguration extends D3PrinterRead
         $settingsNodes = $this->parse("(//td[@class='rightContentPane']//table[@class='mainContentArea'])[7]/tr/td[2]");
         
         if (0 === count($settingsNodes)) {
-            echo 'Cannot parse energy settings nodes';
             return null;
         }
         
@@ -148,14 +138,6 @@ class D3PrinterReadConfiguration extends D3PrinterRead
         }
         
         return $settings;
-    }
-    
-    /**
-     * @return string
-     */
-    protected function getConnectionUrl(): string
-    {
-        return $this->accessSettings->getPrinterConfigurationUrl();
     }
     
     /**
@@ -172,7 +154,7 @@ class D3PrinterReadConfiguration extends D3PrinterRead
             self::MANUAL_FEED => 'Manual Feed',
             self::DUPLEX => 'Duplex',
             self::BIND => 'Bind',
-        
+            
             // Print settings
             self::AUTO_CONTINUE => 'Auto Continue',
             self::NUMBER_OF_COPIES => 'Number of Copies',
@@ -189,7 +171,7 @@ class D3PrinterReadConfiguration extends D3PrinterRead
             self::JAM_RECOVERY => 'Jam Recovery',
             self::PERSONALITY => 'Personality',
             self::PRINT_PS_ERRORS => 'Print PS Errors',
-        
+            
             // Energy Settings
             self::SLEEP_AFTER => 'Sleep/Auto Off After Inactivity',
             self::SHUT_DOWN_AFTER => 'Shut Down After Inactivity',

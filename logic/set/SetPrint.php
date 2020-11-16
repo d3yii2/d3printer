@@ -2,16 +2,8 @@
 
 namespace d3yii2\d3printer\logic\set;
 
-class D3PrinterPrintSet extends D3PrinterSet
+class SetPrint extends Set
 {
-    /**
-     * @return string
-     */
-    protected function getConnectionUrl(): string
-    {
-        return $this->accessSettings->getPrintSetupUrl();
-    }
-    
     /**
      * @return string[]
      */
@@ -25,5 +17,13 @@ class D3PrinterPrintSet extends D3PrinterSet
             'Orientation' => 'orient_Portrait',
             'Apply' => 'Apply',
         ];
+    }
+    
+    /**
+     * @return string
+     */
+    protected function getConnectionUrl(): string
+    {
+        return $this->accessSettings->getPrintSetupUrl();
     }
 }
