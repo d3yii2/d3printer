@@ -51,7 +51,7 @@ class AlertSettings extends Model
     }
     
     /**
-     * 
+     *
      */
     public function prepare(): void
     {

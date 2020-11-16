@@ -1,1 +1,10 @@
-{"moduleclass":{"value":"d3yii2\\d3printer\\Module","name":"moduleClass"},"commandname":{"value":"printerHealth","name":"commandName"}}
+{
+  "moduleclass": {
+    "value": "d3yii2\\d3printer\\Module",
+    "name": "moduleClass"
+  },
+  "commandname": {
+    "value": "printerHealth",
+    "name": "commandName"
+  }
+}

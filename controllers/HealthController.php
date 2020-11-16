@@ -3,13 +3,16 @@
 namespace d3yii2\d3printer\controllers;
 
 use d3yii2\d3printer\accessRights\D3PrinterFullUserRole;
-use d3yii2\d3printer\logic\D3PrinterHealth;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 
+/**
+ * Class HealthController
+ * @package d3yii2\d3printer\controllers
+ */
 class HealthController extends Controller
 {
     /**
@@ -39,12 +42,11 @@ class HealthController extends Controller
      * @return void
      * @throws GuzzleException
      */
-    public function actionIndex()
+    public function actionIndex(string $component)
     {
         try {
-           $health = new D3PrinterHealth();
-           $message = $health->check();
-           echo str_replace(PHP_EOL, '<br>', $message);
+            $message = Yii::$app->{$component}->commonHealth()->check();
+            echo str_replace(PHP_EOL, '<br>', $message);
         } catch (Exception $e) {
             echo $e->getMessage();
             Yii::error($e->getMessage(), 'd3printer-error');

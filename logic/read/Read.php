@@ -2,7 +2,7 @@
 
 namespace d3yii2\d3printer\logic\read;
 
-use d3yii2\d3printer\logic\D3Printer;
+use d3yii2\d3printer\logic\Connect;
 use DOMDocument;
 use DOMNode;
 use DOMNodeList;
@@ -10,10 +10,10 @@ use DOMXPath;
 use yii\base\Exception;
 
 /**
- * Class D3PrinterRead
- * @package d3yii2\d3printer\logic
+ * Class Read
+ * @package d3yii2\d3printer\logic\read
  */
-class D3PrinterRead extends D3Printer
+class Read extends Connect
 {
     /** @var DOMXPath */
     protected $xpath;
@@ -25,20 +25,13 @@ class D3PrinterRead extends D3Printer
      * D3PrinterRead constructor.
      * @throws Exception
      */
-    public function __construct()
+    public function __construct($url)
     {
-        parent::__construct();
+        parent::__construct($url);
+        
         $this->dom = new DOMDocument();
-        $this->init();
-    }
-    
-    /**
-     * Fill the DOM object with content returned from printer page response
-     * @throws Exception
-     */
-    public function init(): void
-    {
-        $content = parent::connect($this->getConnectionUrl());
+        
+        $content = parent::connect();
         
         libxml_use_internal_errors(true);
         

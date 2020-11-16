@@ -3,9 +3,9 @@
 namespace d3yii2\d3printer\controllers;
 
 use d3yii2\d3printer\accessRights\D3PrinterFullUserRole;
+use d3yii2\d3printer\components\D3Printer;
 use d3yii2\d3printer\logic\D3PrinterConfigurationHealth;
-use d3yii2\d3printer\logic\D3PrinterDeviceHealth;
-use d3yii2\d3printer\logic\D3PrinterHealth;
+use d3yii2\d3printer\logic\health\ConfigurationHealth;
 use eaBlankonThema\components\FlashHelper;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -38,40 +38,41 @@ class SetPrinterDefaultsController extends Controller
     }
     
     /**
-     * Update the printer Configuration
+     * Update the printer ConfigurationHealth
      * @return Response
      * @throws GuzzleException
      */
-    public function actionIndex(): Response
+    public function actionIndex(string $component): Response
     {
         try {
-            // Get the live data from printer Configuration page
-            $configHealth = new D3PrinterConfigurationHealth();
+            // Get the live data from printer ConfigurationHealth page
+            /** @var ConfigurationHealth $configHealth */
+            $configHealth = Yii::$app->{$component}->configHealth();
             
             $configHealth->updatePaperConfig();
             $configHealth->updatePrintConfig();
             $configHealth->updateEnergyConfig();
             
             $alertErrorContent = '';
-            $alertInfoContent = $configHealth->getMessages($configHealth->getInfo());
+            $alertInfoContent = $configHealth->logger->getInfoMessages();
             
-            if ($configHealth->hasErrors()) {
-                $alertErrorContent .= PHP_EOL . 'Update errors:' . PHP_EOL . $configHealth->getMessages($configHealth->getErrors());
+            if ($configHealth->logger->hasErrors()) {
+                $alertErrorContent .= PHP_EOL . 'Update errors:' . PHP_EOL . $configHealth->logger->getErrorMessages();
             }
             
             $alertMsg = $alertInfoContent . PHP_EOL . $alertErrorContent;
             
-            $configHealth->logInfo($alertInfoContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
-    
-            if ($configHealth->hasErrors() || $configHealth->hasErrors()) {
+            $configHealth->logger->logInfo($alertInfoContent);
+            
+            if ($configHealth->logger->hasErrors() || $configHealth->logger->hasErrors()) {
                 FlashHelper::addDanger('Errors occured: ' . $alertErrorContent);
-                $configHealth->logErrors($alertErrorContent . PHP_EOL . D3PrinterHealth::LOG_SEPARATOR . PHP_EOL);
-                $configHealth->sendToEmail($alertMsg);
+                $configHealth->logger->logErrors($alertErrorContent);
+                $configHealth->logger->sendToEmail($alertMsg);
             } else {
-                FlashHelper::addSuccess('Printer Configuration updated');
+                FlashHelper::addSuccess('Printer ConfigurationHealth updated');
             }
             
-            return $this->redirect(['/d3printer/device-info']);
+            return $this->redirect(['/d3printer/device-info', 'component' => $component]);
             
         } catch (Exception $e) {
             FlashHelper::addDanger('Errors occured: ' . $e->getMessage());
