@@ -90,6 +90,7 @@ class DeviceInfoController extends LayoutController
     public function actionIndex(string $component): string
     {
         $deviceHealth = null;
+        $printerCode = null;
         $configHealth = null;
         $statusOk = null;
         $status = null;
