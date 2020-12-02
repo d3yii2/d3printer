@@ -85,7 +85,7 @@ class CommonHealth extends Health
         if ($this->deviceHealth->logger->hasErrors() || $this->configHealth->logger->hasErrors()) {
             $this->deviceHealth->logger->logErrors($alertErrorContent);
             
-            if ($this->deviceHealth->logger->isNewLogHash($alertMsg)) {
+            if ($this->deviceHealth->logger->isNewLogHash($alertErrorContent)) {
                 
                 $conf = [
                     'from' => $this->alertSettings->getEmailFrom(),
@@ -96,7 +96,7 @@ class CommonHealth extends Health
                 $this->deviceHealth->mailer->send($alertMsg, $conf);
             }
             
-            $this->deviceHealth->logger->updateLogHash($alertMsg);
+            $this->deviceHealth->logger->updateLogHash($alertErrorContent);
         } else {
             $this->deviceHealth->logger->deleteLogHash();
         }
