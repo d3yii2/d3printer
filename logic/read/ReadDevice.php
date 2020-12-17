@@ -9,9 +9,29 @@ namespace d3yii2\d3printer\logic\read;
  */
 class ReadDevice extends Read
 {
+    protected $cartridgeDisplayedValue;
+    protected $drumDisplayedValue;
+    
     private const PARSE_STATUS_EXPR = "//*[@id='deviceStatus_tableCell']";
     private const PARSE_CARTRIDGE_EXPR = "//table[@class='mainContentArea width100 pad10']//table[@class='width100']/tr[1]/td[2]";
     private const PARSE_DRUM_EXPR = "//table[@class='mainContentArea width100 pad10']/tr/td[2]/table[@class='width100']/tr/td[2]";
+    
+    /**
+     * @return mixed
+     */
+    public function getCartridgeDisplayedValue()
+    {
+        return $this->cartridgeDisplayedValue;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDrumDisplayedValue()
+    {
+        return $this->drumDisplayedValue;
+    }
+    
     
     /**
      * @param string $expr
@@ -40,11 +60,9 @@ class ReadDevice extends Read
             return null;
         }
         
-        $percent = trim($statusNode->item(0)->nodeValue);
+        $this->cartridgeDisplayedValue = $this->getSanitizedValue($statusNode->item(0));
         
-        $percent = intval(str_replace('%', '', $percent));
-        
-        return $percent;
+        return $this->cartridgeDisplayedValue;
     }
     
     /**
@@ -58,11 +76,9 @@ class ReadDevice extends Read
         if (0 === count($statusNode)) {
             return null;
         }
+    
+        $this->drumDisplayedValue = $this->getSanitizedValue($statusNode->item(0));
         
-        $percent = trim($statusNode->item(0)->nodeValue);
-        
-        $percent = intval(str_replace('%', '', $percent));
-        
-        return $percent;
+        return $this->drumDisplayedValue;
     }
 }

@@ -108,10 +108,10 @@ class DeviceInfoController extends LayoutController
             $status = $deviceHealth->device->status();
 
             $cartridgeOk = $deviceHealth->cartridgeOk();
-            $cartridge = $deviceHealth->device->cartridgeRemaining();
+            $cartridge = $deviceHealth->device->getCartridgeDisplayedValue();
 
             $drumOk = $deviceHealth->drumOk();
-            $drum = $deviceHealth->device->drumRemaining();
+            $drum = $deviceHealth->device->getDrumDisplayedValue();
 
             /** @var ConfigurationHealth $configHealth */
             $configHealth = $this->printerComponent->configHealth();

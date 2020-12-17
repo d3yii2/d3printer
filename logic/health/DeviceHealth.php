@@ -55,21 +55,26 @@ class DeviceHealth extends Health
      */
     public function cartridgeOk(): bool
     {
-        $remaining = $this->device->cartridgeRemaining();
+        $value = $this->device->cartridgeRemaining();
         
-        if (!$remaining) {
-            $this->logger->addError('Cannot parse Cartridge value');
+        if (!$value) {
+            $this->logger->addError('Cartrige level not readable! (Displayed: ' . $value . ')');
+            return false;
+        }
+    
+        if (strstr($value, '<')) {
+            $this->logger->addError('Cartrige level too low! ' . $value);
             return false;
         }
         
         $min = $this->alertSettings->getCartridgeMinValue();
-        
-        if ($remaining > $min) {
-            $this->logger->addInfo('Cartridge OK (' . $remaining . '%)');
+
+        if ((float) $value > (float) $min) {
+            $this->logger->addInfo('Cartridge OK (' . $value . ')');
             return true;
         }
         
-        $this->logger->addError('Remaining Cartrige level too low: ' . $remaining . '% (Configured minimum:  ' . $min . '%)');
+        $this->logger->addError('Remaining Cartrige level too low: ' . $value . ' (Minimum is:  ' . $min . ')');
         return false;
     }
     
@@ -78,21 +83,26 @@ class DeviceHealth extends Health
      */
     public function drumOk(): bool
     {
-        $remaining = $this->device->drumRemaining();
+        $value = $this->device->drumRemaining();
     
-        if (!$remaining) {
-            $this->logger->addError('Cannot parse Drum value');
+        if (!$value) {
+            $this->logger->addError('Drum value not readable! (Displayed: ' . $value . ')');
             return false;
         }
-        
+    
+        if (strstr($value, '<')) {
+            $this->logger->addError('Drum value too low! ' . $value);
+            return false;
+        }
+
         $min = $this->alertSettings->getDrumMinValue();
         
-        if ($remaining > $min) {
-            $this->logger->addInfo('Drum OK (' . $remaining . '%)');
+        if ((float) $value > (float) $min) {
+            $this->logger->addInfo('Drum OK (' . $value . ')');
             return true;
         }
         
-        $this->logger->addError('Remaining Drum too low: ' . $remaining . '% (Configured minimum:  ' . $min . '%)');
+        $this->logger->addError('Remaining Drum too low: ' . $value . ' (Minimum is:  ' . $min . ')');
         return false;
     }
 }

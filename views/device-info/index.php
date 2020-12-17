@@ -55,12 +55,12 @@ if ($configHealth) {
                         : '<span style="color:red">' . $status . '</span>'
                     ?><br>
                     Cartridge: <?= $cartridgeOk
-                    ? '<span style="color:darkgreen">' . $cartridge . '%</span>'
-                    : '<span style="color:red">' . $cartridge . '%</span>'
+                    ? '<span style="color:darkgreen">' . $cartridge . '</span>'
+                    : '<span style="color:red">' . $cartridge . '</span>'
                     ?><br>
                     Drum: <?= $drumOk
-                        ? '<span style="color:darkgreen">' . $drum . '%</span>'
-                        : '<span style="color:red">' . $drum . '%</span>'
+                        ? '<span style="color:darkgreen">' . $drum . '</span>'
+                        : '<span style="color:red">' . $drum . '</span>'
                     ?>
                 <?php endif; ?>
                 <hr>
