@@ -51,7 +51,7 @@ $this->addPageButtons(ThReturnButton::widget([
                             'tokenSeparators' => [',', ' '],
                             'minimumInputLength' => 3
                         ],
-                    ]); ?>
+                    ])?>
                     <?= $form->field($model, 'email_subject')->textInput(['maxlength' => true]) ?>
                     <div class="form-footer">
                         <div class="pull-right">
