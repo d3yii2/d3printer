@@ -22,7 +22,7 @@ $this->setPageHeaderDescription('');
 $this->setPageIcon('');
 $this->addPageButtons(ThReturnButton::widget([
     'backUrl' => ['device-info/index',
-        'component'=> 'bouncerPrinterHealth'
+        'component'=> $model->addSectionKey
     ],
 ]));
 ?>
