@@ -12,6 +12,7 @@ LayoutAsset::register($this);
 /**
  * @var D3SystemView $this
  * @var d3yii2\d3printer\models\AlertSettings $model
+ * @var string $component
  */
 
 
@@ -22,7 +23,7 @@ $this->setPageHeaderDescription('');
 $this->setPageIcon('');
 $this->addPageButtons(ThReturnButton::widget([
     'backUrl' => ['device-info/index',
-        'component'=> $model->addSectionKey
+        'component'=> Yii::$app->request->get('component')
     ],
 ]));
 ?>
