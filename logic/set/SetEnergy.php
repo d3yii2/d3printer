@@ -14,11 +14,11 @@ class SetEnergy extends Set
     public function getSendAttributes(): array
     {
         return [
-            'ShutDown_timer_changed' => 'no',
+            'ShutDown_timer_changed' => 'yes',
             'AutoOff_timer_changed' => 'yes',
             'aoao_active_off_supported' => '1',
-            'AutoOff' => 'EWS_AO_15Min',
-            'ShutDown' => 'EWS_SD_4Hours',
+            'AutoOff' => 'EWS_AO_1Hour',
+            'ShutDown' => 'EWS_SD_8Hours',
             'delayShutDown' => 'on',
             'Apply' => 'Apply',
         ];
