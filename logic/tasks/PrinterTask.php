@@ -4,6 +4,7 @@ namespace d3yii2\d3printer\logic\tasks;
 
 use d3system\compnents\D3CommandTask;
 use d3system\exceptions\D3TaskException;
+use d3system\helpers\D3FileHelper;
 use Yii;
 
 class PrinterTask extends D3CommandTask
@@ -21,5 +22,13 @@ class PrinterTask extends D3CommandTask
         }
         
         $this->printer = Yii::$app->{$this->printerName};
+    }
+    
+    /**
+     * @return string
+     */
+    public function getRuntimePath(): string
+    {
+        return D3FileHelper::getRuntimeDirectoryPath('d3printer/' . $this->printerName);
     }
 }
