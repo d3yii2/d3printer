@@ -135,8 +135,7 @@ class Printer extends Component
      */
     public function printToFtpFilesystem(string $filepath, int $copies = 1): bool
     {
-        echo 'a';
-        if(!file_exists($filepath)){
+        if (!file_exists($filepath)) {
             throw new \yii\base\Exception('Neeksite fails: ' . $filepath);
         }
         $copyToFile = basename($filepath,'.pdf');
@@ -191,5 +190,46 @@ class Printer extends Component
     public function getSpoolDirectory(): string
     {
         return $this->baseDirectory  . '/spool_' . $this->printerCode;
+    }
+
+    /**
+     * @throws \yii\base\Exception
+     */
+    public function getSpoolDirectoryFiles(): array
+    {
+        if ($list = D3FileHelper::getDirectoryFiles($this->getSpoolDirectory())) {
+            return $list;
+        }
+
+        return [];
+    }
+
+    private function createDeadFileName(): string
+    {
+        return 'dead_' . $this->printerCode . '.txt';
+    }
+
+    /**
+     * @throws \yii\base\Exception
+     */
+    public function createDeadFile(): void
+    {
+        D3FileHelper::filePutContentInRuntime($this->baseDirectory, $this->createDeadFileName(), '1');
+    }
+
+    /**
+     * @throws \yii\base\Exception
+     */
+    public function unlinkDeadFile(): void
+    {
+        D3FileHelper::fileUnlinkInRuntime($this->baseDirectory, $this->createDeadFileName());
+    }
+
+    /**
+     * @throws \yii\base\Exception
+     */
+    public function existDeadFile(): bool
+    {
+        return D3FileHelper::fileExist($this->baseDirectory, $this->createDeadFileName());
     }
 }

@@ -12,9 +12,7 @@ use yii\filters\AccessControl;
 
 class InfoPanelController extends Controller
 {
-    public $printerName = 'kaltePrinterHealth';
-    
-    
+
     /**
      * @inheritdoc
      */
@@ -39,14 +37,13 @@ class InfoPanelController extends Controller
     }
     
     /**
-     * @return mixed
-     * @throws \yii\base\Exception
+     * @return string
      */
-    public function actionStatus()
+    public function actionStatus(string $printerName, string $healthPrinterName): string
     {
         try {
             
-            $logic = new DisplayDataLogic($this->printerName);
+            $logic = new DisplayDataLogic($printerName, $healthPrinterName);
             
             $displayData = $logic->getTableDisplayData();
             
@@ -55,7 +52,6 @@ class InfoPanelController extends Controller
         } catch (Exception $e) {
             FlashHelper::processException($e);
         }
-        
-        echo 'Unexpected Error';
+        return '';
     }
 }

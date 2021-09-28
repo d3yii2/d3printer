@@ -4,7 +4,6 @@ namespace d3yii2\d3printer\controllers;
 
 use d3system\commands\DaemonController;
 use d3system\exceptions\D3TaskException;
-use d3system\helpers\D3FileHelper;
 use d3yii2\d3printer\logic\tasks\FtpTask;
 use Exception;
 use Yii;
@@ -28,7 +27,7 @@ class FtpPrintDaemonController extends DaemonController
         $error = false;
         while ($this->loop()) {
             try {
-                if (!$files = D3FileHelper::getDirectoryFiles($spoolingDirectory)) {
+                if (!$files = $task->printer->getSpoolDirectoryFiles()) {
                    continue;
                 }
                 $task->connect();
