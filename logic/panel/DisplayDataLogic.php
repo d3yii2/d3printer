@@ -3,6 +3,7 @@
 namespace d3yii2\d3printer\logic\panel;
 
 use d3yii2\d3printer\components\D3Printer;
+use d3yii2\d3printer\logic\tasks\FtpPingTask;
 use Yii;
 use yii\base\Exception;
 use yii\helpers\Html;
@@ -19,6 +20,9 @@ class DisplayDataLogic
     protected $deviceHealth;
     protected $configHealth;
     protected $displayData = [];
+    
+    public const DISPLAY_VERTICAL = 'vertical';
+    public const DISPLAY_INLINE = 'inline';
     
     /**
      * @param string $printerName
@@ -45,6 +49,7 @@ class DisplayDataLogic
         $this->setDisplayValue('cartridge', $this->getCartridgeDisplayValue());
         $this->setDisplayValue('drum', $this->getDrumDisplayValue());
         $this->setDisplayValue('deviceErrors', $this->deviceHealth->logger->getErrors());
+        $this->setDisplayValue('ftpState', $this->getFTPStatusDisplayValue());
     }
     
     /**
@@ -90,9 +95,11 @@ class DisplayDataLogic
     {
         $isOk = $this->deviceHealth->statusOk();
         
+        $status = Yii::t('d3printer', $this->deviceHealth->device->status());
+        
         return $isOk
-            ? Html::tag('span', $this->deviceHealth->device->status(),  ['style' => 'color:darkgreen'])
-            : Html::tag('span', $this->deviceHealth->device->status(),  ['style' => 'color:red']);
+            ? Html::tag('span', $status,  ['style' => 'color:darkgreen'])
+            : Html::tag('span', $status,  ['style' => 'color:red']);
     }
 
     /**
@@ -120,14 +127,63 @@ class DisplayDataLogic
     }
     
     /**
+     * @return string
+     */
+    protected function getFTPStatusDisplayValue(): string
+    {
+        $isOk = !FtpPingTask::hasDeadlockFile($this->printer->printerCode);
+        
+        return $isOk
+            ? Html::tag('span', 'OK',  ['style' => 'color:darkgreen'])
+            : Html::tag('span', Yii::t('d3printer', 'Down'),  ['style' => 'color:red']);
+    }
+    
+    /**
      * Return data for ThTableSimple widget
      * @return array
      */
-    public function getTableDisplayData(): array
+    public function getTableDisplayData($direction = self::DISPLAY_VERTICAL): array
     {
         $displayData = $this->getDisplayData();
         
-        $data = [
+        $data = self::DISPLAY_VERTICAL === $direction
+            ? [
+                'printerName' => $displayData['printerName'],
+                'printerAccessUrl' => $displayData['printerAccessUrl'],
+                'info' => [
+                    'columns' => [
+                        [
+                            'header' => '',
+                            'attribute' => 'label',
+                        ],
+                        [
+                            'header' => '',
+                            'attribute' => 'value',
+                        ],
+                    ],
+                    'data' => [
+                        [
+                            'label' => Yii::t('d3printer', 'Status'),
+                            'value' => $displayData['status'],
+                        ],
+                        [
+                            'label' => Yii::t('d3printer','Cartridge'),
+                            'value' => $displayData['cartridge'],
+                        ],
+                        [
+                            'label' => Yii::t('d3printer','Drum'),
+                            'value' => $displayData['drum']
+                        ],
+                        [
+                            'label' => Yii::t('d3printer', 'FTP status'),
+                            'value' => $displayData['ftpState'],
+                        ],
+                    ],
+                ],
+            //'deviceErrors' => $displayData['deviceErrors'],
+            //'lastLoggedErrors' => []
+            ]
+        :[
             'info' => [
                 'columns' => [
                     [
@@ -163,40 +219,6 @@ class DisplayDataLogic
         /*foreach ($displayData['lastLoggedErrors'] as $error) {
             $data['lastLoggedErrors'][] = str_replace(PHP_EOL, '<br>', $error);
         }*/
-        
-        return $data;
-    }
-    
-    /**
-     * Return data for DetailView widget
-     * @return array
-     */
-    public function getDetailViewDisplayData(): array
-    {
-        $displayData = $this->getDisplayData();
-        
-        $data = [
-            'info' => [
-                'attributes' => [
-                    [
-                        'attribute' => 'name',
-                        'value' => Html::a($displayData['printerName'], $displayData['printerAccessUrl']),
-                    ],
-                    [
-                        'attribute' => 'status',
-                        'value' => $displayData['status']
-                    ],
-                    [
-                        'attribute' => 'cartridge',
-                        'value' => $displayData['cartridge']
-                    ],
-                    [
-                        'attribute' => 'drum',
-                        'value' => $displayData['drum']
-                    ]
-                ],
-            ],
-        ];
         
         return $data;
     }

@@ -48,7 +48,7 @@ class InfoPanelController extends Controller
             
             $logic = new DisplayDataLogic($this->printerName);
             
-            $displayData = $logic->getDetailViewDisplayData();
+            $displayData = $logic->getTableDisplayData();
             
             return $this->render('status', ['displayData' => $displayData]);
     
