@@ -3,25 +3,49 @@
 namespace d3yii2\d3printer\controllers;
 
 use d3system\commands\DaemonController;
-use d3yii2\d3printer\logic\tasks\FtpPingTask;
+use d3system\helpers\D3FileHelper;
+use d3yii2\d3printer\logic\tasks\FtpTask;
+use Exception;
+use yii\console\ExitCode;
 
 class FtpPingDaemonController extends DaemonController
 {
-    protected $printer;
-    
-    public function options($actionID)
-    {
-        return ['printer'];
-    }
-    
+
     /**
-     * @return \d3yii2\d3printer\logic\tasks\FtpPrintTask
+     * @throws \yii\db\Exception
+     * @throws \d3system\exceptions\D3TaskException
      */
-    public function getTask(): FtpPingTask
+    public function actionIndex(string $printerName): int
     {
-        $task = new FtpPingTask($this);
-        $task->printerName = $this->printer;
-        return $task;
+        $task = new FtpTask($this);
+        $task->printerName = $printerName;
+        $task->execute();
+        $error = false;
+        $deadFileName = 'dead_' . $printerName . '.txt';
+        while ($this->loop()) {
+            try {
+                $task->connect();
+                D3FileHelper::fileUnlinkInRuntime($task->printer->baseDirectory, $deadFileName);
+
+                if ($error) {
+                    $this->out('');
+                    $this->out(date('Y-m-d H:i:s') . ' No Errors');
+                    $error = false;
+                } else {
+                    $this->stdout('.');
+                }
+            } catch (Exception $e) {
+                if($e->getMessage() === (string)$error) {
+                    $this->stdout('!');
+                } else {
+                    $error = $e->getMessage();
+                    $this->out(date('Y-m-d H:i:s') . ' ' . $error);
+                    D3FileHelper::filePutContentInRuntime($task->printer->baseDirectory, $deadFileName, '1');
+                }
+            }
+        }
+        return ExitCode::OK;
     }
+
 }
 

@@ -3,17 +3,17 @@
 
 namespace d3yii2\d3printer\logic\tasks;
 
+use d3system\exceptions\D3TaskException;
 use d3yii2\d3printer\logic\D3PrinterException;
 use yii\helpers\VarDumper;
-use FTP\Connection;
 
 
 class FtpTask extends PrinterTask
 {
     /**
-     * @var null|bool|Connection
+     * @var resource
      */
-    protected $connection;
+    public $connection;
     
     /**
      * @var int $port
@@ -37,7 +37,7 @@ class FtpTask extends PrinterTask
     /**
      * @throws D3PrinterException
      */
-    protected function connect(): void
+    public function connect(): void
     {
         $port = $this->printer->port ?? $this->port;
         $connectTimeout = $this->printer->connectTimeout ?? $this->connectTimeout;
@@ -45,14 +45,15 @@ class FtpTask extends PrinterTask
         if (!$this->connection = ftp_connect($this->printer->printerIp, $port, $connectTimeout)) {
             throw new D3PrinterException('Can not connect to ftp at: ' . $this->printer->printerIp . ' Port: ' . $port . ' Timeout:' . $connectTimeout);
         }
-        
-        $this->controller->out('Connection OK');
-        
+
         $timeout = $this->printer->ftpTimeout ?? $this->ftpTimeout;
         ftp_set_option($this->connection, FTP_TIMEOUT_SEC, $timeout);
     }
-    
-    public function authorize()
+
+    /**
+     * @throws \d3yii2\d3printer\logic\D3PrinterException
+     */
+    public function authorize(): void
     {
         $user = $this->printer->ftpUsername ?? $this->username;
         $password = $this->printer->ftpPassword ?? $this->password;
@@ -63,5 +64,23 @@ class FtpTask extends PrinterTask
         }
     
         $this->controller->out('Login OK');
+    }
+
+    public function disconnect(): void
+    {
+        if ($this->connection) {
+            ftp_close($this->connection);
+        }
+    }
+
+    /**
+     * @throws \d3system\exceptions\D3TaskException
+     */
+    public function putFile(string $filePath): void
+    {
+        if (!ftp_put($this->connection, basename($filePath), $filePath, FTP_BINARY)) {
+            throw new D3TaskException("can not ftp_put! " . VarDumper::dumpAsString(error_get_last()));
+        }
+
     }
 }
