@@ -13,7 +13,7 @@ class FtpPingDaemonController extends DaemonController
 
     /**
      * @throws \yii\db\Exception
-     * @throws \d3system\exceptions\D3TaskException
+     * @throws \d3system\exceptions\D3TaskException|\yii\base\Exception
      */
     public function actionIndex(string $printerName): int
     {
@@ -25,6 +25,7 @@ class FtpPingDaemonController extends DaemonController
         while ($this->loop()) {
             try {
                 $task->connect();
+                $task->disconnect();
                 D3FileHelper::fileUnlinkInRuntime($task->printer->baseDirectory, $deadFileName);
 
                 if ($error) {
@@ -39,6 +40,7 @@ class FtpPingDaemonController extends DaemonController
                     $this->stdout('!');
                 } else {
                     $error = $e->getMessage();
+                    $this->out('');
                     $this->out(date('Y-m-d H:i:s') . ' ' . $error);
                     D3FileHelper::filePutContentInRuntime($task->printer->baseDirectory, $deadFileName, '1');
                 }

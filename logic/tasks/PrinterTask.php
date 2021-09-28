@@ -11,7 +11,7 @@ class PrinterTask extends D3CommandTask
 {
     public $printerName;
 
-    /** @var \d3yii2\d3codes\components\PrintWindowsPrinter */
+    /** @var \d3yii2\d3printer\components\Printer */
     public $printer;
     
     public function execute()

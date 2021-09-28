@@ -22,9 +22,10 @@ class FtpPrintDaemonController extends DaemonController
         $task = new FtpTask($this);
         $task->printerName = $printerName;
         $task->execute();
-        $spoolingDirectory = $task->printer->baseDirectory . '/spool_' . $printerName;
+        $spoolingDirectory = $task->printer->getSpoolDirectory();
         $this->out('Spooling directory: ' . $spoolingDirectory);
         $this->sleepAfterMicroseconds = 1 * 1000000; //1 sekunde
+        $error = false;
         while ($this->loop()) {
             try {
                 if (!$files = D3FileHelper::getDirectoryFiles($spoolingDirectory)) {
@@ -41,14 +42,20 @@ class FtpPrintDaemonController extends DaemonController
                         throw new D3TaskException('Cannot delete file: ' . $filePath);
                     }
                 }
+                if ($error) {
+                    $this->out('');
+                    $this->out(date('Y-m-d H:i:s') . ' No Errors');
+                    $error = false;
+                }
+
                 $task->disconnect();
             } catch (Exception $e) {
-                $error = true;
                 if($e->getMessage() === (string)$error) {
-                    $this->out('!');
+                    $this->stdout('!');
                 } else {
                     $error = $e->getMessage();
-                    $this->out(date('Y-m-d H:i:s') . $error);
+                    $this->out('');
+                    $this->out(date('Y-m-d H:i:s') . ' ' . $error);
                     Yii::error($e->getMessage() . PHP_EOL . $e->getTraceAsString());
                 }
             }
