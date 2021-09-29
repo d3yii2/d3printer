@@ -6,6 +6,8 @@ use d3yii2\d3printer\logic\health\CommonHealth;
 use d3yii2\d3printer\logic\health\ConfigurationHealth;
 use d3yii2\d3printer\logic\health\DeviceHealth;
 use yii\base\Component;
+use yii\base\Exception;
+use Yii;
 
 /**
  * Class D3Printer
@@ -18,20 +20,32 @@ class D3Printer extends Component
     public $accessSettings = [];
     public $leftMenu;
     public $leftMenuUrl;
-
     
-    public function deviceHealth()
+    /**
+     * @param string $key
+     * @return mixed|object|null
+     * @throws \yii\base\Exception
+     */
+    public static function getPrinterComponent(string $key)
     {
-        return new DeviceHealth($this->accessSettings, $this->printerCode, $this->printerName);
+        if (!isset(Yii::$app->{$key})) {
+            throw new Exception('Missing Printer config for: ' . $key);
+        }
+        return Yii::$app->{$key};
     }
     
-    public function configHealth()
+    public function deviceHealth($cached = false)
     {
-        return new ConfigurationHealth($this->accessSettings, $this->printerCode, $this->printerName);
+        return new DeviceHealth($this->accessSettings, $this->printerCode, $this->printerName, $cached);
     }
     
-    public function commonHealth()
+    public function configHealth($cached = false)
     {
-        return new CommonHealth($this->accessSettings, $this->printerCode, $this->printerName);
+        return new ConfigurationHealth($this->accessSettings, $this->printerCode, $this->printerName, $cached);
+    }
+    
+    public function commonHealth($cached = false)
+    {
+        return new CommonHealth($this->accessSettings, $this->printerCode, $this->printerName, $cached);
     }
 }

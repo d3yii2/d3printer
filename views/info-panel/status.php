@@ -18,7 +18,7 @@ LayoutAsset::register($this);
 ?>
 <div class="row">
     <?= ThAlertList::widget() ?>
-    <div class="col-sm-2">
+    <div class="col-sm-3">
         <div class="panel  rounded shadow">
             <div class="panel-heading text-center">
                 <?= Html::a('<i class="fa fa-external-link align-middle"></i> ' . $displayData['printerName'], $displayData['printerAccessUrl']) ?>

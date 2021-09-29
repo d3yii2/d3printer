@@ -3,6 +3,7 @@
 namespace d3yii2\d3printer\logic\health;
 
 use d3yii2\d3printer\logic\read\ReadDevice;
+use d3yii2\d3printer\logic\read\ReadDeviceCached;
 
 /**
  * Class DeviceHealth
@@ -20,10 +21,17 @@ class DeviceHealth extends Health
      */
     public $device;
     
+    /**
+     * @throws \yii\base\Exception
+     */
     public function init()
     {
         parent::init();
-        $this->device = new ReadDevice($this->getAccessUrl());
+        $this->device = $this->cached
+            // Get the last cached state from runtime file
+            ? new ReadDeviceCached($this->printerCode)
+            // Get live data from printer
+            : new ReadDevice($this->getAccessUrl());
         $this->logger->addInfo('Device Health' . PHP_EOL . 'Printer: ' . $this->printerName . ' (' . $this->printerCode . ')');
     }
     
@@ -35,13 +43,17 @@ class DeviceHealth extends Health
         return $this->accessSettings['home_url'];
     }
     
+    public function getStatus()
+    {
+        return $this->device->status();
+    }
     
     /**
      * @return bool
      */
     public function statusOk(): bool
     {
-        $status = $this->device->status();
+        $status = $this->getStatus();
         
         if (!$status) {
             $this->logger->addError('Cannot parse Status value');
@@ -62,12 +74,18 @@ class DeviceHealth extends Health
         return false;
     }
     
+    
+    public function getCartridgeRemaining()
+    {
+        return $this->device->cartridgeRemaining();
+    }
+    
     /**
      * @return bool
      */
     public function cartridgeOk(): bool
     {
-        $value = $this->device->cartridgeRemaining();
+        $value = $this->getCartridgeRemaining();
         
         if (!$value) {
             $this->logger->addError('Cartrige level not readable! (Displayed: ' . $value . ')');
@@ -90,12 +108,18 @@ class DeviceHealth extends Health
         return false;
     }
     
+    public function getDrumRemaining()
+    {
+        return $this->device->drumRemaining();
+    }
+    
+    
     /**
      * @return bool
      */
     public function drumOk(): bool
     {
-        $value = $this->device->drumRemaining();
+        $value = $this->getDrumRemaining();
     
         if (!$value) {
             $this->logger->addError('Drum value not readable! (Displayed: ' . $value . ')');

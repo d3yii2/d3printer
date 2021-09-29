@@ -21,6 +21,7 @@ class Health extends Component
     protected $accessSettings = [];
     protected $alertSettings;
     protected $mailer;
+    protected $cached;
     
     /**
      * Health constructor.
@@ -28,11 +29,12 @@ class Health extends Component
      * @param string $printerCode
      * @param string $printerName
      */
-    public function __construct(array $accessSettings, string $printerCode, string $printerName)
+    public function __construct(array $accessSettings, string $printerCode, string $printerName, $cached = false)
     {
         $this->accessSettings = $accessSettings;
         $this->printerCode = $printerCode;
         $this->printerName = $printerName;
+        $this->cached = $cached;
         parent::__construct();
     }
     
