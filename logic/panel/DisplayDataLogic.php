@@ -19,26 +19,40 @@ class DisplayDataLogic
 
     /** @var \d3yii2\d3printer\components\Printer  */
     protected $printer;
+    
+    /**
+     * @var \d3yii2\d3printer\logic\health\DeviceHealth $deviceHealth
+     */
     protected $deviceHealth;
+    
+    /**
+     * @var \d3yii2\d3printer\logic\health\ConfigurationHealth $configHealth
+     */
     protected $configHealth;
+
     protected $displayData = [];
     
     public const DISPLAY_VERTICAL = 'vertical';
     public const DISPLAY_INLINE = 'inline';
 
     /**
-     * @param string $printerName
-     * @param string $healthPrinterName
+     * @param string $printerComponent
+     * @param string $healthComponent
      * @throws \yii\base\Exception `
      * @throws \yii\base\InvalidConfigException
      */
-    public function __construct(string $printerName, string $healthPrinterName)
+    public function __construct(string $printerComponent, string $healthComponent)
     {
-        $this->printer = D3Printer::getPrinterComponent($printerName);
-        /** @var D3Printer $d3printer */
-        $d3printer = D3Printer::getPrinterComponent($healthPrinterName);
-        $this->deviceHealth = $d3printer->deviceHealth(true);
-        //$this->configHealth = $d3printer->configHealth(true);
+        $this->printer = D3Printer::getPrinterComponent($printerComponent);
+    
+        /**
+         * @var \d3yii2\d3printer\logic\health\Health $health
+         */
+        $health = D3Printer::getPrinterComponent($healthComponent);
+        $this->deviceHealth = $health->deviceHealth(true);
+        $this->configHealth = $health->configHealth(true);
+        
+        
         $this->setDisplayData();
     }
     

@@ -19,15 +19,15 @@ class HealthCronController extends D3CommandController
 {
     /**
      *  Cron example: /usr/bin/php <sitepath>/yii d3printer/health-cron <component name>
-     *  Pass the component name as the $printerCode
+     *  Pass the component name as the $healthComponent
      * @param string $printer
      * @return int
      */
-    public function actionIndex(string $printer)
+    public function actionIndex(string $healthComponent)
     {
         try {
-            $printerComponent = D3Printer::getPrinterComponent($printer);
-            $deviceHealth = $printerComponent->deviceHealth();
+            $component = D3Printer::getPrinterComponent($healthComponent);
+            $deviceHealth = $component->deviceHealth();
             
             $stateData = [
                 'status' => $deviceHealth->getStatus(),
@@ -41,7 +41,7 @@ class HealthCronController extends D3CommandController
             
             $dataJson = Json::encode($stateData);
             
-            D3FileHelper::filePutContentInRuntime('d3printer/' . $printerComponent->printerCode, 'status.json', $dataJson);
+            D3FileHelper::filePutContentInRuntime('d3printer/' . $component->printerCode, 'status.json', $dataJson);
             
             return ExitCode::OK;
         } catch (Exception $e) {
