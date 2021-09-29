@@ -50,7 +50,8 @@ class DisplayDataLogic
          */
         $health = D3Printer::getPrinterComponent($healthComponent);
         $this->deviceHealth = $health->deviceHealth(true);
-        $this->configHealth = $health->configHealth(true);
+        // @TODO
+        //$this->configHealth = $health->configHealth(true);
         
         
         $this->setDisplayData();
