@@ -34,11 +34,11 @@ class DisplayDataLogic
      */
     public function __construct(string $printerName, string $healthPrinterName)
     {
-        $this->printer = $this->getPrinter($printerName);
+        $this->printer = D3Printer::getPrinterComponent($printerName);
         /** @var D3Printer $d3printer */
-        $d3printer = Yii::$app->get($healthPrinterName);
-        $this->deviceHealth = $d3printer->deviceHealth();
-        $this->configHealth = $d3printer->configHealth();
+        $d3printer = D3Printer::getPrinterComponent($healthPrinterName);
+        $this->deviceHealth = $d3printer->deviceHealth(true);
+        //$this->configHealth = $d3printer->configHealth(true);
         $this->setDisplayData();
     }
     
@@ -57,20 +57,6 @@ class DisplayDataLogic
         $this->setDisplayValue('deviceErrors', $this->deviceHealth->logger->getErrors());
         $this->setDisplayValue('ftpState', $this->getFTPStatusDisplayValue());
         $this->setDisplayValue('spool', $this->getSpoolerFilesCount());
-    }
-    
-    /**
-     * @param string $componentKey
-     * @return \d3yii2\d3printer\components\Printer
-     * @throws \yii\base\Exception
-     */
-    public function getPrinter(string $componentKey): Printer
-    {
-        if (!isset(Yii::$app->{$componentKey})) {
-            throw new Exception('Missing Printer config for: ' . $componentKey);
-        }
-        
-        return Yii::$app->{$componentKey};
     }
     
     /**
@@ -117,8 +103,8 @@ class DisplayDataLogic
         $isOk = $this->deviceHealth->cartridgeOk();
         
         return $isOk
-            ? Html::tag('span', $this->deviceHealth->device->getCartridgeDisplayedValue(),  ['style' => 'color:darkgreen'])
-            : Html::tag('span', $this->deviceHealth->device->getCartridgeDisplayedValue(),  ['style' => 'color:red']);
+            ? Html::tag('span', $this->deviceHealth->device->cartridgeRemaining(),  ['style' => 'color:darkgreen'])
+            : Html::tag('span', $this->deviceHealth->device->cartridgeRemaining(),  ['style' => 'color:red']);
     }
     
     /**
@@ -129,8 +115,8 @@ class DisplayDataLogic
         $isOk = $this->deviceHealth->drumOk();
         
         return $isOk
-            ? Html::tag('span', $this->deviceHealth->device->getDrumDisplayedValue(),  ['style' => 'color:darkgreen'])
-            : Html::tag('span', $this->deviceHealth->device->getDrumDisplayedValue(),  ['style' => 'color:red']);
+            ? Html::tag('span', $this->deviceHealth->device->drumRemaining(),  ['style' => 'color:darkgreen'])
+            : Html::tag('span', $this->deviceHealth->device->drumRemaining(),  ['style' => 'color:red']);
     }
 
     /**
@@ -139,7 +125,7 @@ class DisplayDataLogic
      */
     protected function getFTPStatusDisplayValue(): string
     {
-        $isOk = $this->printer->existDeadFile();
+        $isOk = !$this->printer->existDeadFile();
         
         return $isOk
             ? Html::tag('span', 'OK',  ['style' => 'color:darkgreen'])
