@@ -28,7 +28,7 @@ class FtpTask extends PrinterTask
     /**
      * @var int $ftpTimeout
      */
-    protected $ftpTimeout = 20;
+    protected $ftpTimeout = 2;
     
     protected $username = 'anonymous';
     
@@ -64,6 +64,7 @@ class FtpTask extends PrinterTask
         }
     
         $this->controller->out('Login OK');
+        ftp_pasv($this->connection, true);
     }
 
     public function disconnect(): void
@@ -81,10 +82,11 @@ class FtpTask extends PrinterTask
      */
     public function putFile(string $filePath, int $tryTimes = 5, int $usleep = 500000): void
     {
+        usleep($usleep);
         $tryCounter = 1;
         $errors = [];
         while ($tryCounter <= $tryTimes) {
-            if (ftp_put($this->connection, basename($filePath), $filePath, FTP_BINARY)) {
+            if (@ftp_put($this->connection, basename($filePath), $filePath, FTP_BINARY)) {
                 return;
             }
             $errors[] = VarDumper::dumpAsString(error_get_last());
