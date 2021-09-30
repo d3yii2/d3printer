@@ -114,6 +114,56 @@ echo $printer->getCheckResponseLabel() . PHP_EOL;
 
 $printer->print($label);
 ```
+## Health monitoring 
+Define health component in app console config
+```php
+    'kaltePrinterHealth' => [
+            'class' => '\d3yii2\d3printer\components\D3Printer',
+            'printerCode' => 'officePrinter',
+            'printerName' => 'Godex G500',
+            'accessSettings' => [
+                'home_url' => '<printer home URL>',
+            ],
+        ],
+```
+Read and save current state (files are located at [app path]/runtime/d3printer/[printerCode]
+```php
+     /usr/bin/php <sitepath>/yii d3printer/health-cron <printerCode>
+```
 
+Define printer state panels in app main config
+```php
+'panels' => [
+    'printers' =>
+        [
+            [
+                'route' => '/d3printer/info-panel/status',
+                'params' => [
+                    'printerComponent' => 'officePrinter',
+                    'healthComponent' => 'officePrinterHealth',
+                ]
+            ],
+            [
+                'route' => '/d3printer/info-panel/status',
+                'params' => [
+                    'printerComponent' => 'homePrinter',
+                    'healthComponent' => 'homePrinterHealth',
+                ]
+            ],
+```
+Show the state panel in app view 
+
+```php
+PanelWidget::widget(['name' => 'printers'])
+```
 
 ## Examples
+Get printer status, cartridge and drum by printer code
+```php
+ $printerComponent = D3Printer::getPrinterComponent('officePrinter');
+ $deviceHealth = $printerComponent->deviceHealth();
+
+ $status = $deviceHealth->getStatus();
+ $cartridgeRemaining = $deviceHealth->getCartridgeRemaining();
+ $drumRemaining = $deviceHealth->getDrumRemaining();
+```
