@@ -155,14 +155,29 @@ class Printer extends Component
         while($i<=$copies) {
             echo 'f';
             echo '"' . $copyToFile . $i . '.pdf"';
+            $erroris = '';
+            $copied = false;
+            $iloop = 0;
+            while ($iloop < 4) {
+                if(@ftp_put($conn_id, $copyToFile . $i . '.pdf', $filepath, FTP_BINARY)){
+                    $copied = true;
+                    echo '$i=' . $iloop . ';';
+                    break;
+                    //throw new \yii\base\Exception("can not ftp_put! " . VarDumper::dumpAsString(error_get_last()) . ' file: ' .$copyToFile . $i . '.pdf' );
+                }
 
-            if(!@ftp_put($conn_id, $copyToFile . $i . '.pdf', $filepath, FTP_BINARY)){
-                throw new \yii\base\Exception("can not ftp_put! " . VarDumper::dumpAsString(error_get_last()));
+                $erroris .= VarDumper::dumpAsString(error_get_last()) . ' file: ' .$copyToFile . $i . '.pdf' . PHP_EOL ;
+                $iloop ++;
+                sleep(1);
+            }
+            if (!$copied) {
+                echo ';NoFtping;';
+                throw new \yii\base\Exception("can not ftp_put! " . $erroris);
             }
             echo 'g';
             $i++;
         }
-
+        ftp_close($conn_id);
         return true;
 
     }
