@@ -21,7 +21,7 @@ LayoutAsset::register($this);
     <div class="col-sm-3">
         <div class="panel  rounded shadow">
             <div class="panel-heading text-center">
-                <?= Html::a('<i class="fa fa-external-link align-middle"></i> ' . $displayData['printerName'], $displayData['printerAccessUrl']) ?>
+                <i class="fa fa-print"></i> <?= Html::a($displayData['printerName'] . ' <i class="fa fa-external-link align-middle"></i>', $displayData['printerAccessUrl']) ?>
             </div>
             <div class="panel-body rounded-bottom">
                 <?= ThTableSimple2::widget($displayData['info']) ?>
