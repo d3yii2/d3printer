@@ -74,13 +74,29 @@ class FtpTask extends PrinterTask
     }
 
     /**
+     * @param string $filePath
+     * @param int $tryTimes try put file times
+     * @param int $usleep sleep in microseconds between try. default 0.5 second
      * @throws \d3system\exceptions\D3TaskException
      */
-    public function putFile(string $filePath): void
+    public function putFile(string $filePath, int $tryTimes = 5, int $usleep = 500000): void
     {
-        if (!ftp_put($this->connection, basename($filePath), $filePath, FTP_BINARY)) {
-            throw new D3TaskException("can not ftp_put! " . VarDumper::dumpAsString(error_get_last()));
+        $tryCounter = 1;
+        $errors = [];
+        while ($tryCounter <= $tryTimes) {
+            if (ftp_put($this->connection, basename($filePath), $filePath, FTP_BINARY)) {
+                return;
+            }
+            $errors[] = VarDumper::dumpAsString(error_get_last());
+            $tryCounter ++;
+            usleep($usleep);
         }
+
+        throw new D3TaskException('Can not ftp_put! ' . PHP_EOL
+            . 'file: ' . $filePath . PHP_EOL
+            . implode(PHP_EOL, $errors)
+        );
+
 
     }
 }
