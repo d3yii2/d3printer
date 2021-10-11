@@ -34,6 +34,12 @@ class DisplayDataLogic
     
     public const DISPLAY_VERTICAL = 'vertical';
     public const DISPLAY_INLINE = 'inline';
+    
+    protected $status;
+    
+    protected const STATUS_OK = 'status-ok';
+    protected const STATUS_FAILED = 'status-failed';
+    
 
     /**
      * @param string $printerComponent
@@ -71,7 +77,7 @@ class DisplayDataLogic
         $this->setDisplayValue('drum', $this->getDrumDisplayValue());
         $this->setDisplayValue('deviceErrors', $this->deviceHealth->logger->getErrors());
         $this->setDisplayValue('ftpState', $this->getFTPStatusDisplayValue());
-        $this->setDisplayValue('spool', $this->getSpoolerFilesCount());
+        $this->setDisplayValue('spool', $this->getSpoolerFilesCountValue());
     }
     
     /**
@@ -90,9 +96,17 @@ class DisplayDataLogic
     {
         if (is_array($value)) {
             $this->displayData[$key] = $value;
-            
         } else {
-            $this->displayData[$key] = empty($value) && is_string($value) ? $this->emptyDefaultValue : trim($value);
+            if (empty($value) && '0' !== $value) {
+                $value = Yii::t('d3printer', 'No Data');
+            }
+    
+            $value = self::STATUS_OK === $this->status
+                ? Html::tag('span', $value, ['class' => 'text-success'])
+                : Html::tag('span', $value, ['class' => 'text-danger']);
+        
+    
+            $this->displayData[$key] = trim($value);
         }
     }
     
@@ -103,11 +117,11 @@ class DisplayDataLogic
     {
         $isOk = $this->deviceHealth->statusOk();
         
-        $status = Yii::t('d3printer', $this->deviceHealth->device->status());
+        $this->status = $isOk ? self::STATUS_OK : self::STATUS_FAILED;
         
-        return $isOk
-            ? Html::tag('span', $status,  ['style' => 'color:darkgreen'])
-            : Html::tag('span', $status,  ['style' => 'color:red']);
+        $status = Yii::t('d3printer', $this->deviceHealth->device->status());
+ 
+        return $status;
     }
 
     /**
@@ -116,10 +130,10 @@ class DisplayDataLogic
     protected function getCartridgeDisplayValue(): string
     {
         $isOk = $this->deviceHealth->cartridgeOk();
-        
-        return $isOk
-            ? Html::tag('span', $this->deviceHealth->device->cartridgeRemaining(),  ['style' => 'color:darkgreen'])
-            : Html::tag('span', $this->deviceHealth->device->cartridgeRemaining(),  ['style' => 'color:red']);
+    
+        $this->status = $isOk ? self::STATUS_OK : self::STATUS_FAILED;
+
+        return $this->deviceHealth->device->cartridgeRemaining();
     }
     
     /**
@@ -128,10 +142,10 @@ class DisplayDataLogic
     protected function getDrumDisplayValue(): string
     {
         $isOk = $this->deviceHealth->drumOk();
-        
-        return $isOk
-            ? Html::tag('span', $this->deviceHealth->device->drumRemaining(),  ['style' => 'color:darkgreen'])
-            : Html::tag('span', $this->deviceHealth->device->drumRemaining(),  ['style' => 'color:red']);
+    
+        $this->status = $isOk ? self::STATUS_OK : self::STATUS_FAILED;
+
+        return $this->deviceHealth->device->drumRemaining();
     }
 
     /**
@@ -141,10 +155,12 @@ class DisplayDataLogic
     protected function getFTPStatusDisplayValue(): string
     {
         $isOk = !$this->printer->existDeadFile();
-        
+    
+        $this->status = $isOk ? self::STATUS_OK : self::STATUS_FAILED;
+
         return $isOk
-            ? Html::tag('span', 'OK',  ['style' => 'color:darkgreen'])
-            : Html::tag('span', Yii::t('d3printer', 'Down'),  ['style' => 'color:red']);
+            ? 'OK'
+            : Yii::t('d3printer', 'Down');
     }
 
     /**
@@ -153,6 +169,18 @@ class DisplayDataLogic
     public function getSpoolerFilesCount(): int
     {
         return count($this->printer->getSpoolDirectoryFiles());
+    }
+    
+    /**
+     * @throws \yii\base\Exception
+     */
+    public function getSpoolerFilesCountValue(): string
+    {
+        $count = $this->getSpoolerFilesCount();
+    
+        $this->status = $count > 0 ? self::STATUS_FAILED : self::STATUS_OK;
+
+        return $count;
     }
 
     /**
