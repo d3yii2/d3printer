@@ -11,7 +11,7 @@ use yii\helpers\Html;
  */
 
 ?>
-<div class="panel  rounded shadow">
+<div class="panel  rounded shadow col-sm-4 col-md-3 col-lg-2">
     <div class="panel-heading text-center">
         <i class="fa fa-print"></i> <?= Html::a($displayData['printerName'] . ' <i class="fa fa-external-link align-middle"></i>', $displayData['printerAccessUrl']) ?>
     </div>
