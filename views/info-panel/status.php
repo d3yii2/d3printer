@@ -16,16 +16,12 @@ LayoutAsset::register($this);
  */
 
 ?>
-<div class="row">
-    <?= ThAlertList::widget() ?>
-    <div class="col-sm-4">
-        <div class="panel  rounded shadow">
-            <div class="panel-heading text-center">
-                <i class="fa fa-print"></i> <?= Html::a($displayData['printerName'] . ' <i class="fa fa-external-link align-middle"></i>', $displayData['printerAccessUrl']) ?>
-            </div>
-            <div class="panel-body rounded-bottom">
-                <?= ThTableSimple2::widget($displayData['info']) ?>
-            </div>
-        </div>
+<div class="panel rounded shadow col-sm-4 col-md-4  col-lg-3" style="margin-left: 4px">
+    <div class="panel-heading text-left">
+        <?= ThAlertList::widget() ?>
+        <i class="fa fa-print"></i> <?= Html::a($displayData['printerName'] . ' <i class="fa fa-external-link align-middle"></i>', $displayData['printerAccessUrl']) ?>
+    </div>
+    <div class="panel-body rounded-bottom">
+        <?= ThTableSimple2::widget($displayData['info']) ?>
     </div>
 </div>

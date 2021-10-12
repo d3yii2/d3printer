@@ -213,12 +213,8 @@ class DisplayDataLogic
                             'value' => $displayData['status'],
                         ],
                         [
-                            'label' => Yii::t('d3printer','Cartridge'),
-                            'value' => $displayData['cartridge'],
-                        ],
-                        [
-                            'label' => Yii::t('d3printer','Drum'),
-                            'value' => $displayData['drum']
+                            'label' => Yii::t('d3printer','Cartridge / Drum'),
+                            'value' => $displayData['cartridge'] . ' / ' . $displayData['drum'],
                         ],
                         [
                             'label' => Yii::t('d3printer', 'FTP status'),
