@@ -68,7 +68,7 @@ class ReadConfiguration extends Read
         
         $settings = [];
         
-        $settingsNodes = $this->parse("(//td[@class='rightContentPane']//table[@class='mainContentArea'])[5]/tr/td[2]");
+        $settingsNodes = $this->parse("(//td[@class='rightContentPane']//table[@class='mainContentArea'])[5]//tr/td[2]");
         
         if (0 === count($settingsNodes)) {
             return null;
@@ -100,7 +100,7 @@ class ReadConfiguration extends Read
         
         $settings = [];
         
-        $settingsNodes = $this->parse("(//td[@class='rightContentPane']//table[@class='mainContentArea'])[4]/tr/td[2]");
+        $settingsNodes = $this->parse("(//td[@class='rightContentPane']//table[@class='mainContentArea'])[4]//tr/td[2]");
         
         if (0 === count($settingsNodes)) {
             return null;
@@ -127,7 +127,7 @@ class ReadConfiguration extends Read
         
         $settings = [];
         
-        $settingsNodes = $this->parse("(//td[@class='rightContentPane']//table[@class='mainContentArea'])[7]/tr/td[2]");
+        $settingsNodes = $this->parse("(//td[@class='rightContentPane']//table[@class='mainContentArea'])[7]//tr/td[2]");
         
         if (0 === count($settingsNodes)) {
             return null;
