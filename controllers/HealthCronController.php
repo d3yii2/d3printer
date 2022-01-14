@@ -17,7 +17,7 @@ use yii\helpers\Json;
 class HealthCronController extends D3CommandController
 {
     /**
-     *  Cron example: /usr/bin/php <sitepath>/yii d3printer/health-cron <component name> <paper|energy|print>
+     *  Cron example: /usr/bin/php <sitepath>/yii d3printer/health-cron
      *  Pass the component name as the $healthComponent
      * @param string $healthComponent
      * @param string|null $resetConfig
