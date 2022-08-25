@@ -13,7 +13,7 @@
   ],
   "require": {
     "yiisoft/yii2": "*",
-    "yii2mod/yii2-settings": "2.5",
+    "yii2mod/yii2-settings": "2.*",
     "guzzlehttp/guzzle": "^7.0",
     "dbr/ezpl": "dev-master",
     "ext-dom": "*",
