@@ -9,6 +9,9 @@ use yii\base\View;
 use Zebra\Client;
 use yii;
 
+/**
+
+ */
 class ZebraPrinter extends BasePrinter  implements PrinterInterface
 {
 
