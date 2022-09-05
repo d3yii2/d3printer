@@ -202,6 +202,28 @@ class Printer extends Component
         return true;
     }
 
+    /**
+     * @throws \yii\base\Exception
+     */
+    public function saveFileInSpoolDirectory(string $content, int $copies = 1, string $fileName = ''): bool
+    {
+        if($content){
+            throw new \yii\base\Exception('Empty file content');
+        }
+        if (!$fileName) {
+            $fileName = uniqid($this->printerCode, true) . '.txt';
+        }
+        $spoolDirectory = D3FileHelper::getRuntimeDirectoryPath($this->getSpoolDirectory());
+
+        for ($i = 1; $i <= $copies; $i++) {
+            $pi = pathinfo($fileName);
+            $toFile = $spoolDirectory . '/' . $pi['filename'] . $i . '.' . $pi['extension'];
+            file_put_contents($toFile, $content);
+        }
+
+        return true;
+    }
+
     public function getSpoolDirectory(): string
     {
         return $this->baseDirectory  . '/spool_' . $this->printerCode;
