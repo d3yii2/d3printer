@@ -68,4 +68,9 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
         }
         return $i;
     }
+    public function printToSpoolDirectory($model, int $copies = 1): void
+    {
+        throw new Exception('Not implemented method printToSpoolDirectory in child object');
+    }
+
 }
