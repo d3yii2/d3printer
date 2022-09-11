@@ -30,31 +30,6 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
      */
     public $templateFile;
 
-    /**
-     * @param \taurameda\deckelnagelmaschine\models\DlmProducts $model
-     * @return void
-     * @throws \yii\base\Exception
-     */
-    public function printToSpoolDirectory($model): void
-    {
-        $options = [];
-        if ($model->ippc) {
-            $options[] = 'IPPC';
-        }
-        if ($model->kd) {
-            $options[] = 'KD';
-        }
-        $view = new View();
-        $label = $view->renderFile(
-            $this->templateFile,
-            [
-                'model' => $model,
-                'options' => implode('/', $options)
-            ]
-        );
-        $this->saveFileInSpoolDirectory($label);
-    }
-
     public function printSpooledFiles(): int
     {
 
