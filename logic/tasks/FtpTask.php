@@ -80,7 +80,7 @@ class FtpTask extends PrinterTask
      * @param int $usleep sleep in microseconds between try. default 0.5 second
      * @throws \d3system\exceptions\D3TaskException
      */
-    public function putFile(string $filePath, int $tryTimes = 5, int $usleep = 500000): void
+    public function putFile(string $filePath, int $tryTimes = 5, int $usleep = 1000000): void
     {
         usleep($usleep);
         $tryCounter = 1;
