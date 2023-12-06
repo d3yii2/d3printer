@@ -4,9 +4,13 @@ namespace d3yii2\d3printer\components;
 
 use d3system\helpers\D3FileHelper;
 use yii\base\Component;
-use yii\base\View;
-use Zebra\Client;
+use yii\base\Exception;
 
+/**
+ *
+ * @property-read array $spoolDirectoryFiles
+ * @property-read string $spoolDirectory
+ */
 class BasePrinter extends Component
 {
 
@@ -30,12 +34,12 @@ class BasePrinter extends Component
 
     public $sleepSeconds = 0;
     /**
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function saveFileInSpoolDirectory(string $content, int $copies = 1, string $fileName = ''): bool
     {
         if(!$content){
-            throw new \yii\base\Exception('Empty file content');
+            throw new Exception('Empty file content');
         }
         if (!$fileName) {
             $fileName = uniqid($this->printerCode, true) . '.txt';
@@ -57,7 +61,7 @@ class BasePrinter extends Component
     }
 
     /**
-     * @throws \yii\base\Exception
+     * @throws Exception
      */
     public function getSpoolDirectoryFiles(): array
     {
