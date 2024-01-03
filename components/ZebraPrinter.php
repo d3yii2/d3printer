@@ -30,6 +30,10 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
      */
     public $templateFile;
 
+    /**
+     * @throws Exception
+     * @throws yii\db\Exception
+     */
     public function printSpooledFiles(): int
     {
 
@@ -43,7 +47,7 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
                 sleep($this->sleepSeconds);
             }
             if (!$transaction = yii::$app->db->beginTransaction()) {
-                throw new \yii\db\Exception('Can not initiate tran');
+                throw new yii\db\Exception('Can not initiate tran');
             }
             try {
                 $fileContent = file_get_contents($filePath);
