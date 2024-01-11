@@ -40,26 +40,20 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
         if (!$files = $this->getSpoolDirectoryFiles()) {
             return 0;
         }
-        $printer = new Client($this->printerIp, $this->printerPort);
+
         $i = 0;
         foreach ($files as $filePath) {
             if ($i) {
                 sleep($this->sleepSeconds);
             }
-            if (!$transaction = yii::$app->db->beginTransaction()) {
-                throw new yii\db\Exception('Can not initiate tran');
-            }
             try {
-                $fileContent = file_get_contents($filePath);
-                $printer->send($fileContent);
-                $transaction->commit();
+                $this->print($filePath);
+                if (!unlink($filePath)) {
+                    throw new Exception('Can not delete file ' . $filePath);
+                }
                 $i++;
             } catch (\Exception $e) {
                 Yii::error($e->getMessage() . PHP_EOL . $e->getTraceAsString());
-                $transaction->rollBack();
-            }
-            if (!unlink($filePath)) {
-                throw new Exception('Can not delete file ' . $filePath);
             }
 
             if (!$this->printFilesCount) {
@@ -72,9 +66,24 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
         }
         return $i;
     }
+
+    /**
+     * @throws Exception
+     */
     public function printToSpoolDirectory($model, int $copies = 1): void
     {
         throw new Exception('Not implemented method printToSpoolDirectory in child object');
+    }
+
+    /**
+     * @param $filePath
+     * @return void
+     */
+    public function print($filePath): void
+    {
+        $printer = new Client($this->printerIp, $this->printerPort);
+        $fileContent = file_get_contents($filePath);
+        $printer->send($fileContent);
     }
 
 }
