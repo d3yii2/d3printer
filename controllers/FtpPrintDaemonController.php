@@ -4,6 +4,7 @@ namespace d3yii2\d3printer\controllers;
 
 use d3system\commands\DaemonController;
 use d3system\exceptions\D3TaskException;
+use d3yii2\d3printer\logic\D3PrinterException;
 use d3yii2\d3printer\logic\tasks\FtpTask;
 use Exception;
 use Yii;
@@ -14,7 +15,7 @@ class FtpPrintDaemonController extends DaemonController
 {
 
     /**
-     * @throws \d3system\exceptions\D3TaskException|\yii\db\Exception
+     * @throws D3TaskException|\yii\db\Exception
      */
     public function actionIndex(string $printerName): int
     {
@@ -23,7 +24,7 @@ class FtpPrintDaemonController extends DaemonController
         $task->execute();
         $spoolingDirectory = $task->printer->getSpoolDirectory();
         $this->out('Spooling directory: ' . $spoolingDirectory);
-        $this->sleepAfterMicroseconds = 1 * 1000000; //1 sekunde
+        $this->sleepAfterMicroseconds = 1000000; //1 sekunde
         $error = false;
         while ($this->loop()) {
             try {
@@ -48,11 +49,13 @@ class FtpPrintDaemonController extends DaemonController
                 }
 
                 $task->disconnect();
+            } catch (D3PrinterException $e) {
+                $this->stdout('!');
             } catch (Exception $e) {
                 if($e->getMessage() === (string)$error) {
                     $this->stdout('!');
                 } else {
-                    $error = $e->getMessage();
+                    $error = get_class($e) . ': ' . $e->getMessage();
                     $this->out('');
                     $this->out(date('Y-m-d H:i:s') . ' ' . $error);
                     Yii::error($e->getMessage() . PHP_EOL . $e->getTraceAsString());
