@@ -17,9 +17,16 @@ class FtpPrintDaemonController extends DaemonController
     /**
      * @throws D3TaskException|\yii\db\Exception
      */
-    public function actionIndex(string $printerName): int
+    public function actionIndex(
+        string $printerName,
+        string $taskClassName = null
+    ): int
     {
-        $task = new FtpTask($this);
+        if (!$taskClassName) {
+            $task = new FtpTask($this);
+        } else {
+            $task = new $taskClassName($this);
+        }
         $task->printerName = $printerName;
         $task->execute();
         $spoolingDirectory = $task->printer->getSpoolDirectory();
