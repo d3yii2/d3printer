@@ -33,6 +33,7 @@ class HealthCronController extends D3CommandController
 
             $configHealth = $component->configHealth();
             
+            $spoolerHealth = $component->spoolerHealth();
             
             // Update printer configuration for paper, sleep and print if not mach with expected settings (e.g. electricity fault)
             if (!$configHealth->paperSizeOk()) {
@@ -59,11 +60,13 @@ class HealthCronController extends D3CommandController
                 'cartridgeRemaining' => $deviceHealth->getCartridgeRemaining(),
                 'drumRemaining' => $deviceHealth->getDrumRemaining(),
                 'configState' => $configStateMessages,
+                'spoolerHasMultipleFiles' => $spoolerHealth->hasMultipleFiles()
             ];
             
             $this->out('Status: ' . $stateData['status']);
             $this->out('Cartridge: ' . $stateData['cartridgeRemaining']);
             $this->out('Drum: ' . $stateData['drumRemaining']);
+            $this->out('Spooler has files: ' . $stateData['spoolerHasMultipleFiles']);
             $this->out($configStateMessages);
     
             $dataJson = Json::encode($stateData);

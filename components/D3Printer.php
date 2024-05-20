@@ -5,6 +5,7 @@ namespace d3yii2\d3printer\components;
 use d3yii2\d3printer\logic\health\CommonHealth;
 use d3yii2\d3printer\logic\health\ConfigurationHealth;
 use d3yii2\d3printer\logic\health\DeviceHealth;
+use d3yii2\d3printer\logic\health\SpoolerHealth;
 use yii\base\Component;
 use yii\base\Exception;
 use Yii;
@@ -47,5 +48,10 @@ class D3Printer extends Component
     public function commonHealth($cached = false)
     {
         return new CommonHealth($this->accessSettings, $this->printerCode, $this->printerName, $cached);
+    }
+
+    public function spoolerHealth($cached = false)
+    {
+        return new SpoolerHealth($this->accessSettings, $this->printerCode, $this->printerName, $cached);
     }
 }
