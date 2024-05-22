@@ -3,6 +3,7 @@
 namespace d3yii2\d3printer\logic\health;
 
 use d3system\exceptions\D3TaskException;
+use Yii;
 
 /**
  * Class SpoolerHealth
@@ -13,7 +14,7 @@ class SpoolerHealth extends Health
     /**
      * @var ReadDevice $device
      */
-    public $task;
+    public $printer;
 
     /**
      * @throws \yii\base\Exception
@@ -22,11 +23,11 @@ class SpoolerHealth extends Health
     {
         parent::init();
 
-        if (!isset(Yii::$app->{$this->printerName})) {
+        if (!isset(Yii::$app->{$this->printerCode})) {
             throw new D3TaskException('Printer config not found. Check the component in app config');
         }
 
-        $this->printer = Yii::$app->{$this->printerName};
+        $this->printer = Yii::$app->{$this->printerCode};
     }
 
     /**

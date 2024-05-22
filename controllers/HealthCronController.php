@@ -56,10 +56,10 @@ class HealthCronController extends D3CommandController
             $configStateMessages = $configHealth->logger->getInfoMessages();
             
             $stateData = [
-                'status' => $deviceHealth->getStatus(),
-                'cartridgeRemaining' => $deviceHealth->getCartridgeRemaining(),
-                'drumRemaining' => $deviceHealth->getDrumRemaining(),
-                'configState' => $configStateMessages,
+                'status' => trim($deviceHealth->getStatus()),
+                'cartridgeRemaining' => trim($deviceHealth->getCartridgeRemaining()),
+                'drumRemaining' => trim($deviceHealth->getDrumRemaining()),
+                'configState' => trim($configStateMessages),
                 'spoolerHasMultipleFiles' => $spoolerHealth->hasMultipleFiles()
             ];
             
