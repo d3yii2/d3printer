@@ -13,6 +13,7 @@ use yii\base\Component;
  */
 class Health extends Component
 {
+    /** @var Logger $logger */
     public $logger;
     public $device;
     public $printerCode;

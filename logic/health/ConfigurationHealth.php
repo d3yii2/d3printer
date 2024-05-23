@@ -62,15 +62,25 @@ class ConfigurationHealth extends Health
         }
         
         //@FIXME
-        // Atbilde ir formātā: x Minute[s]. Ja uzdots stundās, salīdzināšana nestrādās 
+        // Atbilde ir formātā: x Minute|Minutes|Hour|Hours
         $printerSleepData = explode(' ', $settings['sleep_after']);
+
+        $value = $printerSleepData[0] ?? null;
+        $unit = $printerSleepData[1] ?? null;
+        $match = EnergySettings::DEFAULT_SLEEP_AFTER_UNIT === $unit && EnergySettings::DEFAULT_SLEEP_AFTER_VALUE === $value;
         
-        if (EnergySettings::DEFAULT_SLEEP_AFTER !== $printerSleepData[0]) {
-            $this->logger->addInfo("Energy sleep setting don't match: " . EnergySettings::DEFAULT_SLEEP_AFTER . ' | ' . $printerSleepData[0]);
+        if (!$match) {
+            $this->logger->addInfo("Energy sleep setting don't match:");
+            if (EnergySettings::DEFAULT_SLEEP_AFTER_UNIT !== $unit) {
+                $this->logger->addInfo("Unit " . EnergySettings::DEFAULT_SLEEP_AFTER_UNIT . ' !== ' . $unit);
+            }
+            if (EnergySettings::DEFAULT_SLEEP_AFTER_VALUE !== $value) {
+                $this->logger->addInfo("Value " . EnergySettings::DEFAULT_SLEEP_AFTER_VALUE . ' !== ' . $value);
+            }
             return false;
         }
         
-        $this->logger->addInfo('Energy OK (Sleep after ' . $settings['sleep_after'] . ' minutes)');
+        $this->logger->addInfo('Energy OK (Sleep after ' . $settings['sleep_after'] . ' ' . $unit .  ')');
         return true;
     }
     
@@ -118,6 +128,8 @@ class ConfigurationHealth extends Health
         if ($energy->update($this->accessSettings['energy_setup_url'])) {
             $this->logger->addInfo('Energy configuration updated to: ' . PHP_EOL . print_r($energy->getSentData(),
                     true));
+        } else {
+            $this->logger->addError('Cannot set Energy config');
         }
     }
     

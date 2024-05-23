@@ -66,7 +66,7 @@ class HealthCronController extends D3CommandController
             $this->out('Status: ' . $stateData['status']);
             $this->out('Cartridge: ' . $stateData['cartridgeRemaining']);
             $this->out('Drum: ' . $stateData['drumRemaining']);
-            $this->out('Spooler has files: ' . $stateData['spoolerHasMultipleFiles']);
+            $this->out('Spooler has files: ' . ( $stateData['spoolerHasMultipleFiles'] ? 'Yes' : 'No' ) );
             $this->out($configStateMessages);
     
             $dataJson = Json::encode($stateData);

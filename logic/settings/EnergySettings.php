@@ -8,6 +8,11 @@ namespace d3yii2\d3printer\logic\settings;
  */
 class EnergySettings
 {
-    // In Minutes
-    public const DEFAULT_SLEEP_AFTER = '15';
+    public const DEFAULT_SLEEP_AFTER_UNIT = self::MINUTES;
+    public const DEFAULT_SLEEP_AFTER_VALUE = '15';
+
+    public const MINUTE = 'Minute';
+    public const MINUTES = 'Minutes';
+    public const HOUR = 'Hour';
+    public const HOURS = 'Hours';
 }
