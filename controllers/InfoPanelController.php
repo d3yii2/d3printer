@@ -47,6 +47,12 @@ class InfoPanelController extends Controller
             
             $displayData = $logic->getTableDisplayData();
             
+            if ($logic->hasWarnings()) {
+                foreach ($logic->getWarnings() as $warning) {
+                    FlashHelper::addWarning($warning);
+                }
+            }
+            
             return $this->render('status', ['displayData' => $displayData]);
     
         } catch (Exception $e) {

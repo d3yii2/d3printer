@@ -55,6 +55,7 @@ class DisplayDataLogic
         
         
         $this->setDisplayData();
+        $this->setWarnings();
     }
     
     /**
@@ -65,6 +66,7 @@ class DisplayDataLogic
         $this->displayData['printerName'] = $this->printer->printerName;
         $this->displayData['printerAccessUrl'] = $this->deviceHealth->getAccessUrl();
         $this->displayData['lastLoggedErrors'] = $this->deviceHealth->logger->getLastLoggedErrors();
+        $this->displayData['warnings'] = [];
         $this->setDisplayValue('printerCode', $this->printer->printerCode);
         $this->setDisplayValue('status', $this->getStatusDisplayValue());
         $this->setDisplayValue('cartridge', $this->getCartridgeDisplayValue());
@@ -72,6 +74,32 @@ class DisplayDataLogic
         $this->setDisplayValue('deviceErrors', $this->deviceHealth->logger->getErrors());
         $this->setDisplayValue('ftpState', $this->getFTPStatusDisplayValue());
         $this->setDisplayValue('spool', $this->getSpoolerFilesCount());
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function setWarnings(): void
+    {
+        if ($this->getSpoolerFilesCount() > 1) {
+            $this->displayData['warnings'][] = Yii::t(
+                'd3printer',
+                'Spooler has more than 1 file waiting, printing is stopped, probably!'
+            );
+        } 
+    }
+    
+    public function getWarnings()
+    {
+        return $this->displayData['warnings'];
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasWarnings(): bool
+    {
+        return !empty($this->displayData['warnings']);
     }
     
     /**
