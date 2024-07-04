@@ -4,11 +4,13 @@ namespace d3yii2\d3printer\controllers;
 
 use d3system\commands\DaemonController;
 use d3system\exceptions\D3TaskException;
+use d3system\helpers\D3FileHelper;
 use d3yii2\d3printer\logic\D3PrinterException;
 use d3yii2\d3printer\logic\tasks\FtpTask;
 use Exception;
 use Yii;
 use yii\console\ExitCode;
+use yii\helpers\VarDumper;
 
 
 class FtpPrintDaemonController extends DaemonController
@@ -16,6 +18,7 @@ class FtpPrintDaemonController extends DaemonController
 
     /**
      * @throws D3TaskException|\yii\db\Exception
+     * @throws \yii\base\Exception
      */
     public function actionIndex(
         string $printerName,
@@ -31,6 +34,8 @@ class FtpPrintDaemonController extends DaemonController
         $task->execute();
         $spoolingDirectory = $task->printer->getSpoolDirectory();
         $this->out('Spooling directory: ' . $spoolingDirectory);
+        $files = D3FileHelper::getDirectoryFiles($spoolingDirectory);
+        $this->out('Files: ' . VarDumper::dumpAsString($files));
         $this->sleepAfterMicroseconds = 1000000; //1 sekunde
         $error = false;
         while ($this->loop()) {
@@ -38,6 +43,7 @@ class FtpPrintDaemonController extends DaemonController
                 if (!$files = $task->printer->getSpoolDirectoryFiles()) {
                    continue;
                 }
+                $this->out('files count: ' . count($files));
                 $task->connect();
                 $task->authorize();
                 foreach ($files as $filePath) {
