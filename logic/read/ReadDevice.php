@@ -3,6 +3,8 @@
 namespace d3yii2\d3printer\logic\read;
 
 
+use yii\base\Exception;
+
 /**
  * Class ReadDevice
  * @package d3yii2\d3printer\logic\read
@@ -31,11 +33,12 @@ class ReadDevice extends Read
     {
         return $this->drumDisplayedValue;
     }
-    
-    
+
+
     /**
      * @param string $expr
      * @return string|null
+     * @throws Exception
      */
     public function status(string $expr = self::PARSE_STATUS_EXPR): ?string
     {
@@ -45,12 +48,17 @@ class ReadDevice extends Read
             return null;
         }
         
-        return trim($statusNode->item(0)->nodeValue);
+        return preg_replace(
+            '#\W+#',
+            ' ',
+            trim($statusNode->item(0)->nodeValue)
+        );
     }
-    
+
     /**
      * @param string $expr
      * @return string|null
+     * @throws Exception
      */
     public function cartridgeRemaining(string $expr = self::PARSE_CARTRIDGE_EXPR): ?string
     {
@@ -64,10 +72,11 @@ class ReadDevice extends Read
         
         return $this->cartridgeDisplayedValue;
     }
-    
+
     /**
      * @param string $expr
      * @return string|null
+     * @throws Exception
      */
     public function drumRemaining(string $expr = self::PARSE_DRUM_EXPR): ?string
     {

@@ -2,11 +2,14 @@
 
 namespace d3yii2\d3printer\logic\health;
 
-use d3yii2\d3printer\logic\Logger;
 use GuzzleHttp\Exception\GuzzleException;
 use yii\base\Exception;
 
 /**
+ * nolasa printera stausu. Ja vajag piekoriģē setingus.
+ * Kopejo printera statusu casho. Ja cashe mainās, izsūta epastus
+ * epastus konfigurē SELECT * FROM `setting` WHERE `section` = 'Settings-AlertSettings'
+ *
  * Class CommonHealth
  * @package d3yii2\d3printer\logic\health
  */
@@ -32,7 +35,6 @@ class CommonHealth extends Health
      */
     public function check(): string
     {
-        $alertInfoContent = '';
         $alertErrorContent = '';
         
         /**
