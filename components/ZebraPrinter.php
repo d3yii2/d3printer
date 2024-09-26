@@ -8,6 +8,7 @@ use yii\base\Exception;
 use yii\base\View;
 use Zebra\Client;
 use yii;
+use Zebra\CommunicationException;
 
 /**
 
@@ -59,7 +60,7 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
             if (!$this->printFilesCount) {
                 continue;
             }
-            
+
             if ($i >= $this->printFilesCount) {
                 break;
             }
@@ -86,4 +87,12 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
         $printer->send($fileContent);
     }
 
+    public function collectErrors(): array
+    {
+        try {
+            $printer = new Client($this->printerIp, $this->printerPort);
+        } catch (CommunicationException $exception) {
+            return ['Can not connect'];
+        }
+    }
 }

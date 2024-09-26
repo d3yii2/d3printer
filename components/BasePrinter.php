@@ -23,7 +23,7 @@ class BasePrinter extends Component
     * @var string base directory in runtime directory for spool directories
     */
     public $baseDirectory = 'd3printer';
-    
+
     /**
      * @var string server printer name on windows
      */
@@ -70,5 +70,32 @@ class BasePrinter extends Component
         }
 
         return [];
+    }
+
+    public function saveErrors(array $errors): string
+    {
+        $hash = $this->getLogHash($errors);
+
+        return D3FileHelper::filePutContentInRuntime('logs/d3printer', $this->getErrorsFilename(), $hash);
+    }
+
+    public function isChangedErrors(array $errors): bool
+    {
+        return $this->getLogHash($errors) !== $this->getLastLogHash();
+    }
+
+    private function getErrorsFilename(): string
+    {
+        return $this->printerCode . '-healthError.txt';
+    }
+
+    private function getLogHash(array $errors): string
+    {
+        return implode(PHP_EOL, $errors);
+    }
+
+    private function getLastLogHash(): string
+    {
+        return D3FileHelper::fileGetContentFromRuntime('logs/d3printer', $this->getErrorsFilename()) ?? '';
     }
 }
