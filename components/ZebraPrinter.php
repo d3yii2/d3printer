@@ -94,5 +94,7 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
         } catch (CommunicationException $exception) {
             return ['Can not connect'];
         }
+
+        return [];
     }
 }
