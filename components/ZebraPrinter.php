@@ -9,6 +9,7 @@ use yii\base\View;
 use Zebra\Client;
 use yii;
 use Zebra\CommunicationException;
+use Zebra\Zpl\Builder;
 
 /**
 
@@ -90,7 +91,13 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
     public function collectErrors(): array
     {
         try {
-            $printer = new Client($this->printerIp, $this->printerPort);
+            $printer = new ZebraClient($this->printerIp, $this->printerPort);
+            $command = (new Builder())->command('! U1 getvar "device.host_status"');
+
+            $response = $printer->sendAndRead($command->toZpl());
+
+            var_dump($response);
+            die();
         } catch (CommunicationException $exception) {
             return ['Can not connect'];
         }
