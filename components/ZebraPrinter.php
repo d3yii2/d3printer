@@ -95,13 +95,42 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
             $command = (new Builder())->command('! U1 getvar "device.host_status"');
 
             $response = $printer->sendAndRead($command->toZpl());
+            $errors = $this->fetchErrors($response);
 
-            var_dump($response);
-            die();
+            if(\count($errors) > 0) {
+                return $errors;
+            }
         } catch (CommunicationException $exception) {
             return ['Can not connect'];
         }
 
         return [];
+    }
+
+    private function fetchErrors(string $response): array
+    {
+        $parsedResponse = explode(',', current(explode("\n", $response)));
+        $errorList = ZebraClient::ERROR_HEALTH_LIST;
+
+        if (
+            \count(array_diff_key($parsedResponse, $errorList)) > 0 ||
+            \count(array_diff_key($errorList, $parsedResponse)) > 0
+        ) {
+            throw new Exception(sprintf(
+                'Error list format does not match, received: %s parsed: %s',
+                $response,
+                implode(',', $parsedResponse)
+            ));
+        }
+
+        $errors = [];
+        foreach ($parsedResponse as $key => $item) {
+            $error = $errorList[$key];
+            if($error['show'] && $error['code'] === $item) {
+                $errors[] = $error['label'];
+            }
+        }
+
+        return $errors;
     }
 }
