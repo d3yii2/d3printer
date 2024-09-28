@@ -13,62 +13,62 @@ final class ZebraClient extends Client
         [
             'code' => '030',
             'label' => 'communication settings',
-            'show' => false,
+            'check' => false,
         ],
         [
             'code' => '1',
             'label' => 'paper out',
-            'show' => true,
+            'check' => true,
         ],
         [
             'code' => '1',
             'label' => 'pause active',
-            'show' => true,
+            'check' => true,
         ],
         [
             'code' => '1231',
             'label' => 'label length (value in number of dots)',
-            'show' => false,
+            'check' => false,
         ],
         [
             'code' => '000',
             'label' => 'number of formats in receive buffer',
-            'show' => false,
+            'check' => false,
         ],
         [
             'code' => '1',
             'label' => 'buffer full',
-            'show' => false,
+            'check' => false,
         ],
         [
             'code' => '1',
             'label' => 'diagnostic mode active',
-            'show' => false,
+            'check' => false,
         ],
         [
             'code' => '1',
             'label' => 'partial format',
-            'show' => false,
+            'check' => false,
         ],
         [
             'code' => '000',
             'label' => 'unused',
-            'show' => false,
+            'check' => false,
         ],
         [
             'code' => '1',
             'label' => 'corrupt RAM (configuration data lost)',
-            'show' => true,
+            'check' => true,
         ],
         [
             'code' => '1',
             'label' => 'under temperature',
-            'show' => true,
+            'check' => true,
         ],
         [
             'code' => '1',
             'label' => 'over temperature',
-            'show' => true,
+            'check' => true,
         ],
     ];
 

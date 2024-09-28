@@ -126,7 +126,7 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
         $errors = [];
         foreach ($parsedResponse as $key => $item) {
             $error = $errorList[$key];
-            if($error['show'] && $error['code'] === $item) {
+            if($error['check'] && $error['code'] === $item) {
                 $errors[] = $error['label'];
             }
         }
