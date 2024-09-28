@@ -8,6 +8,8 @@ use yii\base\Exception;
 use yii\base\View;
 use Zebra\Client;
 use yii;
+use Zebra\CommunicationException;
+use Zebra\Zpl\Builder;
 
 /**
 
@@ -59,7 +61,7 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
             if (!$this->printFilesCount) {
                 continue;
             }
-            
+
             if ($i >= $this->printFilesCount) {
                 break;
             }
@@ -86,4 +88,49 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
         $printer->send($fileContent);
     }
 
+    public function collectErrors(): array
+    {
+        try {
+            $printer = new ZebraClient($this->printerIp, $this->printerPort);
+            $command = (new Builder())->command('! U1 getvar "device.host_status"');
+
+            $response = $printer->sendAndRead($command->toZpl());
+            $errors = $this->fetchErrors($response);
+
+            if(\count($errors) > 0) {
+                return $errors;
+            }
+        } catch (CommunicationException $exception) {
+            return ['Can not connect'];
+        }
+
+        return [];
+    }
+
+    private function fetchErrors(string $response): array
+    {
+        $parsedResponse = explode(',', current(explode("\n", $response)));
+        $errorList = ZebraClient::ERROR_HEALTH_LIST;
+
+        if (
+            \count(array_diff_key($parsedResponse, $errorList)) > 0 ||
+            \count(array_diff_key($errorList, $parsedResponse)) > 0
+        ) {
+            throw new Exception(sprintf(
+                'Error list format does not match, received: %s parsed: %s',
+                $response,
+                implode(',', $parsedResponse)
+            ));
+        }
+
+        $errors = [];
+        foreach ($parsedResponse as $key => $item) {
+            $error = $errorList[$key];
+            if($error['check'] && $error['code'] === $item) {
+                $errors[] = $error['label'];
+            }
+        }
+
+        return $errors;
+    }
 }
