@@ -4,20 +4,39 @@ declare(strict_types=1);
 
 namespace d3yii2\d3printer\components;
 
-use d3yii2\d3printer\logic\Mailer as BaseMailer;
+use Yii;
+use yii\base\Component;
 
-final class Mailer extends BaseMailer
+final class Mailer extends Component
 {
-  public $from;
-  public $to;
-  public $subject;
+  public ?string $from = null;
+  public ?array $to = null;
+  public ?string $subject = 'System "{systemName}",Problems with the "{name}" printer';
+  public ?string $messageTranslation = 'd3printer';
 
-  public function send(string $content, $conf = []): void
+  public function send(
+      string $printerComponentName,
+      string $body
+  ): void
   {
-      parent::send($content, [
-        'from' => $this->from,
-        'to' => $this->to,
-        'subject' => $this->subject,
-      ]);
+      if (YII_DEBUG) {
+          // Save emails to runtime instead sending
+          Yii::$app->mailer->useFileTransport = true;
+      }
+      $subject = Yii::t(
+          $this->messageTranslation,
+          $this->subject,
+          [
+              'systemName' => Yii::$app->name,
+              'name' => $printerComponentName
+          ]
+      );
+      Yii::$app->mailer
+          ->compose()
+          ->setFrom($this->from)
+          ->setTo($this->to)
+          ->setSubject($subject)
+          ->setTextBody($body)
+          ->send();
   }
 }

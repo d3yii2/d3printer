@@ -2,14 +2,12 @@
 
 namespace d3yii2\d3printer\components;
 
-use d3system\helpers\D3FileHelper;
-use yii\base\Component;
 use yii\base\Exception;
-use yii\base\View;
 use Zebra\Client;
 use yii;
 use Zebra\CommunicationException;
 use Zebra\Zpl\Builder;
+use function count;
 
 /**
 
@@ -17,20 +15,9 @@ use Zebra\Zpl\Builder;
 class ZebraPrinter extends BasePrinter  implements PrinterInterface
 {
 
-    /**
-     * @var string
-     */
-    public $printerIp;
-
-    /**
-     * @var integer
-     */
-    public $printerPort = 6101;
-
-    /**
-     * @var string
-     */
-    public $templateFile;
+    public ?string $printerIp = null;
+    public int $printerPort = 6101;
+    public ?string $templateFile = null;
 
     /**
      * @throws Exception
@@ -88,16 +75,19 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
         $printer->send($fileContent);
     }
 
+    /**
+     * @throws Exception
+     */
     public function collectErrors(): array
     {
         try {
             $printer = new ZebraClient($this->printerIp, $this->printerPort);
-            $command = (new Builder())->command('! U1 getvar "device.host_status"');
+            $command = (new Builder())->command('~HS');
 
             $response = $printer->sendAndRead($command->toZpl());
             $errors = $this->fetchErrors($response);
 
-            if(\count($errors) > 0) {
+            if(count($errors) > 0) {
                 return $errors;
             }
         } catch (CommunicationException $exception) {
@@ -107,14 +97,18 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
         return [];
     }
 
+    /**
+     * @throws Exception
+     */
     private function fetchErrors(string $response): array
     {
-        $parsedResponse = explode(',', current(explode("\n", $response)));
+        $firstRow = trim(current(explode(PHP_EOL, $response)),chr(2).chr(3)."\r\n");
+        $parsedResponse = explode(',', $firstRow);
         $errorList = ZebraClient::ERROR_HEALTH_LIST;
 
         if (
-            \count(array_diff_key($parsedResponse, $errorList)) > 0 ||
-            \count(array_diff_key($errorList, $parsedResponse)) > 0
+            count(array_diff_key($parsedResponse, $errorList)) > 0 ||
+            count(array_diff_key($errorList, $parsedResponse)) > 0
         ) {
             throw new Exception(sprintf(
                 'Error list format does not match, received: %s parsed: %s',
@@ -130,7 +124,6 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
                 $errors[] = $error['label'];
             }
         }
-
         return $errors;
     }
 }
