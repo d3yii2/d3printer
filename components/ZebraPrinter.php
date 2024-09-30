@@ -80,18 +80,27 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
      */
     public function collectErrors(): array
     {
-        try {
-            $printer = new ZebraClient($this->printerIp, $this->printerPort);
-            $command = (new Builder())->command('~HS');
+        $maxRetryCount = 3;
+        $retry = 0;
+        while ($retry < $maxRetryCount) {
+            $retry++;
+            try {
+                $printer = new ZebraClient($this->printerIp, $this->printerPort);
+                $command = (new Builder())->command('~HS');
 
-            $response = $printer->sendAndRead($command->toZpl());
-            $errors = $this->fetchErrors($response);
+                $response = $printer->sendAndRead($command->toZpl());
+                $errors = $this->fetchErrors($response);
 
-            if(count($errors) > 0) {
-                return $errors;
+                if(count($errors) > 0) {
+                    return $errors;
+                }
+            } catch (CommunicationException $exception) {
+                sleep(3);
+
+                if ($maxRetryCount === $retry) {
+                    return ['Can not connect'];
+                }
             }
-        } catch (CommunicationException $exception) {
-            return ['Can not connect'];
         }
 
         return [];
