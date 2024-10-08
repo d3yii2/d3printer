@@ -19,10 +19,11 @@ final class Mailer extends Component
       string $body
   ): void
   {
-      if (YII_DEBUG) {
-          // Save emails to runtime instead sending
-          Yii::$app->mailer->useFileTransport = true;
-      }
+//      if (YII_DEBUG) {
+//          // Save emails to runtime instead sending
+//          Yii::$app->mailer->useFileTransport = true;
+//      }
+      Yii::$app->mailer->useFileTransport = false;
       $subject = Yii::t(
           $this->messageTranslation,
           $this->subject,
