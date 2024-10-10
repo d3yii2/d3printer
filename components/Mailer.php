@@ -11,12 +11,13 @@ final class Mailer extends Component
 {
   public ?string $from = null;
   public ?array $to = null;
-  public ?string $subject = 'System "{systemName}",Problems with the "{name}" printer';
+  public ?string $subject = 'System "{systemName}",Problems with the "{name}" {deviceName}';
   public ?string $messageTranslation = 'd3printer';
 
   public function send(
       string $printerComponentName,
-      string $body
+      string $body,
+      string $deviceName = 'printer'
   ): void
   {
 //      if (YII_DEBUG) {
@@ -29,7 +30,8 @@ final class Mailer extends Component
           $this->subject,
           [
               'systemName' => Yii::$app->name,
-              'name' => $printerComponentName
+              'name' => $printerComponentName,
+              'deviceName' => $deviceName
           ]
       );
       Yii::$app->mailer
