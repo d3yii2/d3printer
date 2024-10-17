@@ -3,7 +3,6 @@
 namespace d3yii2\d3printer\components;
 
 use yii\base\Exception;
-use Zebra\Client;
 use yii;
 use Zebra\CommunicationException;
 use Zebra\Zpl\Builder;
@@ -70,13 +69,12 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
      */
     public function print($filePath): void
     {
-        $printer = new Client($this->printerIp, $this->printerPort);
+        $printer = new ZebraClient($this->printerIp, $this->printerPort);
         $fileContent = file_get_contents($filePath);
         $printer->send($fileContent);
     }
 
     /**
-     * @throws Exception
      */
     public function collectErrors(): array
     {
@@ -87,22 +85,21 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
             try {
                 $printer = new ZebraClient($this->printerIp, $this->printerPort);
                 $command = (new Builder())->command('~HS');
-
                 $response = $printer->sendAndRead($command->toZpl());
-                $errors = $this->fetchErrors($response);
-
-                if(count($errors) > 0) {
-                    return $errors;
-                }
+                return $this->fetchErrors($response);
             } catch (CommunicationException $exception) {
                 sleep(3);
-
                 if ($maxRetryCount === $retry) {
                     return ['Can not connect'];
                 }
+            } catch (\Exception $exception) {
+                Yii::error($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
+                sleep(3);
+                if ($maxRetryCount === $retry) {
+                    return [$exception->getMessage()];
+                }
             }
         }
-
         return [];
     }
 

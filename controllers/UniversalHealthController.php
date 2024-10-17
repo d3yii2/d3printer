@@ -46,11 +46,9 @@ class UniversalHealthController extends D3CommandController
 
         $errors = $printer->collectErrors();
         if (count($errors) > 0) {
+            $this->out('Errors: ' . implode('; ', $errors));
             if ($printer->isChangedErrors($errors)) {
-                $this->out(
-                    'Send errors: ' . implode('; ', $errors) .
-                    'to ' . implode('; ', $mailer->to)
-                );
+                $this->out('Send errors to ' . implode('; ', $mailer->to));
                 $mailer->send($printer->printerName, $this->getErrorMessage($printer, $errors));
             }
         }
