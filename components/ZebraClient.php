@@ -119,7 +119,7 @@ final class ZebraClient
      */
     protected function connect(string $host, int $port): void
     {
-        $this->socket = self::socketConnectTimeout($host, $port);
+        $this->socket = self::socketConnectTimeout($host, $port, 5);
     }
 
     /**
