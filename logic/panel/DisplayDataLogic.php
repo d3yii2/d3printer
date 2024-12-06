@@ -63,6 +63,7 @@ class DisplayDataLogic
     public function setDisplayData(): void
     {
         $this->displayData['printerName'] = $this->printer->printerName;
+        $this->displayData['ip'] = $this->printer->printerIp;
         $this->displayData['printerAccessUrl'] = $this->deviceHealth->getAccessUrl();
         $this->displayData['lastLoggedErrors'] = $this->deviceHealth->logger->getLastLoggedErrors();
         $this->setDisplayValue('printerCode', $this->printer->printerCode);
@@ -199,6 +200,10 @@ class DisplayDataLogic
                         [
                             'label' => Yii::t('d3printer', 'Spooler'),
                             'value' => $displayData['spool'],
+                        ],
+                        [
+                            'label' => Yii::t('d3printer', 'IP'),
+                            'value' => $displayData['ip'],
                         ],
                     ],
                 ],
