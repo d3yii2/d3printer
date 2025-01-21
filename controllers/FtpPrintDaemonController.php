@@ -25,6 +25,11 @@ class FtpPrintDaemonController extends DaemonController
         string $taskClassName = null
     ): int
     {
+        /** process settings */
+        $this->loopTimeLimit = 30;
+        $this->loopExitAfterSeconds = 0;
+        $this->memoryUsage = 30;
+
         if (!$taskClassName) {
             $task = new FtpTask($this);
         } else {
@@ -78,4 +83,3 @@ class FtpPrintDaemonController extends DaemonController
         return ExitCode::OK;
     }
 }
-
