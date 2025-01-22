@@ -15,7 +15,7 @@ class Connect
 {
     protected $url;
     protected $client;
-    
+
     /**
      * @param string $url
      */
@@ -24,7 +24,7 @@ class Connect
         $this->url = $url;
         $this->client = new Client();
     }
-    
+
     /**
      * @return string
      * @throws Exception
@@ -35,7 +35,7 @@ class Connect
         if (!$this->url) {
             throw new Exception('Cannot connect to Printer: connection URL not specified');
         }
-        
+
         $params['headers'] = $this->getHeaders();
 
         /** @var ResponseInterface $response */
@@ -45,10 +45,10 @@ class Connect
         if (200 !== $statusCode) {
             throw new Exception('Cannot connect! Status code:' . $statusCode . ' Reason: ' . $response->getReasonPhrase());
         }
-        
+
         return (string)$response->getBody();
     }
-    
+
     /**
      * @param string $url
      * @param array $data
@@ -62,25 +62,25 @@ class Connect
         if (empty($url)) {
             throw new Exception('Cannot POST to Printer: URL not specified');
         }
-        
+
         $params = ['form_params' => $data];
-        
+
         if ($json) {
             $params['headers'] = ['Content-Type' => 'application/json'];
             $params['body'] = json_encode($data);
         }
-        
+
         $response = $this->client->request('POST', $url, $params);
-        
+
         $statusCode = $response->getStatusCode();
-        
+
         if (!200 === $statusCode) {
             throw new Exception('Cannot post the data: Status code:' . $statusCode . ' Reason: ' . $response->getReasonPhrase());
         }
-        
+
         return $response;
     }
-    
+
     /**
      * @param false $json
      * @return string[]
@@ -91,11 +91,11 @@ class Connect
             'Accept-language' => 'en',
             'User-Agent' => 'Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.102011-10-16 20:23:10',
         ];
-    
+
         if ($json) {
             $params['headers'][] = ['Content-Type' => 'application/json'];
         }
-        
+
         return $headers;
     }
 }

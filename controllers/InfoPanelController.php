@@ -35,20 +35,19 @@ class InfoPanelController extends Controller
             ],
         ];
     }
-    
+
     /**
      * @return string
      */
     public function actionStatus(string $printerComponent, string $healthComponent): string
     {
         try {
-            
             $logic = new DisplayDataLogic($printerComponent, $healthComponent);
-            
+
             $displayData = $logic->getTableDisplayData();
-            
+
             return $this->render('status', ['displayData' => $displayData]);
-    
+
         } catch (Exception $e) {
             FlashHelper::processException($e);
         }
