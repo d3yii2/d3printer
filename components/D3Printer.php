@@ -18,6 +18,7 @@ class D3Printer extends Component
 {
     public $printerCode;
     public $printerName;
+    public $linuxDaemonName;
     public $accessSettings = [];
     public $leftMenu;
     public $leftMenuUrl;
@@ -52,6 +53,9 @@ class D3Printer extends Component
 
     public function daemonHealth($cached = false)
     {
-        return new DaemonHealth($this->accessSettings, $this->printerCode, $this->printerName, $cached);
+        $daemon = new DaemonHealth($this->accessSettings, $this->printerCode, $this->printerName, $cached);
+        $daemon->linuxDaemonName = $this->linuxDaemonName;
+
+        return $daemon;
     }
 }

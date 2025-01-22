@@ -8,6 +8,8 @@ namespace d3yii2\d3printer\logic\health;
  */
 class DaemonHealth extends Health
 {
+    public $linuxDaemonName;
+
     public const STATUS_ACTIVE = 'active';
     public const STATUS_INACTIVE = 'inactive';
     public const STATUS_FAILED = 'failed';
@@ -20,13 +22,18 @@ class DaemonHealth extends Health
         parent::init();
 
         $this->logger->addInfo(
-            sprintf('Daemon Health. Printer: %s (%s)', $this->printerName, $this->printerCode)
+            sprintf(
+                'Daemon Health. Printer: %s (%s). Daemon name: %s',
+                $this->printerName,
+                $this->printerCode,
+                $this->linuxDaemonName
+            )
         );
     }
 
     public function getStatus(): string
     {
-        $status = shell_exec(sprintf('systemctl status %s', $this->printerCode));
+        $status = shell_exec(sprintf('systemctl status %s', $this->linuxDaemonName));
         $this->rawStatus = $status;
 
         if(in_array($status, [
@@ -39,10 +46,11 @@ class DaemonHealth extends Health
 
         $this->logger->addError(
             sprintf(
-                'Cannot parse daemon status value: %s. Printer: %s (%s)',
+                'Cannot parse daemon status value: %s. Printer: %s (%s). Daemon name: %s',
                 $status,
                 $this->printerName,
                 $this->printerCode,
+                $this->linuxDaemonName,
             )
         );
 

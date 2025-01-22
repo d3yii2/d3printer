@@ -17,12 +17,12 @@ class Health extends Component
     public $device;
     public $printerCode;
     public $printerName;
-    
+
     protected $accessSettings = [];
     protected $alertSettings;
     protected $mailer;
     protected $cached;
-    
+
     /**
      * Health constructor.
      * @param array $accessSettings
@@ -37,7 +37,7 @@ class Health extends Component
         $this->cached = $cached;
         parent::__construct();
     }
-    
+
     /**
      *
      */
@@ -47,7 +47,7 @@ class Health extends Component
         $this->logger = new Logger($this->printerCode, $this->printerName);
         $this->mailer = new Mailer();
     }
-    
+
     /**
      * @return Logger
      */
@@ -55,7 +55,7 @@ class Health extends Component
     {
         return $this->logger;
     }
-    
+
     /**
      * @return Mailer
      */
