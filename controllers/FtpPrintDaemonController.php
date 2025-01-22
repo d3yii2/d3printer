@@ -28,7 +28,7 @@ class FtpPrintDaemonController extends DaemonController
         /** process settings */
         $this->loopTimeLimit = 30;
         $this->loopExitAfterSeconds = 0;
-        $this->memoryUsage = 30;
+        $this->memoryIncreasedPercents = 30;
 
         if (!$taskClassName) {
             $task = new FtpTask($this);
@@ -37,10 +37,6 @@ class FtpPrintDaemonController extends DaemonController
         }
         $task->printerName = $printerName;
         $task->execute();
-        $spoolingDirectory = $task->printer->getSpoolDirectory();
-        $this->out('Spooling directory: ' . $spoolingDirectory);
-        $files = D3FileHelper::getDirectoryFiles($spoolingDirectory);
-        $this->out('Files: ' . VarDumper::dumpAsString($files));
         $this->sleepAfterMicroseconds = 1000000; //1 sekunde
         $error = false;
         while ($this->loop()) {
@@ -60,12 +56,12 @@ class FtpPrintDaemonController extends DaemonController
                         throw new D3TaskException('Cannot delete file: ' . $filePath);
                     }
                 }
+                unset($files, $filePath);
                 if ($error) {
                     $this->out('');
                     $this->out(date('Y-m-d H:i:s') . ' No Errors');
                     $error = false;
                 }
-
                 $task->disconnect();
             } catch (D3PrinterException $e) {
                 $this->stdout('!');

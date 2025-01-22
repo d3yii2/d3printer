@@ -3,6 +3,7 @@
 namespace d3yii2\d3printer\controllers;
 
 use d3system\commands\DaemonController;
+use d3system\exceptions\D3TaskException;
 use d3yii2\d3printer\logic\tasks\FtpTask;
 use Exception;
 use yii\console\ExitCode;
@@ -12,10 +13,14 @@ class FtpPingDaemonController extends DaemonController
 
     /**
      * @throws \yii\db\Exception
-     * @throws \d3system\exceptions\D3TaskException|\yii\base\Exception
+     * @throws D3TaskException|\yii\base\Exception
      */
     public function actionIndex(string $printerName): int
     {
+        $this->loopTimeLimit = 30;
+        $this->loopExitAfterSeconds = 0;
+        $this->memoryIncreasedPercents = 30;
+
         $task = new FtpTask($this);
         $task->printerName = $printerName;
         $task->execute();
@@ -46,6 +51,4 @@ class FtpPingDaemonController extends DaemonController
         }
         return ExitCode::OK;
     }
-
 }
-

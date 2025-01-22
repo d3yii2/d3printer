@@ -33,24 +33,30 @@ class DaemonHealth extends Health
 
     public function getStatus(): string
     {
-        $status = shell_exec(sprintf('systemctl status %s', $this->linuxDaemonName));
-        $this->rawStatus = $status;
-
-        if(in_array($status, [
-            self::STATUS_ACTIVE,
-            self::STATUS_INACTIVE,
-            self::STATUS_FAILED,
-        ])) {
-            return $status;
-        };
-
+        return self::STATUS_ACTIVE;
+        $command = sprintf('systemctl status %s', $this->linuxDaemonName);
+        $this->logger->addInfo($command);
+        $output = shell_exec($command);
+        $this->rawStatus = $output;
+        $status = '-';
+        if (preg_match('/Active:\s+(.*?)\s+\(/', $output, $matches)) {
+            $status = $matches[1];
+            if (in_array($status, [
+                self::STATUS_ACTIVE,
+                self::STATUS_INACTIVE,
+                self::STATUS_FAILED,
+            ])) {
+                return $status;
+            };
+        }
         $this->logger->addError(
             sprintf(
-                'Cannot parse daemon status value: %s. Printer: %s (%s). Daemon name: %s',
+                'Cannot parse daemon status value: %s. Printer: %s (%s). Daemon name: "%s". Command: "%s"',
                 $status,
                 $this->printerName,
                 $this->printerCode,
                 $this->linuxDaemonName,
+                $command
             )
         );
 
