@@ -83,3 +83,4 @@ class FtpPrintDaemonController extends DaemonController
         return ExitCode::OK;
     }
 }
+

@@ -7,6 +7,7 @@ use d3yii2\d3printer\components\Printer;
 use Yii;
 use yii\base\Exception;
 use yii\helpers\Html;
+use d3yii2\d3printer\logic\health\DaemonHealth;
 
 class DisplayDataLogic
 {
@@ -19,19 +20,24 @@ class DisplayDataLogic
 
     /** @var \d3yii2\d3printer\components\Printer  */
     protected $printer;
-    
+
     /**
      * @var \d3yii2\d3printer\logic\health\DeviceHealth $deviceHealth
      */
     protected $deviceHealth;
-    
+
+    /**
+     * @var DaemonHealth $daemonHealth
+     */
+    protected $daemonHealth;
+
     /**
      * @var \d3yii2\d3printer\logic\health\ConfigurationHealth $configHealth
      */
     protected $configHealth;
 
     protected $displayData = [];
-    
+
     public const DISPLAY_VERTICAL = 'vertical';
     public const DISPLAY_INLINE = 'inline';
 
@@ -44,19 +50,20 @@ class DisplayDataLogic
     public function __construct(string $printerComponent, string $healthComponent)
     {
         $this->printer = D3Printer::getPrinterComponent($printerComponent);
-    
+
         /**
          * @var \d3yii2\d3printer\logic\health\Health $health
          */
         $health = D3Printer::getPrinterComponent($healthComponent);
         $this->deviceHealth = $health->deviceHealth(true);
+        $this->daemonHealth = $health->daemonHealth(true);
         // @TODO
         //$this->configHealth = $health->configHealth(true);
-        
-        
+
+
         $this->setDisplayData();
     }
-    
+
     /**
      *
      */
@@ -73,8 +80,9 @@ class DisplayDataLogic
         $this->setDisplayValue('deviceErrors', $this->deviceHealth->logger->getErrors());
         $this->setDisplayValue('ftpState', $this->getFTPStatusDisplayValue());
         $this->setDisplayValue('spool', $this->getSpoolerFilesCount());
+        $this->setDisplayValue('daemonStatus', $this->getDaemonStatus());
     }
-    
+
     /**
      * @return array
      */
@@ -82,7 +90,7 @@ class DisplayDataLogic
     {
         return $this->displayData;
     }
-    
+
     /**
      * @param string $key
      * @param string $value
@@ -91,21 +99,21 @@ class DisplayDataLogic
     {
         if (is_array($value)) {
             $this->displayData[$key] = $value;
-            
+
         } else {
             $this->displayData[$key] = empty($value) && is_string($value) ? $this->emptyDefaultValue : trim($value);
         }
     }
-    
+
     /**
      * @return string
      */
     protected function getStatusDisplayValue(): string
     {
         $isOk = $this->deviceHealth->statusOk();
-        
+
         $status = Yii::t('d3printer', $this->deviceHealth->device->status());
-        
+
         return $isOk
             ? Html::tag('span', $status,  ['style' => 'color:darkgreen'])
             : Html::tag('span', $status,  ['style' => 'color:red']);
@@ -117,19 +125,19 @@ class DisplayDataLogic
     protected function getCartridgeDisplayValue(): string
     {
         $isOk = $this->deviceHealth->cartridgeOk();
-        
+
         return $isOk
             ? Html::tag('span', $this->deviceHealth->device->cartridgeRemaining(),  ['style' => 'color:darkgreen'])
             : Html::tag('span', $this->deviceHealth->device->cartridgeRemaining(),  ['style' => 'color:red']);
     }
-    
+
     /**
      * @return string
      */
     protected function getDrumDisplayValue(): string
     {
         $isOk = $this->deviceHealth->drumOk();
-        
+
         return $isOk
             ? Html::tag('span', $this->deviceHealth->device->drumRemaining(),  ['style' => 'color:darkgreen'])
             : Html::tag('span', $this->deviceHealth->device->drumRemaining(),  ['style' => 'color:red']);
@@ -142,7 +150,7 @@ class DisplayDataLogic
     protected function getFTPStatusDisplayValue(): string
     {
         $isOk = !$this->printer->existDeadFile();
-        
+
         return $isOk
             ? Html::tag('span', 'OK',  ['style' => 'color:darkgreen'])
             : Html::tag('span', Yii::t('d3printer', 'Down'),  ['style' => 'color:red']);
@@ -156,6 +164,18 @@ class DisplayDataLogic
         return count($this->printer->getSpoolDirectoryFiles());
     }
 
+    public function getDaemonStatus(): string
+    {
+        if($this->daemonHealth->statusOk()) {
+            return Html::tag('span', $this->daemonHealth->getStatus(),  ['style' => 'color:darkgreen']);
+        }
+
+        $status = $this->daemonHealth->getStatus();
+        $statusOutput = $status !== DaemonHealth::STATUS_UNKNOW ? $status : sprintf('%s (%s)', $status, $this->daemonHealth->getRawStatus());
+
+        return Html::tag('span',  $statusOutput,  ['style' => 'color:red']);
+    }
+
     /**
      * Return data for ThTableSimple widget
      * @param string $direction
@@ -164,7 +184,7 @@ class DisplayDataLogic
     public function getTableDisplayData(string $direction = self::DISPLAY_VERTICAL): array
     {
         $displayData = $this->getDisplayData();
-        
+
         $data = self::DISPLAY_VERTICAL === $direction
             ? [
                 'printerName' => $displayData['printerName'],
@@ -205,6 +225,10 @@ class DisplayDataLogic
                             'label' => Yii::t('d3printer', 'IP'),
                             'value' => $displayData['ip'],
                         ],
+                        [
+                            'label' => Yii::t('d3printer', 'Daemon Status'),
+                            'value' => $displayData['daemonStatus'],
+                        ],
                     ],
                 ],
             //'deviceErrors' => $displayData['deviceErrors'],
@@ -242,11 +266,11 @@ class DisplayDataLogic
             //'deviceErrors' => $displayData['deviceErrors'],
             //'lastLoggedErrors' => []
         ];
-    
+
         /*foreach ($displayData['lastLoggedErrors'] as $error) {
             $data['lastLoggedErrors'][] = str_replace(PHP_EOL, '<br>', $error);
         }*/
-        
+
         return $data;
     }
 }
