@@ -19,7 +19,7 @@ class CommonHealth extends Health
     protected $deviceHealth;
 
     /** @var DaemonHealth $daemonHealth */
-    protected $daemonHealth;
+    public $daemonHealth;
 
     /** @var ConfigurationHealth $configHealth */
     protected $configHealth;

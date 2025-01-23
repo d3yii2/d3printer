@@ -33,9 +33,8 @@ class DaemonHealth extends Health
 
     public function getStatus(): string
     {
-        return self::STATUS_ACTIVE;
+//        return self::STATUS_ACTIVE;
         $command = sprintf('systemctl status %s', $this->linuxDaemonName);
-        $this->logger->addInfo($command);
         $output = shell_exec($command);
         $this->rawStatus = $output;
         $status = '-';

@@ -48,7 +48,9 @@ class D3Printer extends Component
 
     public function commonHealth($cached = false)
     {
-        return new CommonHealth($this->accessSettings, $this->printerCode, $this->printerName, $cached);
+        $commonHealth = new CommonHealth($this->accessSettings, $this->printerCode, $this->printerName, $cached);
+        $commonHealth->daemonHealth->linuxDaemonName = $this->linuxDaemonName;
+        return $commonHealth;
     }
 
     public function daemonHealth($cached = false)

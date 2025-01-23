@@ -10,7 +10,6 @@ use d3yii2\d3printer\logic\tasks\FtpTask;
 use Exception;
 use Yii;
 use yii\console\ExitCode;
-use yii\helpers\VarDumper;
 
 
 class FtpPrintDaemonController extends DaemonController
@@ -30,39 +29,35 @@ class FtpPrintDaemonController extends DaemonController
         $this->loopExitAfterSeconds = 0;
         $this->memoryIncreasedPercents = 30;
 
-        if (!$taskClassName) {
-            $task = new FtpTask($this);
-        } else {
-            $task = new $taskClassName($this);
-        }
-        $task->printerName = $printerName;
-        $task->execute();
+        $task = $this->createTask($taskClassName, $printerName);
+        $spoolingDirectory = $task->printer->getSpoolDirectory();
+        unset($task);
+        $this->out('Spooling directory: ' . $spoolingDirectory);
         $this->sleepAfterMicroseconds = 1000000; //1 sekunde
         $error = false;
         while ($this->loop()) {
             try {
-                if (!$files = $task->printer->getSpoolDirectoryFiles()) {
+                if (!$files = D3FileHelper::getDirectoryFiles($spoolingDirectory)) {
                    continue;
                 }
                 $this->out('files count: ' . count($files));
+                $task = $this->createTask($taskClassName, $printerName);
                 $task->connect();
                 $task->authorize();
                 foreach ($files as $filePath) {
-
                     $this->out($filePath);
                     $task->putFile($filePath);
-
                     if (!unlink($filePath)) {
                         throw new D3TaskException('Cannot delete file: ' . $filePath);
                     }
                 }
-                unset($files, $filePath);
+                $task->disconnect();
+                unset($files, $filePath, $task);
                 if ($error) {
                     $this->out('');
                     $this->out(date('Y-m-d H:i:s') . ' No Errors');
                     $error = false;
                 }
-                $task->disconnect();
             } catch (D3PrinterException $e) {
                 $this->stdout('!');
             } catch (Exception $e) {
@@ -77,6 +72,24 @@ class FtpPrintDaemonController extends DaemonController
             }
         }
         return ExitCode::OK;
+    }
+
+    /**
+     * @param string|null $taskClassName
+     * @param string $printerName
+     * @return FtpTask|mixed
+     * @throws D3TaskException
+     */
+    public function createTask(?string $taskClassName, string $printerName)
+    {
+        if (!$taskClassName) {
+            $task = new FtpTask($this);
+        } else {
+            $task = new $taskClassName($this);
+        }
+        $task->printerName = $printerName;
+        $task->execute();
+        return $task;
     }
 }
 
