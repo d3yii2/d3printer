@@ -51,7 +51,7 @@ class FtpTask extends PrinterTask
     }
 
     /**
-     * @throws \d3yii2\d3printer\logic\D3PrinterException
+     * @throws D3PrinterException
      */
     public function authorize(): void
     {
@@ -78,7 +78,7 @@ class FtpTask extends PrinterTask
      * @param string $filePath
      * @param int $tryTimes try put file times
      * @param int $usleep sleep in microseconds between try. default 0.5 second
-     * @throws \d3system\exceptions\D3TaskException
+     * @throws D3TaskException
      */
     public function putFile(string $filePath, int $tryTimes = 5, int $usleep = 1000000): void
     {
@@ -86,6 +86,7 @@ class FtpTask extends PrinterTask
         $tryCounter = 1;
         $errors = [];
         while ($tryCounter <= $tryTimes) {
+            @trigger_error("");
             if (@ftp_put($this->connection, basename($filePath), $filePath, FTP_BINARY)) {
                 return;
             }
