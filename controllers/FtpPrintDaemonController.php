@@ -42,8 +42,6 @@ class FtpPrintDaemonController extends DaemonController
                 }
                 $this->out('files count: ' . count($files));
                 $task = $this->createTask($taskClassName, $printerName);
-                $task->connect();
-                $task->authorize();
                 foreach ($files as $filePath) {
                     $this->out($filePath);
                     $task->putFile($filePath);

@@ -17,7 +17,8 @@
     "guzzlehttp/guzzle": "^7.0",
     "dbr/ezpl": "dev-master",
     "ext-dom": "*",
-    "ext-libxml": "*"
+    "ext-libxml": "*",
+    "suin/php-ftp-client": "dev-master"
   },
   "autoload": {
     "psr-4": {
