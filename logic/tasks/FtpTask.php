@@ -5,7 +5,7 @@ namespace d3yii2\d3printer\logic\tasks;
 
 use d3system\exceptions\D3TaskException;
 use d3yii2\d3printer\logic\D3PrinterException;
-use Suin_FTPClient_FTPClient;
+use Suin\FTPClient\FTPClient;
 use yii\helpers\VarDumper;
 
 
@@ -84,11 +84,11 @@ class FtpTask extends PrinterTask
     public function putFile(string $filePath, int $tryTimes = 5, int $usleep = 1000000): void
     {
         $port = $this->printer->port ?? $this->port;
-        $client = new Suin_FTPClient_FTPClient($this->printer->printerIp, $port);
+        $client = new FTPClient($this->printer->printerIp, $port);
         usleep($usleep);
         $tryCounter = 1;
         while ($tryCounter <= $tryTimes) {
-            if ($client->upload($filePath, basename($filePath), Suin_FTPClient_FTPClient::MODE_BINARY) !== false) {
+            if ($client->upload($filePath, basename($filePath)) !== false) {
                 return;
             }
             $tryCounter ++;
