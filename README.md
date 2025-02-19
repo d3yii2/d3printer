@@ -169,3 +169,40 @@ Get printer status, cartridge and drum by printer code
  $cartridgeRemaining = $deviceHealth->getCartridgeRemaining();
  $drumRemaining = $deviceHealth->getDrumRemaining();
 ```
+
+## Deamons for spool printer
+
+### directory
+/usr/lib/systemd/system
+
+```ini
+[Unit]
+Description=Cewood Maza Pecapstrade printer spooler
+
+[Service]
+User=www-data
+TimeoutStartSec=30
+Restart=on-failure
+Restart=always
+RestartSec=5s
+# MpPrinter - printer compnent name
+ExecStart=php /home/chroot/websites/cewood/yii d3printer/ftp-print-daemon MpPrinter
+StandardOutput=append:/home/chroot/websites/cewood/runtime/logs/mp/printer-spooler.log
+StandardError=append:/home/chroot/websites/cewood/runtime/logs/mp/printer-spooler-error.log
+                     /home/chroot/websites/cewood/runtime/logs/mp/
+SyslogIdentifier=MpPrintDeamon
+
+[Install]
+WantedBy=multi-user.target
+
+```
+
+### install
+
+systemctl daemon-reload 
+systemctl enable cewood-mp-printer-spooler.service
+systemctl start cewood-mp-printer-spooler.service
+
+### diagnostic
+journalctl -u cewood-mp-printer-spooler.service
+check logfile /home/chroot/websites/cewood/runtime/logs/mp/printer-spooler-error.log

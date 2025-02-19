@@ -74,7 +74,7 @@ class FtpPrintDaemonController extends DaemonController
 
     /**
      * @param string|null $taskClassName
-     * @param string $printerName
+     * @param string $printerName  - printer component name
      * @return FtpTask|mixed
      * @throws D3TaskException
      */
