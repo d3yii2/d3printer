@@ -40,7 +40,7 @@ class FtpPrintDaemonController extends DaemonController
                 if (!$files = D3FileHelper::getDirectoryFiles($spoolingDirectory)) {
                    continue;
                 }
-                $this->out('files count: ' . count($files));
+                $this->out(date('Y-m-d H:i:s') . ' files count: ' . count($files));
                 $task = $this->createTask($taskClassName, $printerName);
                 foreach ($files as $filePath) {
                     $this->out($filePath);
