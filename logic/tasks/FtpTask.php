@@ -83,12 +83,15 @@ class FtpTask extends PrinterTask
      */
     public function putFile(string $filePath, int $tryTimes = 5, int $usleep = 1000000): void
     {
+        $currentLimit = ini_get('max_execution_time');
+        set_time_limit(10);
         $port = $this->printer->port ?? $this->port;
         $client = new FTPClient($this->printer->printerIp, $port);
         usleep($usleep);
         $tryCounter = 1;
         while ($tryCounter <= $tryTimes) {
             if ($client->upload($filePath, basename($filePath)) !== false) {
+                set_time_limit($currentLimit);
                 return;
             }
             $tryCounter ++;
