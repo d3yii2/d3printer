@@ -28,6 +28,7 @@ class FtpPrintDaemonController extends DaemonController
         $this->loopTimeLimit = 30;
         $this->loopExitAfterSeconds = 0;
         $this->memoryIncreasedPercents = 30;
+        ini_set('default_socket_timeout', 5);
 
         $task = $this->createTask($taskClassName, $printerName);
         $spoolingDirectory = $task->printer->getSpoolDirectory();
