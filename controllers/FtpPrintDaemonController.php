@@ -45,6 +45,11 @@ class FtpPrintDaemonController extends DaemonController
                 $task = $this->createTask($taskClassName, $printerName);
                 foreach ($files as $filePath) {
                     $this->out($filePath);
+                    /**
+                     * dažreiz uzkaras uz ftp put file
+                     * 20250521 pieliku ini_set('default_socket_timeout', 5);
+                     * ja tas nelīdz, jakontrolē logfails. Ja neaug - japārstartē serviss
+                     */
                     $task->putFile($filePath);
                     if (!unlink($filePath)) {
                         throw new D3TaskException('Cannot delete file: ' . $filePath);
