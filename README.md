@@ -211,11 +211,16 @@ WantedBy=multi-user.target
 ```
 
 ### install
-
-systemctl daemon-reload 
+```shell
+ 
 systemctl enable cewood-mp-printer-spooler.service
+systemctl daemon-reload
 systemctl start cewood-mp-printer-spooler.service
 
+```
+
 ### diagnostic
+```shell
 journalctl -u cewood-mp-printer-spooler.service
 check logfile /home/chroot/websites/cewood/runtime/logs/mp/printer-spooler-error.log
+```
