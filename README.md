@@ -16,13 +16,18 @@ $ composer require d3yii2/d3printer "*"
 
 or add to composer require part 
 
-```
+```json
 "d3yii2/d3printer": "*"
 ```
+if use zpl
+```json
+"robgridley/zebra": "v2.0.2"
+```
 
-## Printers define as compnents
 
-For each type printer create own class
+## Printers define as components
+
+For each type printer create its own class 
 See components/D3PrinterGodex5000.php
 
 ## Labels
@@ -116,6 +121,14 @@ echo $printer->getCheckResponseLabel() . PHP_EOL;
 
 $printer->print($label);
 ```
+
+## usage in a project
+ - create an extended printer a component for creating printable files an in spool directory
+ - - defined printer connection details
+ - - create and save files for printing in the spool directory
+ - - method print() for spooler print demon
+ - demon for reading files from the spool directory and send to printer using FtpPrintDaemonController 
+
 ## Health monitoring 
 Define health component in app console config
 ```php
@@ -170,7 +183,7 @@ Get printer status, cartridge and drum by printer code
  $drumRemaining = $deviceHealth->getDrumRemaining();
 ```
 
-## Deamons for spool printer
+## Demons for spool printer
 
 ### directory
 /usr/lib/systemd/system

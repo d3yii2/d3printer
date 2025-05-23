@@ -12,6 +12,13 @@ use Yii;
 use yii\console\ExitCode;
 
 
+/**
+ * use for printing files from a spool directory to printer.
+ * Can use ftp printing or in printer component method print
+ * use for
+ * - Cewood with build in FTP task
+ *  - farmeko - without $taskClassName. for printing use printer component method print
+ */
 class FtpPrintDaemonController extends DaemonController
 {
 
@@ -30,33 +37,51 @@ class FtpPrintDaemonController extends DaemonController
         $this->memoryIncreasedPercents = 30;
         ini_set('default_socket_timeout', 5);
 
-        $task = $this->createTask($taskClassName, $printerName);
-        $spoolingDirectory = $task->printer->getSpoolDirectory();
-        unset($task);
+        /** get printer directory */
+        if (isset(Yii::$app->{$printerName})) {
+            $printer = Yii::$app->{$printerName};
+            $spoolingDirectory = $printer->getSpoolDirectory();
+        } else {
+            $task = $this->createTask($taskClassName, $printerName);
+            $spoolingDirectory = $task->printer->getSpoolDirectory();
+            unset($task);
+        }
         $this->out('Spooling directory: ' . $spoolingDirectory);
         $this->sleepAfterMicroseconds = 1000000; //1 sekunde
         $error = false;
+        $printerMethodExists = isset($printer) && method_exists($printer, 'print');
         while ($this->loop()) {
             try {
                 if (!$files = D3FileHelper::getDirectoryFiles($spoolingDirectory)) {
                    continue;
                 }
                 $this->out(date('Y-m-d H:i:s') . ' files count: ' . count($files));
-                $task = $this->createTask($taskClassName, $printerName);
+
+                if (!$printerMethodExists) {
+                    $task = $this->createTask($taskClassName, $printerName);
+                }
                 foreach ($files as $filePath) {
                     $this->out($filePath);
-                    /**
-                     * dažreiz uzkaras uz ftp put file
-                     * 20250521 pieliku ini_set('default_socket_timeout', 5);
-                     * ja tas nelīdz, jakontrolē logfails. Ja neaug - japārstartē serviss
-                     */
-                    $task->putFile($filePath);
+
+                    if ($printerMethodExists) {
+                        $printer->print($filePath);
+                    } else {
+                        /**
+                         * dažreiz uzkaras uz ftp put file
+                         * 20250521 pieliku ini_set('default_socket_timeout', 5);
+                         * ja tas nelīdz, jakontrolē logfails. Ja neaug - japārstartē serviss
+                         */
+                        $task->putFile($filePath);
+                    }
                     if (!unlink($filePath)) {
                         throw new D3TaskException('Cannot delete file: ' . $filePath);
                     }
                 }
-                $task->disconnect();
-                unset($files, $filePath, $task);
+                if (isset($task)) {
+                    $task->disconnect();
+                    unset($task);
+                }
+                unset($files, $filePath);
                 if ($error) {
                     $this->out('');
                     $this->out(date('Y-m-d H:i:s') . ' No Errors');
