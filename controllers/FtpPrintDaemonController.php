@@ -6,7 +6,6 @@ use d3system\commands\DaemonController;
 use d3system\exceptions\D3TaskException;
 use d3system\helpers\D3FileHelper;
 use d3yii2\d3printer\logic\D3PrinterException;
-use d3yii2\d3printer\logic\tasks\FtpTask;
 use Exception;
 use Yii;
 use yii\console\ExitCode;
@@ -14,10 +13,9 @@ use yii\console\ExitCode;
 
 /**
  * use for printing files from a spool directory to printer.
- * Can use ftp printing or in printer component method print
- * use for
- * - Cewood with build in FTP task
- *  - farmeko - without $taskClassName. for printing use printer component method print
+  * use for
+ * - Cewood - FTP task
+ * - farmeko - ZPL
  */
 class FtpPrintDaemonController extends DaemonController
 {
@@ -27,8 +25,7 @@ class FtpPrintDaemonController extends DaemonController
      * @throws \yii\base\Exception
      */
     public function actionIndex(
-        string $printerName,
-        string $taskClassName = null
+        string $printerName
     ): int
     {
         /** process settings */
@@ -38,50 +35,29 @@ class FtpPrintDaemonController extends DaemonController
         ini_set('default_socket_timeout', 5);
 
         /** get printer directory */
-        if (isset(Yii::$app->{$printerName})) {
-            $printer = Yii::$app->{$printerName};
-            $spoolingDirectory = $printer->getSpoolDirectory();
-        } else {
-            $task = $this->createTask($taskClassName, $printerName);
-            $spoolingDirectory = $task->printer->getSpoolDirectory();
-            unset($task);
+        if (!isset(Yii::$app->{$printerName})) {
+            throw new \yii\base\Exception('Illegal component name: ' . $printerName);
         }
+        $printer = Yii::$app->{$printerName};
+        $spoolingDirectory = $printer->getSpoolDirectory();
+
         $this->out('Spooling directory: ' . $spoolingDirectory);
         $this->sleepAfterMicroseconds = 1000000; //1 sekunde
         $error = false;
-        $printerMethodExists = isset($printer) && method_exists($printer, 'print');
         while ($this->loop()) {
             try {
                 if (!$files = D3FileHelper::getDirectoryFiles($spoolingDirectory)) {
                    continue;
                 }
                 $this->out(date('Y-m-d H:i:s') . ' files count: ' . count($files));
-
-                if (!$printerMethodExists) {
-                    $task = $this->createTask($taskClassName, $printerName);
-                }
                 foreach ($files as $filePath) {
                     $this->out($filePath);
-
-                    if ($printerMethodExists) {
-                        $printer->print($filePath);
-                    } else {
-                        /**
-                         * dažreiz uzkaras uz ftp put file
-                         * 20250521 pieliku ini_set('default_socket_timeout', 5);
-                         * ja tas nelīdz, jakontrolē logfails. Ja neaug - japārstartē serviss
-                         */
-                        $task->putFile($filePath);
-                    }
+                    $printer->print($filePath);
                     if (!unlink($filePath)) {
                         throw new D3TaskException('Cannot delete file: ' . $filePath);
                     }
                 }
-                if (isset($task)) {
-                    $task->disconnect();
-                    unset($task);
-                }
-                unset($files, $filePath);
+                unset($files);
                 if ($error) {
                     $this->out('');
                     $this->out(date('Y-m-d H:i:s') . ' No Errors');
@@ -102,23 +78,4 @@ class FtpPrintDaemonController extends DaemonController
         }
         return ExitCode::OK;
     }
-
-    /**
-     * @param string|null $taskClassName
-     * @param string $printerName  - printer component name
-     * @return FtpTask|mixed
-     * @throws D3TaskException
-     */
-    public function createTask(?string $taskClassName, string $printerName)
-    {
-        if (!$taskClassName) {
-            $task = new FtpTask($this);
-        } else {
-            $task = new $taskClassName($this);
-        }
-        $task->printerName = $printerName;
-        $task->execute();
-        return $task;
-    }
 }
-
