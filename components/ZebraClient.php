@@ -119,13 +119,13 @@ final class ZebraClient
      */
     protected function connect(string $host, int $port): void
     {
-        $this->socket = self::socketConnectTimeout($host, $port, 5);
+        $this->socket = self::socketConnectTimeout($host, $port, 500);
     }
 
     /**
      * Close connection to printer.
      */
-    protected function disconnect(): void
+    public function disconnect(): void
     {
         @socket_close($this->socket);
     }
