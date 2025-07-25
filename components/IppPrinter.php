@@ -37,7 +37,7 @@ class IppPrinter extends Printer
         $tryCounter = 1;
         while ($tryCounter <= 5) {
             $response = $ipp->printJob(file_get_contents($url));
-            if ($response->statusCode->getClass === 'successful') {
+            if ($response->statusCode->getClass() === 'successful') {
                 set_time_limit($currentLimit);
                 return true;
             }
