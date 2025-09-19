@@ -19,8 +19,8 @@ class Health extends Component
     public $printerName;
 
     protected $accessSettings = [];
-    protected $alertSettings;
-    protected $mailer;
+    protected ?AlertSettings $alertSettings = null;
+    protected ?Mailer $mailer = null;
     protected $cached;
 
     /**
@@ -28,6 +28,7 @@ class Health extends Component
      * @param array $accessSettings
      * @param string $printerCode
      * @param string $printerName
+     * @param bool $cached
      */
     public function __construct(array $accessSettings, string $printerCode, string $printerName, $cached = false)
     {

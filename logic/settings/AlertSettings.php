@@ -39,23 +39,23 @@ class AlertSettings
     }
     
     /**
-     * @return strings
+     * @return string
      */
     public function getEmailFrom(): string
     {
         return $this->model->email_from;
     }
-    
+
     /**
-     * @return string
+     * @return array
      */
     public function getEmailTo(): array
     {
-        if (!$this->model->email_to) {
+        $emailTo = trim($this->model->email_to, '| \t\n\r\0\x0B');
+        if (!$emailTo) {
             return [];
         }
-        
-        return explode('|', trim($this->model->email_to, '| \t\n\r\0\x0B'));
+        return explode('|', $emailTo);
     }
     
     /**
