@@ -18,7 +18,8 @@
     "dbr/ezpl": "dev-master",
     "ext-dom": "*",
     "ext-libxml": "*",
-    "suin/php-ftp-client": "dev-master"
+    "suin/php-ftp-client": "dev-master",
+    "d3yii2/d3printeripp": "dev-main"
   },
   "autoload": {
     "psr-4": {
