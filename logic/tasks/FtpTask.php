@@ -44,7 +44,7 @@ class FtpTask extends PrinterTask
         $connectTimeout = $this->printer->connectTimeout ?? $this->connectTimeout;
         
         if (!$this->connection = ftp_connect($this->printer->printerIp, $port, $connectTimeout)) {
-            throw new D3PrinterException('Can not connect to ftp at: ' . $this->printer->printerIp . ' Port: ' . $port . ' Timeout:' . $connectTimeout);
+            throw new D3PrinterException('Cannot connect to ftp at: ' . $this->printer->printerIp . ' Port: ' . $port . ' Timeout:' . $connectTimeout);
         }
 
         $timeout = $this->printer->ftpTimeout ?? $this->ftpTimeout;

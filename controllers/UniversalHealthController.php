@@ -24,17 +24,17 @@ class UniversalHealthController extends D3CommandController
      * run: php yii d3printer/universal-health/index printerBig printerMailer
      *
      *
-     * @param string $printerComponent like d3yii2\d3printer\components\ZebraPrinter
-     * @param string $mailerComponent like d3yii2\d3printer\components\Mailer
+     * @param object $printerComponent like d3yii2\d3printer\components\ZebraPrinter
+     * @param object $mailerComponent like d3yii2\d3printer\components\Mailer
      * @return int
      * @throws InvalidConfigException
      * @throws Exception
      */
-    public function actionIndex(string $printerComponent, string $mailerComponent): int
+    public function actionIndex(string $printerComponent, string $mailerComponent = null): int
     {
-        if (!Yii::$app->has($printerComponent) || !Yii::$app->has($mailerComponent)) {
-            throw new Exception(
-                sprintf('Missing Printer: `%s` or Mailer: `%s` component.', $printerComponent, $mailerComponent)
+        if (!Yii::$app->has($printerComponent)) {
+            throw new InvalidConfigException(
+                sprintf('Missing Printer: `%s` component.', $printerComponent)
             );
         }
 
@@ -42,12 +42,22 @@ class UniversalHealthController extends D3CommandController
         $printer = Yii::$app->get($printerComponent);
 
         /** @var Mailer $mailer */
-        $mailer = Yii::$app->get($mailerComponent);
+        if ($mailerComponent) {
+            if (!Yii::$app->has($mailerComponent)) {
+                throw new InvalidConfigException(
+                    sprintf('Missing Mailer: `%s` component.', $mailerComponent)
+                );
+            }
+
+            $mailer = Yii::$app->get($mailerComponent);
+        } else {
+            $mailer = null;
+        }
 
         $errors = $printer->collectErrors();
         if (count($errors) > 0) {
             $this->out('Errors: ' . implode('; ', $errors));
-            if ($printer->isChangedErrors($errors)) {
+            if ($mailer && $printer->isChangedErrors($errors)) {
                 $this->out('Send errors to ' . implode('; ', $mailer->to));
                 $mailer->send($printer->printerName, $this->getErrorMessage($printer, $errors));
             }

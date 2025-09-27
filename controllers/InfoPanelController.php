@@ -4,6 +4,7 @@
 namespace d3yii2\d3printer\controllers;
 
 use d3yii2\d3printer\accessRights\D3PrinterViewPanelUserRole;
+use d3yii2\d3printer\components\ZebraPrinter;
 use d3yii2\d3printer\logic\panel\DisplayDataLogic;
 use d3yii2\d3printeripp\components\PrinterIPPComponent;
 use d3yii2\d3printeripp\logic\ValueFormatter;
@@ -19,7 +20,7 @@ class InfoPanelController extends Controller
     /**
      * @inheritdoc
      */
-    public function behaviors()
+    public function behaviors(): array
     {
         return [
             'access' => [
@@ -30,6 +31,7 @@ class InfoPanelController extends Controller
                         'actions' => [
                             'status',
                             'ipp-status',
+                            'zebra-info'
                         ],
                         'roles' => [
                             D3PrinterViewPanelUserRole::NAME,
@@ -41,6 +43,8 @@ class InfoPanelController extends Controller
     }
 
     /**
+     * @param string $printerComponent
+     * @param string $healthComponent
      * @return string
      */
     public function actionStatus(string $printerComponent, string $healthComponent): string
@@ -149,5 +153,20 @@ class InfoPanelController extends Controller
             FlashHelper::processException($e);
         }
         return '';
+    }
+
+    public function actionZebraInfo(string $component): string
+    {
+        try {
+
+            /** @var ZebraPrinter $arduino */
+            $printer = clone Yii::$app->get($component);
+            return $this->render('zebra-info',['printer' => $printer]);
+
+        } catch (Exception $e) {
+            FlashHelper::processException($e);
+        }
+        return '';
+
     }
 }

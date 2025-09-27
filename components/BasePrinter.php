@@ -9,30 +9,29 @@ use yii\base\Exception;
 /**
  *
  * @property-read array $spoolDirectoryFiles
+ * @property-read string $errorsFilename
+ * @property-read string $lastLogErrors
  * @property-read string $spoolDirectory
  */
 class BasePrinter extends Component
 {
 
-    /**
-     * @var string
-     */
-    public $printerCode;
+    public ?string $printerCode = null;
 
     /**
     * @var string base directory in runtime directory for spool directories
     */
-    public $baseDirectory = 'd3printer';
+    public string  $baseDirectory = 'd3printer';
 
     /**
-     * @var string server printer name on windows
+     * @var null|string server printer name on windows
      */
-    public $printerName;
+    public ?string $printerName = null;
 
 
-    public $printFilesCount;
+    public ?int $printFilesCount = null ;
 
-    public $sleepSeconds = 0;
+    public int $sleepSeconds = 0;
     /**
      * @throws Exception
      */
@@ -74,14 +73,14 @@ class BasePrinter extends Component
 
     public function saveErrors(array $errors): string
     {
-        $hash = $this->getLogHash($errors);
+        $hash = $this->convertLogToText($errors);
 
         return D3FileHelper::filePutContentInRuntime('logs/d3printer', $this->getErrorsFilename(), $hash);
     }
 
     public function isChangedErrors(array $errors): bool
     {
-        return $this->getLogHash($errors) !== $this->getLastLogHash();
+        return $this->convertLogToText($errors) !== $this->getLastLogErrors();
     }
 
     private function getErrorsFilename(): string
@@ -89,12 +88,12 @@ class BasePrinter extends Component
         return $this->printerCode . '-healthError.txt';
     }
 
-    private function getLogHash(array $errors): string
+    private function convertLogToText(array $errors): string
     {
         return implode(PHP_EOL, $errors);
     }
 
-    private function getLastLogHash(): string
+    public function getLastLogErrors(): string
     {
         return D3FileHelper::fileGetContentFromRuntime('logs/d3printer', $this->getErrorsFilename()) ?? '';
     }

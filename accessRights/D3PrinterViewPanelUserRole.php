@@ -25,7 +25,7 @@ class D3PrinterViewPanelUserRole implements UserRoleInterface
     */
     public function getLabel(): string
     {
-        return Yii::t('d3printer', 'View');
+        return Yii::t('d3printer', 'View panels');
 
     }
 

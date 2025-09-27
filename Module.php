@@ -19,6 +19,6 @@ class Module extends D3Module
      */
     public function getLabel(): string
     {
-        return Yii::t('d3printer', 'd3yii2/d3printer');
+        return Yii::t('d3printer', 'D3printer');
     }
 }

@@ -90,7 +90,7 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
             } catch (CommunicationException $exception) {
                 sleep(3);
                 if ($maxRetryCount === $retry) {
-                    return ['Can not connect'];
+                    return ['Cannot connect'];
                 }
             } catch (\Exception $exception) {
                 Yii::error($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());

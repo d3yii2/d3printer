@@ -41,7 +41,7 @@ class SendToPrinter extends Component
         }
         $copyToFile = basename($filepath,'.pdf');
         if(!$conn_id = ftp_connect($this->printerIp)){
-            throw new \yii\base\Exception("Can not connect to ftp! ");
+            throw new \yii\base\Exception("Cannot connect to ftp! ");
         }
         if(!$login_result = ftp_login($conn_id, 'anonymous', 'anonymous@domain.com')){
             echo VarDumper::dumpAsString($login_result);

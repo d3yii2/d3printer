@@ -7,5 +7,7 @@ return [
     'FTP status' => 'FTP statuss',
     'Ready' => 'Gaida',
     'Down' => 'Nedarbojas',
-    '' => '',
+    'View panels' => 'Skatīt paneļus',
+    'Spooled files' => 'Faili spūlerī',
+    'Statuss' => 'Statuss',
 ];
