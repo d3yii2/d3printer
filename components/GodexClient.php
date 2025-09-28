@@ -7,8 +7,8 @@ namespace d3yii2\d3printer\components;
 
 use Exception;
 use Yii;
+use yii\helpers\ArrayHelper;
 use Zebra\CommunicationException;
-use Zebra\Zpl\Builder;
 
 final class GodexClient
 {
@@ -19,9 +19,11 @@ final class GodexClient
      */
     protected $socket;
 
-    public const ERROR_HEALTH_LIST = [
+    private const STATUS_READY_CODE = '00';
+
+    private const ERROR_HEALTH_LIST = [
         [
-            'code' => '00',
+            'code' => self::STATUS_READY_CODE,
             'label' => 'Ready',
         ],
         [
@@ -149,7 +151,7 @@ final class GodexClient
      */
     public function send(string $zpl): void
     {
-        if (false === @socket_write($this->socket, $zpl)) {
+        if (false === @socket_write($this->socket, $zpl . chr(13))) {
             $error = $this->getLastError();
             throw new CommunicationException($error['message'], $error['code']);
         }
@@ -282,15 +284,7 @@ final class GodexClient
         while ($retry < $maxRetryCount) {
             $retry++;
             try {
-                /** Note: Before using this command, the “^XSET,IMMEDIATE”
-                 * (Set immediate response on/off)
-                 * command should be turned on.
-                 */
-                $command = (new Builder())->command('^XSET,IMMEDIATE,1');
-                $this->sendAndRead($command->toZpl());
-                /** ~S,CHECK - Status immediate response command */
-                $command = (new Builder())->command('~S,CHECK');
-                $response = $this->sendAndRead($command->toZpl());
+                $response = $this->readStatus();
                 return self::fetchErrors($response);
             } catch (CommunicationException $exception) {
                 sleep(3);
@@ -310,7 +304,33 @@ final class GodexClient
 
     private static function fetchErrors(string $response): array
     {
-        return self::ERROR_HEALTH_LIST[$response] ?? ['Undefined code - ' . $response];
+        $list = ArrayHelper::map(self::ERROR_HEALTH_LIST, 'code', 'label');
+        $response = $list[$response] ?? 'Undefined code - ' . $response;
+        return [$response];
+    }
 
+    public function isPrinterReady(): bool
+    {
+        try {
+            return $this->readStatus() === self::STATUS_READY_CODE;
+        } catch (CommunicationException $exception) {
+            return false;
+        } catch (Exception $exception) {
+            Yii::error($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
+        }
+        return false;
+    }
+
+    /**
+     * @return string
+     */
+    private function readStatus(): string
+    {
+        /** Note: Before using this command, the “^XSET,IMMEDIATE”
+         * (Set immediate response on/off)
+         * command should be turned on.
+         */
+        $this->send('^XSET,IMMEDIATE,1');
+        return trim($this->sendAndRead('~S,CHECK'));
     }
 }
