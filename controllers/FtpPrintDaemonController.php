@@ -44,7 +44,12 @@ class FtpPrintDaemonController extends DaemonController
         $this->out('Spooling directory: ' . $spoolingDirectory);
         $this->sleepAfterMicroseconds = 1000000; //1 sekunde
         $error = false;
+        $canNotDeleteFile = false;
         while ($this->loop()) {
+            if ($canNotDeleteFile) {
+                sleep(60);
+                continue;
+            }
             try {
                 if (!$files = D3FileHelper::getDirectoryFiles($spoolingDirectory)) {
                    continue;
@@ -52,9 +57,9 @@ class FtpPrintDaemonController extends DaemonController
                 $this->out(date('Y-m-d H:i:s') . ' files count: ' . count($files));
                 foreach ($files as $filePath) {
                     $this->out($filePath);
-                    if ($printer->print($filePath)
-                        && !unlink($filePath)
-                    ) {
+                    $printer->print($filePath);
+                    if (!unlink($filePath)) {
+                        $canNotDeleteFile = true;
                         throw new D3TaskException('Cannot delete file: ' . $filePath);
                     }
                 }
@@ -67,12 +72,13 @@ class FtpPrintDaemonController extends DaemonController
             } catch (D3PrinterException $e) {
                 $this->stdout('!');
             } catch (Exception $e) {
-                if($e->getMessage() === (string)$error) {
+                $newError = get_class($e) . ': ' . $e->getMessage();
+                if($newError === (string)$error) {
                     $this->stdout('!');
                 } else {
-                    $error = get_class($e) . ': ' . $e->getMessage();
+                    $error = $newError;
                     $this->out('');
-                    $this->out(date('Y-m-d H:i:s') . ' ' . $error);
+                    $this->out($newError);
                     Yii::error($e->getMessage() . PHP_EOL . $e->getTraceAsString());
                 }
             }

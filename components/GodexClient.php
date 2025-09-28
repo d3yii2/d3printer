@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace d3yii2\d3printer\components;
 
 
+use Exception;
 use Yii;
-use yii\base\Exception;
 use Zebra\CommunicationException;
 use Zebra\Zpl\Builder;
 
-final class ZebraClient
+final class GodexClient
 {
     /**
      * The endpoint.
@@ -21,64 +21,72 @@ final class ZebraClient
 
     public const ERROR_HEALTH_LIST = [
         [
-            'code' => '030',
-            'label' => 'communication settings',
-            'check' => false,
+            'code' => '00',
+            'label' => 'Ready',
         ],
         [
-            'code' => '1',
-            'label' => 'paper out',
-            'check' => true,
+            'code' => '01',
+            'label' => 'Media Empty or Media Jam',
         ],
         [
-            'code' => '1',
-            'label' => 'pause active',
-            'check' => true,
+            'code' => '02',
+            'label' => 'Media Empty or Media Jam',
         ],
         [
-            'code' => '1231',
-            'label' => 'label length (value in number of dots)',
-            'check' => false,
+            'code' => '03',
+            'label' => 'Ribbon Empty',
         ],
         [
-            'code' => '000',
-            'label' => 'number of formats in receive buffer',
-            'check' => false,
+            'code' => '04',
+            'label' => 'Printhead Up ( Open )',
         ],
         [
-            'code' => '1',
-            'label' => 'buffer full',
-            'check' => false,
+            'code' => '05',
+            'label' => 'Rewinder Full',
         ],
         [
-            'code' => '1',
-            'label' => 'diagnostic mode active',
-            'check' => false,
+            'code' => '06',
+            'label' => 'File System Full',
         ],
         [
-            'code' => '1',
-            'label' => 'partial format',
-            'check' => false,
+            'code' => '07',
+            'label' => 'Filename Not Found',
         ],
         [
-            'code' => '000',
-            'label' => 'unused',
-            'check' => false,
+            'code' => '8',
+            'label' => 'Duplicate Name',
         ],
         [
-            'code' => '1',
-            'label' => 'corrupt RAM (configuration data lost)',
-            'check' => true,
+            'code' => '09',
+            'label' => 'Syntax error',
         ],
         [
-            'code' => '1',
-            'label' => 'under temperature',
-            'check' => true,
+            'code' => '10',
+            'label' => 'Cutter JAM',
         ],
         [
-            'code' => '1',
-            'label' => 'over temperature',
-            'check' => true,
+            'code' => '11',
+            'label' => 'Extended Memory Not Found',
+        ],
+        [
+            'code' => '20',
+            'label' => 'Pause',
+        ],
+        [
+            'code' => '21',
+            'label' => 'In Setting Mode',
+        ],
+        [
+            'code' => '22',
+            'label' => 'In Keyboard Mode',
+        ],
+        [
+            'code' => '50',
+            'label' => 'Printer is Printing',
+        ],
+        [
+            'code' => '60',
+            'label' => 'Data in Process',
         ],
     ];
 
@@ -274,7 +282,14 @@ final class ZebraClient
         while ($retry < $maxRetryCount) {
             $retry++;
             try {
-                $command = (new Builder())->command('~HS');
+                /** Note: Before using this command, the “^XSET,IMMEDIATE”
+                 * (Set immediate response on/off)
+                 * command should be turned on.
+                 */
+                $command = (new Builder())->command('^XSET,IMMEDIATE,1');
+                $this->sendAndRead($command->toZpl());
+                /** ~S,CHECK - Status immediate response command */
+                $command = (new Builder())->command('~S,CHECK');
                 $response = $this->sendAndRead($command->toZpl());
                 return self::fetchErrors($response);
             } catch (CommunicationException $exception) {
@@ -282,7 +297,7 @@ final class ZebraClient
                 if ($maxRetryCount === $retry) {
                     return ['Cannot connect'];
                 }
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 Yii::error($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
                 sleep(3);
                 if ($maxRetryCount >= $retry) {
@@ -293,32 +308,9 @@ final class ZebraClient
         return [];
     }
 
-    /**
-     * @throws Exception
-     */
     private static function fetchErrors(string $response): array
     {
-        $firstRow = trim(current(explode(PHP_EOL, $response)),chr(2).chr(3)."\r\n");
-        $parsedResponse = explode(',', $firstRow);
+        return self::ERROR_HEALTH_LIST[$response] ?? ['Undefined code - ' . $response];
 
-        if (
-            count(array_diff_key($parsedResponse, self::ERROR_HEALTH_LIST)) > 0 ||
-            count(array_diff_key(self::ERROR_HEALTH_LIST, $parsedResponse)) > 0
-        ) {
-            throw new Exception(sprintf(
-                'Error list format does not match, received: %s parsed: %s',
-                $response,
-                implode(',', $parsedResponse)
-            ));
-        }
-
-        $errors = [];
-        foreach ($parsedResponse as $key => $item) {
-            $error = self::ERROR_HEALTH_LIST[$key];
-            if($error['check'] && $error['code'] === $item) {
-                $errors[] = $error['label'];
-            }
-        }
-        return $errors;
     }
 }
