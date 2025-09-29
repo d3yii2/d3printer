@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace d3yii2\d3printer\components;
 
-
 use Exception;
 use Yii;
-use yii\helpers\ArrayHelper;
 use Zebra\CommunicationException;
 
 final class GodexClient
@@ -20,77 +18,8 @@ final class GodexClient
     protected $socket;
 
     private const STATUS_READY_CODE = '00';
-
-    private const ERROR_HEALTH_LIST = [
-        [
-            'code' => self::STATUS_READY_CODE,
-            'label' => 'Ready',
-        ],
-        [
-            'code' => '01',
-            'label' => 'Media Empty or Media Jam',
-        ],
-        [
-            'code' => '02',
-            'label' => 'Media Empty or Media Jam',
-        ],
-        [
-            'code' => '03',
-            'label' => 'Ribbon Empty',
-        ],
-        [
-            'code' => '04',
-            'label' => 'Printhead Up ( Open )',
-        ],
-        [
-            'code' => '05',
-            'label' => 'Rewinder Full',
-        ],
-        [
-            'code' => '06',
-            'label' => 'File System Full',
-        ],
-        [
-            'code' => '07',
-            'label' => 'Filename Not Found',
-        ],
-        [
-            'code' => '8',
-            'label' => 'Duplicate Name',
-        ],
-        [
-            'code' => '09',
-            'label' => 'Syntax error',
-        ],
-        [
-            'code' => '10',
-            'label' => 'Cutter JAM',
-        ],
-        [
-            'code' => '11',
-            'label' => 'Extended Memory Not Found',
-        ],
-        [
-            'code' => '20',
-            'label' => 'Pause',
-        ],
-        [
-            'code' => '21',
-            'label' => 'In Setting Mode',
-        ],
-        [
-            'code' => '22',
-            'label' => 'In Keyboard Mode',
-        ],
-        [
-            'code' => '50',
-            'label' => 'Printer is Printing',
-        ],
-        [
-            'code' => '60',
-            'label' => 'Data in Process',
-        ],
-    ];
+    private ?string $host;
+    private ?int $port;
 
     /**
      * Create an instance.
@@ -100,7 +29,8 @@ final class GodexClient
      */
     public function __construct(string $host, int $port = 9100)
     {
-        $this->connect($host, $port);
+        $this->host = $host;
+        $this->port = $port;
     }
 
     /**
@@ -126,13 +56,11 @@ final class GodexClient
     /**
      * Connect to printer.
      *
-     * @param string $host
-     * @param int $port
      * @throws CommunicationException if the connection fails.
      */
-    protected function connect(string $host, int $port): void
+    protected function connect(): void
     {
-        $this->socket = self::socketConnectTimeout($host, $port, 500);
+        $this->socket = self::socketConnectTimeout($this->host, $this->port, 500);
     }
 
     /**
@@ -140,7 +68,9 @@ final class GodexClient
      */
     public function disconnect(): void
     {
-        @socket_close($this->socket);
+        if ($this->socket) {
+            @socket_close($this->socket);
+        }
     }
 
     /**
@@ -151,6 +81,9 @@ final class GodexClient
      */
     public function send(string $zpl): void
     {
+        if (!$this->socket) {
+            $this->connect();
+        }
         if (false === @socket_write($this->socket, $zpl . chr(13))) {
             $error = $this->getLastError();
             throw new CommunicationException($error['message'], $error['code']);
@@ -159,6 +92,9 @@ final class GodexClient
 
     public function sendAndRead(string $zpl, $length = 1024): string
     {
+        if (!$this->socket) {
+            $this->connect();
+        }
         $this->send($zpl);
         $response = @socket_read($this->socket, $length);
         if ($response === false) {
@@ -270,6 +206,9 @@ final class GodexClient
      */
     protected function getLastError(): array
     {
+        if (!$this->socket) {
+            $this->connect();
+        }
         $code = socket_last_error($this->socket);
         $message = socket_strerror($code);
         return compact('code', 'message');
@@ -277,7 +216,7 @@ final class GodexClient
 
     /**
      */
-    public function collectErrors(): array
+    public function processStatus(): PrinterStatus
     {
         $maxRetryCount = 3;
         $retry = 0;
@@ -285,29 +224,33 @@ final class GodexClient
             $retry++;
             try {
                 $response = $this->readStatus();
-                return self::fetchErrors($response);
+                $printerStatus = new GodexPrinterStatus($response);
+                break;
             } catch (CommunicationException $exception) {
                 sleep(3);
                 if ($maxRetryCount === $retry) {
-                    return ['Cannot connect'];
+                    $printerStatus = new GodexPrinterStatus();
+                    $printerStatus->setCanNotConnect();
+                    break;
                 }
             } catch (Exception $exception) {
                 Yii::error($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
                 sleep(3);
                 if ($maxRetryCount >= $retry) {
-                    return [$exception->getMessage()];
+                    $printerStatus = new GodexPrinterStatus();
+                    $printerStatus->setOtherError($exception->getMessage());
+                    break;
                 }
             }
         }
-        return [];
+        if (!isset($printerStatus)) {
+            $printerStatus = new GodexPrinterStatus();
+            $printerStatus->setOtherError('Mistiska');
+        }
+        return $printerStatus;
     }
 
-    private static function fetchErrors(string $response): array
-    {
-        $list = ArrayHelper::map(self::ERROR_HEALTH_LIST, 'code', 'label');
-        $response = $list[$response] ?? 'Undefined code - ' . $response;
-        return [$response];
-    }
+
 
     public function isPrinterReady(): bool
     {
@@ -319,6 +262,16 @@ final class GodexClient
             Yii::error($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
         }
         return false;
+    }
+
+    public function print(string $content): bool
+    {
+        if (!$this->isPrinterReady()) {
+            return false;
+        }
+        /** @todo jāpārbaua, varbūt atgriez kaut ko, ja nevar izdrukāt */
+        $this->send($content);
+        return true;
     }
 
     /**

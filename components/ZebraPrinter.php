@@ -4,7 +4,6 @@ namespace d3yii2\d3printer\components;
 
 use yii\base\Exception;
 use yii;
-use d3yii2\d3printer\components\ZebraClient;
 
 /**
 
@@ -63,22 +62,12 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
     }
 
     /**
-     * @param $filePath
-     * @return void
      */
-    public function print($filePath): void
+    public function processStatus(): PrinterStatus
     {
         $printerClass = $this->printerClientClass;
-        $printer = new $printerClass($this->printerIp, $this->printerPort);
-        $fileContent = file_get_contents($filePath);
-        $printer->send($fileContent);
+        return (new $printerClass($this->printerIp, $this->printerPort))
+            ->processStatus();
     }
 
-    /**
-     */
-    public function collectErrors(): array
-    {
-        $printerClass = $this->printerClientClass;
-        return (new $printerClass($this->printerIp, $this->printerPort))->collectErrors();
-    }
 }

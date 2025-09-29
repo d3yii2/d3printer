@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace d3yii2\d3printer\components;
 
 
+use components\ZebraPrinterStatus;
 use Yii;
 use yii\base\Exception;
 use Zebra\CommunicationException;
@@ -82,6 +83,9 @@ final class ZebraClient
         ],
     ];
 
+    private ?string $host;
+    private ?int $port;
+
     /**
      * Create an instance.
      *
@@ -90,7 +94,8 @@ final class ZebraClient
      */
     public function __construct(string $host, int $port = 9100)
     {
-        $this->connect($host, $port);
+        $this->host = $host;
+        $this->port = $port;
     }
 
     /**
@@ -116,13 +121,13 @@ final class ZebraClient
     /**
      * Connect to printer.
      *
-     * @param string $host
-     * @param int $port
      * @throws CommunicationException if the connection fails.
      */
-    protected function connect(string $host, int $port): void
+    protected function connect(): void
     {
-        $this->socket = self::socketConnectTimeout($host, $port, 500);
+        if (!$this->socket) {
+            $this->socket = self::socketConnectTimeout($this->host, $this->port, 500);
+        }
     }
 
     /**
@@ -141,6 +146,7 @@ final class ZebraClient
      */
     public function send(string $zpl): void
     {
+        $this->connect();
         if (false === @socket_write($this->socket, $zpl)) {
             $error = $this->getLastError();
             throw new CommunicationException($error['message'], $error['code']);
@@ -168,7 +174,7 @@ final class ZebraClient
         /**
          * Set the send and receive timeouts super low so that socket_connect
          * will return to us quickly. We then loop and check the real timeout
-         * and check the socket error to decide if its conected yet or not.
+         * and check the socket error to decide if it's not connected yet or not.
          */
         $connect_timeval = [
             "sec"=>0,
@@ -267,58 +273,67 @@ final class ZebraClient
 
     /**
      */
-    public function collectErrors(): array
+    public function processStatus(): PrinterStatus
     {
         $maxRetryCount = 3;
         $retry = 0;
         while ($retry < $maxRetryCount) {
             $retry++;
             try {
-                $command = (new Builder())->command('~HS');
-                $response = $this->sendAndRead($command->toZpl());
-                return self::fetchErrors($response);
+                $printerStatus = $this->getStatus();
+                break;
             } catch (CommunicationException $exception) {
                 sleep(3);
                 if ($maxRetryCount === $retry) {
-                    return ['Cannot connect'];
+                    $printerStatus = new ZebraPrinterStatus();
+                    $printerStatus->setCanNotConnect();
+                    break;
                 }
             } catch (\Exception $exception) {
                 Yii::error($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
                 sleep(3);
                 if ($maxRetryCount >= $retry) {
-                    return [$exception->getMessage()];
+                    $printerStatus = new ZebraPrinterStatus();
+                    $printerStatus->setOtherError($exception->getMessage());
+                    break;
                 }
             }
         }
-        return [];
+        if (!isset($printerStatus)) {
+            $printerStatus = new GodexPrinterStatus();
+            $printerStatus->setOtherError('Mistiska');
+        }
+        return $printerStatus;
     }
+
 
     /**
      * @throws Exception
      */
-    private static function fetchErrors(string $response): array
+    public function isPrinterReady(): bool
     {
-        $firstRow = trim(current(explode(PHP_EOL, $response)),chr(2).chr(3)."\r\n");
-        $parsedResponse = explode(',', $firstRow);
-
-        if (
-            count(array_diff_key($parsedResponse, self::ERROR_HEALTH_LIST)) > 0 ||
-            count(array_diff_key(self::ERROR_HEALTH_LIST, $parsedResponse)) > 0
-        ) {
-            throw new Exception(sprintf(
-                'Error list format does not match, received: %s parsed: %s',
-                $response,
-                implode(',', $parsedResponse)
-            ));
-        }
-
-        $errors = [];
-        foreach ($parsedResponse as $key => $item) {
-            $error = self::ERROR_HEALTH_LIST[$key];
-            if($error['check'] && $error['code'] === $item) {
-                $errors[] = $error['label'];
-            }
-        }
-        return $errors;
+        return $this->getStatus()->isReady();
     }
+
+    public function print(string $content): bool
+    {
+        try {
+            $this->send($content);
+            return true;
+        } catch (CommunicationException $exception) {
+            return false;
+        }
+    }
+
+    /**
+     * @return ZebraPrinterStatus
+     * @throws Exception
+     */
+    public function getStatus(): ZebraPrinterStatus
+    {
+        $command = (new Builder())->command('~HS');
+        $response = $this->sendAndRead($command->toZpl());
+        return new ZebraPrinterStatus($response);
+    }
+
 }

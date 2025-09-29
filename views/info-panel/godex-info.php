@@ -5,6 +5,7 @@ use eaBlankonThema\widget\ThDetailView;
 use eaBlankonThema\widget\ThExternalLink;
 use eaBlankonThema\widget\ThPanel;
 use yii\base\Model;
+use yii\helpers\Json;
 
 /**
  * @var ZebraPrinter $printer ;
@@ -23,6 +24,7 @@ $panelTitle = ThExternalLink::widget([
 
 /** === BODY ==== */
 $countSpoolerFiles = count($printer->spoolDirectoryFiles);
+$lastLogErrors = $printer->getLastLogErrors();
 $body = ThDetailView::widget([
     'model' => new Model(),
     'attributes' => [
@@ -31,8 +33,8 @@ $body = ThDetailView::widget([
             'value' => $countSpoolerFiles
         ],
         [
-            'label' => Yii::t('d3printer', 'Statuss'),
-            'value' => $printer->getLastLogErrors()['status'],
+            'label' => Yii::t('d3printer', 'Status'),
+            'value' => $lastLogErrors['status'] . ' (' . $lastLogErrors['time'] . ')',
         ]
     ]
 ]);

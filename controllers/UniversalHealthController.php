@@ -9,7 +9,6 @@ use Exception;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\console\ExitCode;
-use function count;
 
 /**
  * Class HealthZebraCronController
@@ -53,20 +52,25 @@ class UniversalHealthController extends D3CommandController
         } else {
             $mailer = null;
         }
-
-        $errors = $printer->collectErrors();
-        if (count($errors) > 0) {
-            $this->out('Errors: ' . implode('; ', $errors));
-            if ($mailer && $printer->isChangedErrors($errors)) {
+        $printerStatus = $printer->processStatus();
+        if (!$printerStatus->isReady()) {
+            $this->out('Status: ' . $printerStatus->getActualStatusReport());
+            if ($mailer && $printerStatus->isChangesInErrors()) {
+                $printerStatus->saveStatus();
                 $this->out('Send errors to ' . implode('; ', $mailer->to));
-                $mailer->send($printer->printerName, $this->getErrorMessage($printer, $errors));
+                $mailer->send(
+                    $printer->printerName,
+                    $this->getErrorMessage(
+                        $printer,
+                        $printerStatus->getActualStatusReport()
+                    )
+                );
             }
         }
-        $printer->saveErrors($errors);
         return ExitCode::OK;
     }
 
-    private function getErrorMessage(ZebraPrinter $printer, array $errors): string
+    private function getErrorMessage(ZebraPrinter $printer, string $errors): string
     {
         return Yii::t(
             'd3printer',
@@ -74,7 +78,7 @@ class UniversalHealthController extends D3CommandController
             [
                 'printerName' => $printer->printerName,
                 'printerCode' => $printer->printerCode,
-                'errors' => implode(PHP_EOL, $errors)
+                'errors' => $errors
             ]
         );
     }

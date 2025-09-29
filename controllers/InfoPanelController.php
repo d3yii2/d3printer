@@ -31,7 +31,8 @@ class InfoPanelController extends Controller
                         'actions' => [
                             'status',
                             'ipp-status',
-                            'zebra-info'
+                            'zebra-info',
+                            'godex-info',
                         ],
                         'roles' => [
                             D3PrinterViewPanelUserRole::NAME,
@@ -167,6 +168,19 @@ class InfoPanelController extends Controller
             FlashHelper::processException($e);
         }
         return '';
+    }
 
+    public function actionGodexInfo(string $component): string
+    {
+        try {
+
+            /** @var ZebraPrinter $arduino */
+            $printer = clone Yii::$app->get($component);
+            return $this->render('godex-info',['printer' => $printer]);
+
+        } catch (Exception $e) {
+            FlashHelper::processException($e);
+        }
+        return '';
     }
 }

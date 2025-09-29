@@ -5,6 +5,7 @@ namespace d3yii2\d3printer\components;
 use d3system\helpers\D3FileHelper;
 use yii\base\Component;
 use yii\base\Exception;
+use yii\helpers\Json;
 
 /**
  *
@@ -71,19 +72,15 @@ class BasePrinter extends Component
         return [];
     }
 
-    public function saveErrors(array $errors): string
-    {
-        $hash = $this->convertLogToText($errors);
-
-        return D3FileHelper::filePutContentInRuntime('logs/d3printer', $this->getErrorsFilename(), $hash);
-    }
-
+    /**
+     * @throws Exception
+     */
     public function isChangedErrors(array $errors): bool
     {
-        return $this->convertLogToText($errors) !== $this->getLastLogErrors();
+        return $errors['status'] !== $this->getLastLogErrors()['status'];
     }
 
-    private function getErrorsFilename(): string
+    public function getErrorsFilename(): string
     {
         return $this->printerCode . '-healthError.txt';
     }
@@ -93,8 +90,27 @@ class BasePrinter extends Component
         return implode(PHP_EOL, $errors);
     }
 
-    public function getLastLogErrors(): string
+    /**
+     * @throws Exception
+     */
+    public function saveErrors(array $errors): string
     {
-        return D3FileHelper::fileGetContentFromRuntime('logs/d3printer', $this->getErrorsFilename()) ?? '';
+        return D3FileHelper::filePutContentInRuntime(
+            'logs/d3printer',
+            $this->getErrorsFilename(),
+            Json::encode($errors)
+        );
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getLastLogErrors(): array
+    {
+        $errors = D3FileHelper::fileGetContentFromRuntime(
+            'logs/d3printer',
+            $this->getErrorsFilename()
+        );
+        return Json::decode($errors);
     }
 }

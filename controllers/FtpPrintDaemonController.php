@@ -57,7 +57,11 @@ class FtpPrintDaemonController extends DaemonController
                 $this->out(date('Y-m-d H:i:s') . ' files count: ' . count($files));
                 foreach ($files as $filePath) {
                     $this->out($filePath);
-                    $printer->print($filePath);
+                    if (!$printer->print($filePath)) {
+                        sleep(60);
+                        continue;
+                    }
+                    $this->out('Printed');
                     if (!unlink($filePath)) {
                         $canNotDeleteFile = true;
                         throw new D3TaskException('Cannot delete file: ' . $filePath);
