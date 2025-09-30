@@ -124,7 +124,7 @@ class GodexPrinterStatus implements PrinterStatus
         $data = [
             'statusTime' => $this->statusTime,
             'actualStatusCode' => $this->actualStatusCode,
-            'actualStatusLabel' => $this->statusLabel(),
+            'actualStatusLabel' => $this->actualStatusLabel,
         ];
         return D3FileHelper::filePutContentInRuntime(
             $this->runtimeDir,

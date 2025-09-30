@@ -108,15 +108,23 @@ final class GodexClient
         if (!$this->socket) {
             $this->connect();
         }
-        $this->send($zpl);
-        $response = @socket_read($this->socket, $length);
-        if ($response === false) {
-            $error = $this->getLastError();
-            $this->disconnect();
+        try {
+            $this->send($zpl);
+            $response = socket_read($this->socket, $length);
+            if ($response === false) {
+                $error = $this->getLastError();
+                $this->disconnect();
+                throw new CommunicationException($error['message'], $error['code']);
+            }
 
-            throw new CommunicationException($error['message'], $error['code']);
+            // Validate response is not empty
+            if ($response === '') {
+                throw new CommunicationException('Received empty response from printer');
+            }
+        } catch (CommunicationException $exception) {
+            $this->disconnect();
+            throw $exception;
         }
-//        $this->disconnect();
         return $response;
     }
 
@@ -282,6 +290,9 @@ final class GodexClient
         if (!$this->isPrinterReady()) {
             return false;
         }
+        $this->setReflectSensor();
+        //$this->setSeeThroughSensor();
+        //$this->calibratingLabel();
         /** @todo jāpārbaua, varbūt atgriez kaut ko, ja nevar izdrukāt */
         $this->send($content);
         return true;
@@ -298,5 +309,30 @@ final class GodexClient
          */
         $this->send('^XSET,IMMEDIATE,1');
         return trim($this->sendAndRead('~S,CHECK'));
+    }
+
+    /**
+     * When calibrating, print aut 2 empty labels
+     * @return void
+     */
+    public function calibratingLabel(): void
+    {
+        $this->send('~S,SENSOR');
+    }
+
+    /**
+     * @return void
+     */
+    public function setSeeThroughSensor(): void
+    {
+        $this->send('^XSET,SENSING,1');
+    }
+
+    /**
+     * @return void
+     */
+    public function setReflectSensor(): void
+    {
+        $this->send('^XSET,SENSING,0');
     }
 }
