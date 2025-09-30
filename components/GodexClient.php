@@ -6,6 +6,7 @@ namespace d3yii2\d3printer\components;
 
 use Exception;
 use Yii;
+use yii\base\InvalidConfigException;
 use Zebra\CommunicationException;
 
 final class GodexClient
@@ -20,17 +21,28 @@ final class GodexClient
     private const STATUS_READY_CODE = '00';
     private ?string $host;
     private ?int $port;
+    private ?string $printerName = null;
 
     /**
      * Create an instance.
      *
      * @param string $host
      * @param int $port
+     * @param string|null $printerName
+     * @throws InvalidConfigException
      */
-    public function __construct(string $host, int $port = 9100)
+    public function __construct(
+        string $host,
+        int $port = 9100,
+        string $printerName = null
+    )
     {
+        if (!$printerName) {
+            throw new InvalidConfigException('Printer name cannot be empty');
+        }
         $this->host = $host;
         $this->port = $port;
+        $this->printerName = $printerName;
     }
 
     /**
@@ -47,6 +59,7 @@ final class GodexClient
      * @param string $host
      * @param int $port
      * @return self
+     * @throws InvalidConfigException
      */
     public static function printer(string $host, int $port = 9100): self
     {
@@ -103,7 +116,7 @@ final class GodexClient
 
             throw new CommunicationException($error['message'], $error['code']);
         }
-        $this->disconnect();
+//        $this->disconnect();
         return $response;
     }
 
@@ -114,7 +127,7 @@ final class GodexClient
         /**
          * Set the send and receive timeouts super low so that socket_connect
          * will return to us quickly. We then loop and check the real timeout
-         * and check the socket error to decide if its conected yet or not.
+         * and check the socket error to decide if it's not connected yet or not.
          */
         $connect_timeval = [
             "sec"=>0,
@@ -224,12 +237,12 @@ final class GodexClient
             $retry++;
             try {
                 $response = $this->readStatus();
-                $printerStatus = new GodexPrinterStatus($response);
+                $printerStatus = new GodexPrinterStatus($this->printerName, $response);
                 break;
             } catch (CommunicationException $exception) {
                 sleep(3);
                 if ($maxRetryCount === $retry) {
-                    $printerStatus = new GodexPrinterStatus();
+                    $printerStatus = new GodexPrinterStatus($this->printerName);
                     $printerStatus->setCanNotConnect();
                     break;
                 }
@@ -237,14 +250,14 @@ final class GodexClient
                 Yii::error($exception->getMessage() . PHP_EOL . $exception->getTraceAsString());
                 sleep(3);
                 if ($maxRetryCount >= $retry) {
-                    $printerStatus = new GodexPrinterStatus();
+                    $printerStatus = new GodexPrinterStatus($this->printerName);
                     $printerStatus->setOtherError($exception->getMessage());
                     break;
                 }
             }
         }
         if (!isset($printerStatus)) {
-            $printerStatus = new GodexPrinterStatus();
+            $printerStatus = new GodexPrinterStatus($this->printerName);
             $printerStatus->setOtherError('Mistiska');
         }
         return $printerStatus;

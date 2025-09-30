@@ -31,4 +31,5 @@ interface PrinterStatus
 
     public function getActualStatusReport(): string;
 
+    public function getStatusTime(): string;
 }

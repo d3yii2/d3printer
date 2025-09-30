@@ -88,14 +88,26 @@ class GodexPrinterStatus implements PrinterStatus
             'code' => '60',
             'label' => 'Data in Process',
         ],
+        [
+            'code' => self::CODE_OTHER_ERROR,
+            'label' => 'Other error'
+        ],
+        [
+            'code' => self::CODE_CANNOT_CONNECT,
+            'label' => 'Can not connect'
+        ]
     ];
 
 
-    public function __construct(string $statusCode = null)
+    public function __construct(
+        string $printerComponentName,
+        string $statusCode = null
+    )
     {
+        $this->printerComponentName = $printerComponentName;
+        $this->statusTime = date('Y-m-d H:i:s');
         if ($statusCode) {
             $this->actualStatusCode = $statusCode;
-            $this->statusTime = date('Y-m-d H:i:s');
         }
     }
 
@@ -141,7 +153,7 @@ class GodexPrinterStatus implements PrinterStatus
             $this->getDataFilename()
         );
         $data = Json::decode($rawData);
-        $self = new self();
+        $self = new self($this->printerComponentName);
         $self->actualStatusCode = $data['actualStatusCode'];
         $self->statusTime = $data['statusTime'];
         $self->actualStatusLabel = $data['actualStatusLabel'];
@@ -177,5 +189,10 @@ class GodexPrinterStatus implements PrinterStatus
     public function getActualStatusReport(): string
     {
         return $this->actualStatusCode . ' - ' . $this->actualStatusLabel;
+    }
+
+    public function getStatusTime(): string
+    {
+        return $this->statusTime;
     }
 }

@@ -67,6 +67,7 @@ class UniversalHealthController extends D3CommandController
                 );
             }
         }
+        $printerStatus->saveStatus();
         return ExitCode::OK;
     }
 

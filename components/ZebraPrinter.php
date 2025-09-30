@@ -66,8 +66,11 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
     public function processStatus(): PrinterStatus
     {
         $printerClass = $this->printerClientClass;
-        return (new $printerClass($this->printerIp, $this->printerPort))
+        return (new $printerClass(
+            $this->printerIp,
+            $this->printerPort,
+            $this->printerName
+        ))
             ->processStatus();
     }
-
 }

@@ -174,9 +174,15 @@ class InfoPanelController extends Controller
     {
         try {
 
-            /** @var ZebraPrinter $arduino */
-            $printer = clone Yii::$app->get($component);
-            return $this->render('godex-info',['printer' => $printer]);
+            /** @var ZebraPrinter $printer */
+            $printer = Yii::$app->get($component);
+            return $this->render(
+                'godex-info',
+                [
+                    'printer' => $printer,
+                    'printerStatus' => $printer->loadStatus(),
+                ]
+            );
 
         } catch (Exception $e) {
             FlashHelper::processException($e);

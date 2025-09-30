@@ -72,22 +72,9 @@ class BasePrinter extends Component
         return [];
     }
 
-    /**
-     * @throws Exception
-     */
-    public function isChangedErrors(array $errors): bool
-    {
-        return $errors['status'] !== $this->getLastLogErrors()['status'];
-    }
-
     public function getErrorsFilename(): string
     {
         return $this->printerCode . '-healthError.txt';
-    }
-
-    private function convertLogToText(array $errors): string
-    {
-        return implode(PHP_EOL, $errors);
     }
 
     /**
@@ -105,12 +92,8 @@ class BasePrinter extends Component
     /**
      * @throws Exception
      */
-    public function getLastLogErrors(): array
+    public function loadStatus(): PrinterStatus
     {
-        $errors = D3FileHelper::fileGetContentFromRuntime(
-            'logs/d3printer',
-            $this->getErrorsFilename()
-        );
-        return Json::decode($errors);
+        return (new GodexPrinterStatus($this->printerName))->loadSavedStatus();
     }
 }

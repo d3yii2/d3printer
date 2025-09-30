@@ -1,14 +1,15 @@
 <?php
 
+use d3yii2\d3printer\components\PrinterStatus;
 use d3yii2\d3printer\components\ZebraPrinter;
 use eaBlankonThema\widget\ThDetailView;
 use eaBlankonThema\widget\ThExternalLink;
 use eaBlankonThema\widget\ThPanel;
 use yii\base\Model;
-use yii\helpers\Json;
 
 /**
  * @var ZebraPrinter $printer ;
+ * @var PrinterStatus $printerStatus ;
  */
 
 /** === TITLE ==== */
@@ -24,7 +25,6 @@ $panelTitle = ThExternalLink::widget([
 
 /** === BODY ==== */
 $countSpoolerFiles = count($printer->spoolDirectoryFiles);
-$lastLogErrors = $printer->getLastLogErrors();
 $body = ThDetailView::widget([
     'model' => new Model(),
     'attributes' => [
@@ -34,7 +34,7 @@ $body = ThDetailView::widget([
         ],
         [
             'label' => Yii::t('d3printer', 'Status'),
-            'value' => $lastLogErrors['status'] . ' (' . $lastLogErrors['time'] . ')',
+            'value' => $printerStatus->getActualStatusReport() . ' (' . $printerStatus->getStatusTime() . ')',
         ]
     ]
 ]);
