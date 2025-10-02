@@ -308,7 +308,9 @@ final class GodexClient
          * command should be turned on.
          */
         $this->send('^XSET,IMMEDIATE,1');
-        return trim($this->sendAndRead('~S,CHECK'));
+        $response = trim($this->sendAndRead('~S,CHECK'));
+        $this->send('^XSET,IMMEDIATE,0');
+        return $response;
     }
 
     /**
