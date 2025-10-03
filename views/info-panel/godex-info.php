@@ -41,7 +41,7 @@ $body = ThDetailView::widget([
 
 /** === SHOW PANEL ==== */
 echo ThPanel::widget([
-    'type' => $countSpoolerFiles
+    'type' => $countSpoolerFiles || !$printerStatus->isReady()
         ? ThPanel::TYPE_DANGER
         : ThPanel::TYPE_DEFAULT,
     'header' => $panelTitle,
