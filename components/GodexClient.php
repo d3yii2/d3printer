@@ -307,8 +307,11 @@ final class GodexClient
          * (Set immediate response on/off)
          * command should be turned on.
          */
+        $this->clearPrinterBuffer();
         $this->send('^XSET,IMMEDIATE,1');
+        usleep(100000);
         $response = trim($this->sendAndRead('~S,CHECK'));
+        usleep(100000);
         $this->send('^XSET,IMMEDIATE,0');
         return $response;
     }
@@ -320,6 +323,7 @@ final class GodexClient
     public function calibratingLabel(): void
     {
         $this->send('~S,SENSOR');
+        usleep(100000);
     }
 
     /**
@@ -328,6 +332,7 @@ final class GodexClient
     public function setSeeThroughSensor(): void
     {
         $this->send('^XSET,SENSING,1');
+        usleep(100000);
     }
 
     /**
@@ -336,5 +341,12 @@ final class GodexClient
     public function setReflectSensor(): void
     {
         $this->send('^XSET,SENSING,0');
+        usleep(100000);
+    }
+
+    public function clearPrinterBuffer(): void
+    {
+        $this->send('^Q');
+        usleep(100000);
     }
 }
