@@ -7,6 +7,9 @@ use d3yii2\d3printer\accessRights\D3PrinterViewPanelUserRole;
 use d3yii2\d3printer\components\ZebraPrinter;
 use d3yii2\d3printer\logic\panel\DisplayDataLogic;
 use d3yii2\d3printeripp\components\PrinterIPPComponent;
+use d3yii2\d3printeripp\logic\BasePrinter;
+use d3yii2\d3printeripp\logic\PrinterSupplies;
+use d3yii2\d3printeripp\logic\PrinterSystem;
 use d3yii2\d3printeripp\logic\ValueFormatter;
 use eaBlankonThema\components\FlashHelper;
 use Exception;
@@ -70,7 +73,9 @@ class InfoPanelController extends Controller
     {
         try {
             /** @var PrinterIPPComponent $manager */
-            $manager = Yii::$app->printerManager;
+            $manager = Yii::$app->printerIPP;
+            
+            /** @var BasePrinter $printer */
             $printer = $manager->getPrinter($printerSlug);
 
             if (!$printer) {
@@ -82,8 +87,8 @@ class InfoPanelController extends Controller
             $status = $printer->getFullStatus();
 
             $displayData = [
-                'printerName' => $status['system']['name'],
-                'printerAccessUrl' => $status['system']['deviceUri'],
+                'printerName' => $status['system']['name'] ?? '?',
+                'printerAccessUrl' => $status['system']['deviceUri'] ?? '?',
                 'info' => [
                     'columns' => [
                         [
@@ -98,49 +103,22 @@ class InfoPanelController extends Controller
                     'data' => [
                         [
                             'label' => Yii::t('d3printeripp', 'Status'),
-                            'value' => isset($status['system']['state'])
-                                ? ValueFormatter::coloredUpDownValue($status['system']['state'])
+                            'value' => isset($status['system'][PrinterSystem::STATUS_UP_DOWN])
+                                ? ValueFormatter::coloredUpDownValue($status['system'][PrinterSystem::STATUS_UP_DOWN])
                                 : '?',
                         ],
                         [
                             'label' => Yii::t('d3printeripp', 'Cartridge'),
-                            'value' => isset($status['supplies']['level'])
+                            'value' => isset($status['supplies'][PrinterSupplies::STATUS_MARKER_LEVEL])
                                 ? ValueFormatter::coloredDangerLessValue(
-                                    $status['supplies']['level'],
+                                    $status['supplies'][PrinterSupplies::STATUS_MARKER_LEVEL],
                                     50, //$status['supplies']['lowLevel']
                                 ) . '%'
                                 : '?',
                         ],
                         [
-                            'label' => Yii::t('d3printeripp', 'Drum'),
-                            'value' => isset($status['supplies']['drum']) && isset($status['supplies']['lowDrum'])
-                                ? ValueFormatter::coloredDangerLessValue(
-                                    $status['supplies']['drum'],
-                                    $status['supplies']['lowDrum']
-                                ) . '%'
-                                : '?',
-                        ],
-                        [
-                            'label' => Yii::t('d3printeripp', 'FTP status'),
-                            'value' => isset($status['ftp'])
-                                ? ValueFormatter::coloredUpDownValue($status['ftp'])
-                                : '?',
-                        ],
-                        [
-                            'label' => Yii::t('d3printeripp', 'Spooler'),
-                            'value' => isset($status['spooler']['filesCount'])
-                                ? ValueFormatter::coloredDangerMoreValue($status['spooler']['filesCount'], 1)
-                                : '',
-                        ],
-                        [
                             'label' => Yii::t('d3printeripp', 'IP'),
                             'value' => $status['system']['host'] ?? '?',
-                        ],
-                        [
-                            'label' => Yii::t('d3printeripp', 'Daemon Status'),
-                            'value' => isset($status['daemon']['status'])
-                                ? ValueFormatter::coloredUpDownValue($status['daemon']['status'])
-                                : '?',
                         ],
                     ],
                 ],
