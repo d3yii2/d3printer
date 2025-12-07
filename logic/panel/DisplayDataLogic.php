@@ -41,6 +41,8 @@ class DisplayDataLogic
     public const DISPLAY_VERTICAL = 'vertical';
     public const DISPLAY_INLINE = 'inline';
 
+    public bool $allPassed = true;
+
     /**
      * @param string $printerComponent
      * @param string $healthComponent
@@ -111,6 +113,7 @@ class DisplayDataLogic
     protected function getStatusDisplayValue(): string
     {
         $isOk = $this->deviceHealth->statusOk();
+        $this->updateAllPassed($isOk);
 
         $status = Yii::t('d3printer', $this->deviceHealth->device->status());
 
@@ -125,6 +128,7 @@ class DisplayDataLogic
     protected function getCartridgeDisplayValue(): string
     {
         $isOk = $this->deviceHealth->cartridgeOk();
+        $this->updateAllPassed($isOk);
 
         return $isOk
             ? Html::tag('span', $this->deviceHealth->device->cartridgeRemaining(),  ['style' => 'color:darkgreen'])
@@ -137,6 +141,7 @@ class DisplayDataLogic
     protected function getDrumDisplayValue(): string
     {
         $isOk = $this->deviceHealth->drumOk();
+        $this->updateAllPassed($isOk);
 
         return $isOk
             ? Html::tag('span', $this->deviceHealth->device->drumRemaining(),  ['style' => 'color:darkgreen'])
@@ -150,6 +155,7 @@ class DisplayDataLogic
     protected function getFTPStatusDisplayValue(): string
     {
         $isOk = !$this->printer->existDeadFile();
+        $this->updateAllPassed($isOk);
 
         return $isOk
             ? Html::tag('span', 'OK',  ['style' => 'color:darkgreen'])
@@ -166,7 +172,10 @@ class DisplayDataLogic
 
     public function getDaemonStatus(): string
     {
-        if($this->daemonHealth->statusOk()) {
+        $isOk = $this->daemonHealth->statusOk();
+        $this->updateAllPassed($isOk);
+
+        if($isOk) {
             return Html::tag('span', $this->daemonHealth->getStatus(),  ['style' => 'color:darkgreen']);
         }
 
@@ -231,6 +240,7 @@ class DisplayDataLogic
                         ],
                     ],
                 ],
+                'allPassed' => $this->allPassed,
             //'deviceErrors' => $displayData['deviceErrors'],
             //'lastLoggedErrors' => []
             ]
@@ -263,6 +273,7 @@ class DisplayDataLogic
                     ],
                 ],
             ],
+            'allPassed' => $this->allPassed,
             //'deviceErrors' => $displayData['deviceErrors'],
             //'lastLoggedErrors' => []
         ];
@@ -272,5 +283,12 @@ class DisplayDataLogic
         }*/
 
         return $data;
+    }
+
+    protected function updateAllPassed(bool $status): void
+    {
+        if(!$status && $this->allPassed) {
+            $this->allPassed = false;
+        }
     }
 }
