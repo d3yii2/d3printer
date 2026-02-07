@@ -1,9 +1,8 @@
 <?php
 
-namespace components;
+namespace d3yii2\d3printer\components;
 
 use d3system\helpers\D3FileHelper;
-use d3yii2\d3printer\components\PrinterStatus;
 use yii\base\Exception;
 use yii\helpers\Json;
 
@@ -217,5 +216,10 @@ class ZebraPrinterStatus implements PrinterStatus
     public function getActualStatusReport(): string
     {
         return $this->actualStatusLabel;
+    }
+
+    public function getStatusTime(): string
+    {
+        return $this->statusTime;
     }
 }

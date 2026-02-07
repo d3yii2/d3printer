@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace d3yii2\d3printer\components;
 
-
-use components\ZebraPrinterStatus;
 use Yii;
 use yii\base\Exception;
 use Zebra\CommunicationException;
