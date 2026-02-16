@@ -44,11 +44,16 @@ class Spooler extends Component
     /**
      * @throws Exception
      */
-    public function getSpoolDirectoryFiles(): array
+    public function getSpoolDirectoryFiles(string $printerName): array
     {
-        if ($list = D3FileHelper::getDirectoryFiles($this->getSpoolDirectory())) {
+        if ($list = D3FileHelper::getDirectoryFiles($this->getSpoolDirectory($printerName))) {
             return $list;
         }
         return [];
+    }
+
+    public function deleteSpoolFile(string $printerName, string $filename): bool
+    {
+        return  unlink($this->getSpoolDirectory($printerName) . '/' . $filename);
     }
 }
