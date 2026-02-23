@@ -133,7 +133,9 @@ final class ZebraClient
      */
     public function disconnect(): void
     {
-        @socket_close($this->socket);
+        if ($this->socket) {
+            @socket_close($this->socket);
+        }
     }
 
     /**
