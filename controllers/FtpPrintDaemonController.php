@@ -5,7 +5,6 @@ namespace d3yii2\d3printer\controllers;
 use d3system\commands\DaemonController;
 use d3system\exceptions\D3TaskException;
 use d3system\helpers\D3FileHelper;
-use d3yii2\d3printer\logic\D3PrinterException;
 use Exception;
 use Yii;
 use yii\console\ExitCode;
@@ -45,6 +44,7 @@ class FtpPrintDaemonController extends DaemonController
         $this->sleepAfterMicroseconds = 1000000; //1 sekunde
         $error = false;
         $canNotDeleteFile = false;
+        $printerErrorMessage = false;
         while ($this->loop()) {
             if ($canNotDeleteFile) {
                 sleep(60);
@@ -73,17 +73,13 @@ class FtpPrintDaemonController extends DaemonController
                     $this->out(date('Y-m-d H:i:s') . ' No Errors');
                     $error = false;
                 }
-            } catch (D3PrinterException $e) {
-                $this->stdout('!');
             } catch (Exception $e) {
-                $newError = get_class($e) . ': ' . $e->getMessage();
-                if($newError === (string)$error) {
-                    $this->stdout('!');
+                if ($printerErrorMessage !== $e->getMessage()) {
+                    $printerErrorMessage = $e->getMessage();
+                    $this->out((string)$e);
+                    Yii::error($e);
                 } else {
-                    $error = $newError;
-                    $this->out('');
-                    $this->out($newError);
-                    Yii::error($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+                    $this->out('E');
                 }
             }
         }
