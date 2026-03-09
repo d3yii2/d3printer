@@ -7,7 +7,7 @@ use d3yii2\d3printer\accessRights\D3PrinterViewPanelUserRole;
 use d3yii2\d3printer\components\ZebraPrinter;
 use d3yii2\d3printer\logic\panel\DisplayDataLogic;
 use d3yii2\d3printer\models\Panel;
-use eaBlankonThema\components\FlashHelper;
+use d3system\helpers\FlashHelper;
 use Exception;
 use unyii2\yii2panel\Controller;
 use yii\filters\AccessControl;
@@ -49,21 +49,30 @@ class InfoPanelController extends Controller
      */
     public function actionStatus(string $printerComponent, string $healthComponent): string
     {
+        $errorMessage = null;
+        $displayData = [];
         try {
             $logic = new DisplayDataLogic($printerComponent, $healthComponent);
-
-            $displayData = $logic->getTableDisplayData();
-
-            return $this->render('status', ['displayData' => $displayData]);
-
+            $data = $logic->getTableDisplayData();
+            $displayData = $data['info']['data'];
         } catch (Exception $e) {
-            FlashHelper::processException($e);
+            $errorMessage = $e->getMessage();
+            Yii::error($e);
         }
-        return '';
+        return $this->render(
+            'status',
+            [
+                'header' => $data['printerName'] ?? '???',
+                'printerUrl' => $data['printerAccessUrl'] ?? '???',
+                'allPassed' => $data['allPassed'] ?? '',
+                'errorMessage' => $errorMessage,
+                'displayData' => $displayData,
+            ]
+        );
     }
 
     /**
-     * @param string $printerSlug
+     * @param string $printerComponentName
      * @return string
      */
     public function actionManagedPrinterStatus(string $printerComponentName): string
@@ -71,10 +80,6 @@ class InfoPanelController extends Controller
         try {
 
             $printer = Yii::$app->get($printerComponentName, false);
-//            if (!$printer) {
-//                throw new InvalidConfigException('Printer not found: ' . $printerManager . '->' . $printerSlug);
-//            }
-
             $status = $printer->getFullStatus();
 
             $panelModel = new Panel();

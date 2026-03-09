@@ -1,21 +1,46 @@
 <?php
 
-use d3system\yii2\web\D3SystemView;
-use eaBlankonThema\widget\ThTableSimple2;
-use yii\helpers\Html;
+use eaBlankonThema\widget\ThExternalLink;use eaBlankonThema\widget\ThPanel;
 
 /**
- * @var D3SystemView $this
- * @var d3yii2\d3printer\models\AlertSettings $model
- * @var array $displayData;
+ * @var string $header ;
+ * @var string $errorMessage ;
+ * @var array $displayData ;
+ * @var string $printerUrl
+ * @var bool $allPassed
  */
+$body = '';
+if ($errorMessage) {
+    $body .= '<div class="alert alert-danger">' . $errorMessage . '</div>';
+}
+$body .= '
+<div class="table-responsive">
+    <table class="table">
+        <tbody>';
+foreach ($displayData as $item) {
+    $class = '';
+    $body .= '<tr>
+        <td>' . $item['label'] . '</td>
+        <td' . $class . '>' . $item['value'] . '</td>
+        </tr>';
+}
 
-?>
-<div class="panel rounded <?= $displayData['allPassed'] ? 'panel-default' : 'panel-danger' ?>">
-    <div class="panel-heading text-center">
-        <i class="fa fa-print"></i> <?= Html::a($displayData['printerName'] . ' <i class="fa fa-external-link align-middle"></i>', $displayData['printerAccessUrl']) ?>
-    </div>
-    <div class="panel-body rounded-bottom">
-        <?= ThTableSimple2::widget($displayData['info']) ?>
-    </div>
-</div>
+$body .= '</tbody></table></div>';
+
+if (!$allPassed) {
+    $type = ThPanel::TYPE_DANGER;
+} else {
+    $type = ThPanel::TYPE_SUCCESS;
+}
+
+echo ThPanel::widget([
+    'type' => $type,
+    'leftIcon' => 'fa fa-print',
+    'isCollapsed' => $type === ThPanel::TYPE_SUCCESS,
+    'showCollapseButton' => true,
+    'header' => ThExternalLink::widget([
+        'url' => $printerUrl,
+        'text' => $header
+    ]),
+    'body' => $body,
+]);
