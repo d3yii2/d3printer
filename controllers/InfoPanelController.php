@@ -55,6 +55,16 @@ class InfoPanelController extends Controller
             $logic = new DisplayDataLogic($printerComponent, $healthComponent);
             $data = $logic->getTableDisplayData();
             $displayData = $data['info']['data'];
+            $displayData[] = [
+                'label' => 'component',
+                'value' => $printerComponent
+            ];
+            $printer = Yii::$app->$printerComponent;
+            $displayData[] = [
+                'label' => 'code',
+                'value' => $printer->printerCode
+            ];
+
         } catch (Exception $e) {
             $errorMessage = $e->getMessage();
             Yii::error($e);
