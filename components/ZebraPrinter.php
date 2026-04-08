@@ -15,6 +15,10 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
     public int $printerPort = 6101;
     public ?string $templateFile = null;
     public string $printerClientClass = ZebraClient::class;
+    /**
+     * @var true
+     */
+    private bool $hasError = false;
 
     /**
      * @throws Exception
@@ -34,12 +38,20 @@ class ZebraPrinter extends BasePrinter  implements PrinterInterface
             }
             try {
                 $this->print($filePath);
+                /** if printed successfully, reset the error flag */
+                $this->hasError = false;
                 if (!unlink($filePath)) {
                     throw new Exception('Can not delete file ' . $filePath);
                 }
                 $i++;
             } catch (\Exception $e) {
-                Yii::error($e->getMessage() . PHP_EOL . $e->getTraceAsString());
+                /** if an error occurs the first time, save the error to log */
+                If (!$this->hasError) {
+                    Yii::error($e);
+                    $this->hasError = true;
+                }
+                /** no reason to try to print the next file */
+                break;
             }
 
             if (!$this->printFilesCount) {
