@@ -3,6 +3,7 @@
 namespace d3yii2\d3printer\logic\settings;
 
 use d3yii2\d3printer\models\AlertSettings as AlertSettingsModel;
+use Yii;
 
 /**
  * Class AlertSettings
@@ -51,11 +52,26 @@ class AlertSettings
      */
     public function getEmailTo(): array
     {
-        $emailTo = trim($this->model->email_to, '| \t\n\r\0\x0B');
-        if (!$emailTo) {
-            return [];
+        $return = [];
+        foreach (explode('|', $this->model->email_to) as $email) {
+            if ($email = trim($email)) {
+                /**
+                 * added for solving issue with email address truncating first character
+                 */
+                if (strpos($email, 'ihards') === 0) {
+                    Yii::error([
+                        'message' => 'Email address starts with ihards: ',
+                        'extra' => [
+                            'email' => $email,
+                            'model' => $this->model->attributes,
+                        ]
+                    ]);
+                    continue;
+                }
+                $return[] = $email;
+            }
         }
-        return explode('|', $emailTo);
+        return $return;
     }
     
     /**
