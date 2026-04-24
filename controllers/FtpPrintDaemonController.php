@@ -24,12 +24,13 @@ class FtpPrintDaemonController extends DaemonController
      * @throws \yii\base\Exception
      */
     public function actionIndex(
-        string $printerName
+        string $printerName,
+        int $loopExitAfterSeconds = 0
     ): int
     {
         /** process settings */
         $this->loopTimeLimit = 30;
-        $this->loopExitAfterSeconds = 0;
+        $this->loopExitAfterSeconds = $loopExitAfterSeconds;
         $this->memoryIncreasedPercents = 30;
         ini_set('default_socket_timeout', 5);
 
