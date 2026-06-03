@@ -6,6 +6,7 @@ use d3yii2\d3printer\logic\Logger;
 use d3yii2\d3printer\logic\Mailer;
 use d3yii2\d3printer\logic\settings\AlertSettings;
 use yii\base\Component;
+use yii\base\Exception;
 
 /**
  * Class Health
@@ -13,7 +14,7 @@ use yii\base\Component;
  */
 class Health extends Component
 {
-    public $logger;
+    public ?Logger $logger = null;
     public $device;
     public $printerCode;
     public $printerName;
@@ -41,10 +42,14 @@ class Health extends Component
 
     /**
      *
+     * @throws Exception
      */
     public function init()
     {
         $this->alertSettings = new AlertSettings($this->printerCode);
+        if (!$this->alertSettings->getEmailTo()) {
+            throw new Exception('Recipient Emails is not set!');
+        }
         $this->logger = new Logger($this->printerCode, $this->printerName);
         $this->mailer = new Mailer();
     }

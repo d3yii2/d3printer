@@ -4,6 +4,7 @@ namespace d3yii2\d3printer\logic\health;
 
 use GuzzleHttp\Exception\GuzzleException;
 use yii\base\Exception;
+use yii\helpers\VarDumper;
 
 /**
  * nolasa printera stausu. Ja vajag piekoriģē setingus.
@@ -93,8 +94,8 @@ class CommonHealth extends Health
         if ($this->configHealth->logger->hasErrors()) {
             $alertErrorContent .= PHP_EOL . 'Config Health Problems:' . PHP_EOL . $this->configHealth->logger->getErrorMessages();
         }
-
-        $alertMsg = $alertInfoContent . $alertErrorContent;
+        $alertMsg = $alertInfoContent . PHP_EOL .PHP_EOL .
+            $alertErrorContent;
 
         if (
             $this->deviceHealth->logger->hasErrors() ||
@@ -104,14 +105,20 @@ class CommonHealth extends Health
             $this->deviceHealth->logger->logErrors($alertErrorContent);
 
             if ($this->deviceHealth->logger->isNewLogHash($alertErrorContent)) {
-
+                $actualHash = $this->deviceHealth->logger->getLogHash($alertErrorContent);
+                $lastLogHash = $this->deviceHealth->logger->getLastLogHash();
+                $this->deviceHealth->logger->logInfo('actual hash: ' . $actualHash);
+                $this->deviceHealth->logger->logInfo('last hash: ' . $lastLogHash);
                 $conf = [
                     'from' => $this->alertSettings->getEmailFrom(),
                     'to' => $this->alertSettings->getEmailTo(),
                     'subject' => $this->alertSettings->getEmailSubject(),
                 ];
-
-                $this->deviceHealth->mailer->send($alertMsg, $conf);
+                $this->deviceHealth->logger->logInfo('Send alert by email: ' . VarDumper::dumpAsString($conf));
+                $this->deviceHealth->mailer->send(
+                    $alertMsg,
+                    $conf
+                );
             }
 
             $this->deviceHealth->logger->updateLogHash($alertErrorContent);

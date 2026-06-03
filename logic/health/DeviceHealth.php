@@ -32,7 +32,9 @@ class DeviceHealth extends Health
             ? new ReadDeviceCached($this->printerCode)
             // Get live data from printer
             : new ReadDevice($this->getAccessUrl());
-        $this->logger->addInfo('Device Health' . PHP_EOL . 'Printer: ' . $this->printerName . ' (' . $this->printerCode . ')');
+        $this->logger->addInfo(
+            'Printer: ' . trim($this->printerName) . ' (' . trim($this->printerCode) . ')' . PHP_EOL .
+            'Health:' . PHP_EOL);
     }
     
     /**
@@ -77,7 +79,11 @@ class DeviceHealth extends Health
     
     public function getCartridgeRemaining()
     {
-        return $this->device->cartridgeRemaining();
+        $remain = preg_replace('/[^\d%]+/', '', $this->device->cartridgeRemaining());
+        if ($remain === '%%') {
+            return '0%';
+        }
+        return $remain;
     }
     
     /**
@@ -88,29 +94,29 @@ class DeviceHealth extends Health
         $value = $this->getCartridgeRemaining();
         
         if (!$value) {
-            $this->logger->addError('Cartrige level not readable! (Displayed: ' . $value . ')');
+            $this->logger->addError('Cartridge level not readable! (Displayed: ' . $value . ')');
             return false;
         }
     
         if (strstr($value, '<')) {
-            $this->logger->addError('Cartrige level too low! ' . $value);
+            $this->logger->addError('Cartridge level too low! ' . $value);
             return false;
         }
         
         $min = $this->alertSettings->getCartridgeMinValue();
 
         if ((float) $value > (float) $min) {
-            $this->logger->addInfo('Cartridge OK (' . $value . ')');
+            $this->logger->addInfo('Cartridge OK (' . trim($value) . ')');
             return true;
         }
         
-        $this->logger->addError('Remaining Cartrige level too low: ' . $value . ' (Minimum is:  ' . $min . ')');
+        $this->logger->addError('Remaining Cartridge level too low: ' . $value . ' (Minimum is:  ' . $min . ')');
         return false;
     }
     
     public function getDrumRemaining()
     {
-        return $this->device->drumRemaining();
+        return preg_replace('/[^\d%]+/', '', $this->device->drumRemaining());
     }
     
     

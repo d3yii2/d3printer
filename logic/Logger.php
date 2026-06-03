@@ -7,6 +7,7 @@ use DateTime;
 use Yii;
 use yii\base\Component;
 use Yii\base\Event;
+use yii\base\Exception;
 use yii\log\FileTarget;
 
 /**
@@ -165,10 +166,11 @@ class Logger extends Component
         $monthName = $dateObj->format('F');
         return $this->printerCode . '-' . $monthName . '-' . date('Y') . '-' . $type . '.log';
     }
-    
+
     /**
      * @param $content
      * @return bool
+     * @throws Exception
      */
     public function isNewLogHash($content): bool
     {
@@ -182,13 +184,18 @@ class Logger extends Component
     {
         return $this->printerCode . '-lastLogHash.txt';
     }
-    
+
     /**
      * @return string
+     * @throws Exception
      */
     public function getLastLogHash(): string
     {
-        return D3FileHelper::fileGetContentFromRuntime('logs/d3printer', $this->getLogHashFilename()) ?? '';
+        return $this->getLogHash(
+            D3FileHelper::fileGetContentFromRuntime(
+                'logs/d3printer',
+                $this->getLogHashFilename()) ?? ''
+        );
     }
     
     /**
