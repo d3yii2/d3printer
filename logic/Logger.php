@@ -206,15 +206,22 @@ class Logger extends Component
     {
         return md5($content);
     }
-    
+
+    /**
+     * @throws Exception
+     */
     public function updateLogHash($content): bool
     {
-        $hash = $this->getLogHash($content);
-        return D3FileHelper::filePutContentInRuntime('logs/d3printer', $this->getLogHashFilename(), $hash);
+        return D3FileHelper::filePutContentInRuntime(
+            'logs/d3printer',
+            $this->getLogHashFilename(), 
+            $content
+        );
     }
-    
+
     /**
      * @return bool
+     * @throws Exception
      */
     public function deleteLogHash(): bool
     {

@@ -107,8 +107,11 @@ class CommonHealth extends Health
             if ($this->deviceHealth->logger->isNewLogHash($alertErrorContent)) {
                 $actualHash = $this->deviceHealth->logger->getLogHash($alertErrorContent);
                 $lastLogHash = $this->deviceHealth->logger->getLastLogHash();
-                $this->deviceHealth->logger->logInfo('actual hash: ' . $actualHash);
-                $this->deviceHealth->logger->logInfo('last hash: ' . $lastLogHash);
+                $this->deviceHealth->logger->logInfo(
+                    'alertErrorContent: "' . $alertErrorContent . '"' . PHP_EOL .
+                    'actual hash: ' . $actualHash . PHP_EOL .
+                    'last hash: ' . $lastLogHash
+                );
                 $conf = [
                     'from' => $this->alertSettings->getEmailFrom(),
                     'to' => $this->alertSettings->getEmailTo(),
