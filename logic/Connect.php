@@ -17,7 +17,7 @@ class Connect
     protected $client;
 
     /**
-     * @param string $url
+     * @param string|null $url
      */
     public function __construct(?string $url = null)
     {
@@ -38,7 +38,6 @@ class Connect
 
         $params['headers'] = $this->getHeaders();
 
-        /** @var ResponseInterface $response */
         $response = $this->client->request('GET', $this->url, $params);
 
         $statusCode = $response->getStatusCode();

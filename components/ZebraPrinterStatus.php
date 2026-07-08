@@ -89,7 +89,7 @@ class ZebraPrinterStatus implements PrinterStatus
     /**
      * @throws Exception
      */
-    public function __construct(string $response = null)
+    public function __construct(?string $response = null)
     {
         if ($response) {
             $this->processResponse($response);

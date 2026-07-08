@@ -8,6 +8,6 @@ namespace d3yii2\d3printer\logic\settings;
  */
 class PaperSettings
 {
-    const DEFAULT_PAPER_SIZE = 'A5';
-    const DEFAULT_PAPER_TYPE = '27';
+    public const DEFAULT_PAPER_SIZE = 'A5';
+    public const DEFAULT_PAPER_TYPE = '27';
 }

@@ -46,7 +46,7 @@ class DaemonHealth extends Health
                 self::STATUS_FAILED,
             ])) {
                 return $status;
-            };
+            }
         }
         $this->logger->addError(
             sprintf(
@@ -69,7 +69,7 @@ class DaemonHealth extends Health
         }
 
         $status = $this->getStatus();
-        $statusOutput = $status !== DaemonHealth::STATUS_UNKNOW ? $status : sprintf('%s (%s)', $status, $this->getRawStatus());
+        $statusOutput = $status !== self::STATUS_UNKNOW ? $status : sprintf('%s (%s)', $status, $this->getRawStatus());
 
         $this->logger->addError('Daemon looks down! Status: "' . $statusOutput . '"');
 

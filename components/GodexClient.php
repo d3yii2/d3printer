@@ -34,7 +34,7 @@ final class GodexClient
     public function __construct(
         string $host,
         int $port = 9100,
-        string $printerName = null
+        ?string $printerName = null
     )
     {
         if (!$printerName) {

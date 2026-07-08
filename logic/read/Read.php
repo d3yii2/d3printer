@@ -7,6 +7,7 @@ use DOMDocument;
 use DOMNode;
 use DOMNodeList;
 use DOMXPath;
+use GuzzleHttp\Exception\GuzzleException;
 use yii\base\Exception;
 
 /**
@@ -25,7 +26,7 @@ class Read extends Connect
 
     /**
      * D3PrinterRead constructor.
-     * @throws Exception
+     * @throws Exception|GuzzleException
      */
     public function __construct($url)
     {

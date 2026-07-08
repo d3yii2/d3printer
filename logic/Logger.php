@@ -125,10 +125,11 @@ class Logger extends Component
     {
         return $this->getMessages($this->errors, $glue);
     }
-    
+
     /**
      * @param int $limit
      * @return array
+     * @throws Exception
      */
     public function getLastLoggedErrors(int $limit = 10): array
     {

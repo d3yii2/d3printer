@@ -29,7 +29,7 @@ class UniversalHealthController extends D3CommandController
      * @throws InvalidConfigException
      * @throws Exception
      */
-    public function actionIndex(string $printerComponent, string $mailerComponent = null): int
+    public function actionIndex(string $printerComponent, ?string $mailerComponent = null): int
     {
         if (!Yii::$app->has($printerComponent)) {
             throw new InvalidConfigException(

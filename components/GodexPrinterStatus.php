@@ -101,7 +101,7 @@ class GodexPrinterStatus implements PrinterStatus
 
     public function __construct(
         string $printerComponentName,
-        string $statusCode = null
+        ?string $statusCode = null
     )
     {
         $this->printerComponentName = $printerComponentName;

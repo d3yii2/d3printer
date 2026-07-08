@@ -109,6 +109,7 @@ class DisplayDataLogic
 
     /**
      * @return string
+     * @throws Exception
      */
     protected function getStatusDisplayValue(): string
     {
@@ -124,6 +125,7 @@ class DisplayDataLogic
 
     /**
      * @return string
+     * @throws Exception
      */
     protected function getCartridgeDisplayValue(): string
     {
@@ -137,6 +139,7 @@ class DisplayDataLogic
 
     /**
      * @return string
+     * @throws Exception
      */
     protected function getDrumDisplayValue(): string
     {

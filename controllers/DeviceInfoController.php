@@ -8,7 +8,7 @@ use d3yii2\d3printer\accessRights\D3PrinterFullUserRole;
 use d3yii2\d3printer\components\D3Printer;
 use d3yii2\d3printer\logic\health\ConfigurationHealth;
 use d3yii2\d3printer\models\AlertSettings;
-use eaBlankonThema\components\FlashHelper;
+use d3system\helpers\FlashHelper;
 use eaBlankonThema\yii2\web\LayoutController;
 use Exception;
 use GuzzleHttp\Exception\GuzzleException;
@@ -113,7 +113,6 @@ class DeviceInfoController extends LayoutController
             $drumOk = $deviceHealth->drumOk();
             $drum = $deviceHealth->device->getDrumDisplayedValue();
 
-            /** @var ConfigurationHealth $configHealth */
             $configHealth = $this->printerComponent->configHealth();
 
             $deviceErrors = $deviceHealth->logger->getErrors();
@@ -154,7 +153,6 @@ class DeviceInfoController extends LayoutController
     {
         try {
             // Get the live data from printer ConfigurationHealth page
-            /** @var ConfigurationHealth $configHealth */
             $configHealth = $this->printerComponent->configHealth();
 
             $configHealth->updatePaperConfig();
