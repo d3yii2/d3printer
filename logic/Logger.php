@@ -6,7 +6,6 @@ use d3system\helpers\D3FileHelper;
 use DateTime;
 use Yii;
 use yii\base\Component;
-use Yii\base\Event;
 use yii\base\Exception;
 use yii\log\FileTarget;
 
@@ -18,10 +17,10 @@ class Logger extends Component
 {
     public const LOG_SEPARATOR = '-------------';
     
-    protected $errors = [];
-    protected $info = [];
-    protected $printerCode;
-    protected $printerName;
+    protected array $errors = [];
+    protected array $info = [];
+    protected ?string $printerCode = null;
+    protected ?string $printerName = null;
     
     public function __construct(string $printerCode, string $printerName)
     {
@@ -30,14 +29,14 @@ class Logger extends Component
         parent::__construct();
     }
     
-    public function init()
+    public function init(): void
     {
         Yii::$app->log->setTraceLevel(0); // Disable log data with superglobals like $_SESSION, $_GET, etc
         $this->setLogTarget();
         parent::init();
     }
     
-    public function setLogTarget()
+    public function setLogTarget(): void
     {
         $month = date('F-Y');
     
@@ -169,19 +168,20 @@ class Logger extends Component
     }
 
     /**
-     * @param $content
+     * Check if new error lines exist in content
+     * @param string $content
      * @return bool
      * @throws Exception
      */
-    public function isNewLogHash($content): bool
+    public function isNewLogHash(string $content): bool
     {
-        $lastLogHash = $this->getLastLogHash();
-        $hash = $this->getLogHash($content);
-        
-        return $hash !== $lastLogHash;
+        $lines = $this->extractLines($content);
+        $lastLines = $this->extractLines($this->getLastLogHash());
+
+        return !empty(array_diff($lines, $lastLines));
     }
     
-    public function getLogHashFilename()
+    public function getLogHashFilename(): string
     {
         return $this->printerCode . '-lastLogHash.txt';
     }
@@ -192,11 +192,10 @@ class Logger extends Component
      */
     public function getLastLogHash(): string
     {
-        return $this->getLogHash(
+        return
             D3FileHelper::fileGetContentFromRuntime(
                 'logs/d3printer',
-                $this->getLogHashFilename()) ?? ''
-        );
+                $this->getLogHashFilename()) ?? '';
     }
     
     /**
@@ -236,5 +235,24 @@ class Logger extends Component
     public function hasErrors(): bool
     {
         return !empty($this->errors);
+    }
+
+    /**
+     * @param $content
+     * @return void
+     */
+    public function extractLines($content): array
+    {
+        $contentLines = [];
+        foreach (explode(PHP_EOL, $content) as $line) {
+            if (!$line = trim($line)) {
+                continue;
+            }
+            if ($line === 'Device Health Problems:') {
+                continue;
+            }
+            $contentLines[] = $line;
+        }
+        return $contentLines;
     }
 }
